@@ -21,10 +21,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double w=MediaQuery.of(context).size.width;
-    double h=MediaQuery.of(context).size.height;
+
     return Scaffold(
-      
+
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Container(
@@ -32,26 +31,28 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Hello Karan,",
-                    style:AppWidget.boldTextFeildSstyleTop1(),
-                  ),
-
-
-                  Container(
-
-                    padding: EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(18),
+              SafeArea(
+                child: Row(
+                
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Hello Karan,",
+                      style:AppWidget.boldTextFeildSstyleTop1(),
                     ),
-                    child: Icon(Icons.shopping_cart_outlined,color: Colors.white,size: 32.0,),
-                  ),
-                ],
-
+                
+                
+                    Container(
+                
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(Icons.shopping_cart_outlined,color: Colors.white,size: 32.0,),
+                    ),
+                  ],
+                
+                ),
               ),
 
 
@@ -98,358 +99,11 @@ class _HomeState extends State<Home> {
 
                 ],
               ),
-              SizedBox(height:h/200,),
-              Container(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+              SizedBox(height:4.h,),
+              Columm(),//Horizontal Data
 
-                    children: [
-
-                      GestureDetector(
-                        onTap:() {
-                          Navigator.push(context,MaterialPageRoute(builder: (context) => Details(),)
-                          );
-                        },
-                        child: Container(
-
-                          margin: EdgeInsets.all(5),
-                          child: Material(
-
-
-                            borderRadius: BorderRadius.circular(25),
-
-                            elevation: 8.0,
-                            child: Container(
-
-                              child: Column(
-
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.asset(
-                                    "images/SaladQ.png",
-                                    height: 180,
-                                    width:190,
-                                    fit:BoxFit.cover
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:7),
-                                    child: Text("Veggie Taco Hash",style: AppWidget.boldTextFeildSstyleTop(),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:7),
-                                    child: Text("Fresh and Healthy",style: AppWidget.boldTextFeildSstyleSmall(),),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:10),
-                                    child: Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/60,),
-
-                      Container(
-                        margin: EdgeInsets.all(5
-                        ),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(25),
-
-                          elevation: 8.0,
-                          child: Container(
-
-                            child: Column(
-
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                    "images/Salad1.png",
-                                    height: 180,
-                                    width:190,
-                                    fit:BoxFit.cover
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Hamburger Salad",style: AppWidget.boldTextFeildSstyleTop(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Explore The Test of Sea",style: AppWidget.boldTextFeildSstyleSmall(),),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:10),
-                                  child: Text("\$40",style: AppWidget.boldTextFeildSstyleTop1(),),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/60,),
-                      Container(
-                        margin: EdgeInsets.all(5
-                        ),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(25),
-
-                          elevation: 8.0,
-                          child: Container(
-
-                            child: Column(
-
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                    "images/Salad2.png",
-                                    height: 180,
-                                    width:190,
-                                    fit:BoxFit.cover
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Salad with Pronz",style: AppWidget.boldTextFeildSstyleTop(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:10),
-                                  child: Text("\$37",style: AppWidget.boldTextFeildSstyleTop1(),),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/60,),
-                      Container(
-                        margin: EdgeInsets.all(5
-                        ),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(25),
-
-                          elevation: 5.0,
-                          child: Container(
-
-                            child: Column(
-
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                    "images/SaladQ2.png"
-                                        ,
-                                    height: 180,
-                                    width:190,
-                                    fit:BoxFit.cover
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Green Garden",style: AppWidget.boldTextFeildSstyleTop(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:10),
-                                  child: Text("\$20",style: AppWidget.boldTextFeildSstyleTop1(),),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/60,),
-                      Container(
-                        margin: EdgeInsets.all(5
-                        ),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(25),
-
-                          elevation: 5.0,
-                          child: Container(
-
-                            child: Column(
-
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.asset(
-                                    "images/SaladQ3.png"
-                                        ,
-                                    height: 180,
-                                    width:190,
-                                    fit:BoxFit.cover
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Salad with Chiken",style: AppWidget.boldTextFeildSstyleTop(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:7),
-                                  child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left:10),
-                                  child: Text("\$55",style: AppWidget.boldTextFeildSstyleTop1(),),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               SizedBox(height: MediaQuery.of(context).size.height/70),
-              Container(
-                margin: EdgeInsets.all(5),
-                child: Material(
-                  elevation: 8.0,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-
-                    child: Row(
-                      children: [
-                        Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
-                        SizedBox(width: 10.0,),
-                        Column(
-
-                          children: [
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
-                            ),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child:
-                                Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
-                            ),
-                          ],
-                        ),
-                      ],
-
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height/90),
-              Container(
-                margin: EdgeInsets.all(5),
-                child: Material(
-                  elevation: 8.0,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-
-                    child: Row(
-                      children: [
-                        Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
-                        SizedBox(width: 20.0,),
-                        Column(
-
-                          children: [
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
-                            ),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child:
-                                Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
-                            ),
-                          ],
-                        ),
-                      ],
-
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height/90),
-              Container(
-                margin: EdgeInsets.all(5),
-                child: Material(
-                  elevation: 8.0,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-
-                    child: Row(
-                      children: [
-                        Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
-                        SizedBox(width: 20.0,),
-                        Column(
-
-                          children: [
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
-                            ),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child:
-                                Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
-                            ),
-                          ],
-                        ),
-                      ],
-
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height/90),
-              Container(
-                margin: EdgeInsets.all(5),
-                child: Material(
-                  elevation: 8.0,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-
-                    child: Row(
-                      children: [
-                        Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
-                        SizedBox(width: 20.0,),
-                        Column(
-
-                          children: [
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
-                            ),
-                            Container(
-                                width:MediaQuery.of(context).size.width/2,
-                                child:
-                                Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
-                            ),
-                          ],
-                        ),
-                      ],
-
-                    ),
-                  ),
-                ),
-              ),
+              RoW(),//Vertical Data
 
 
 
@@ -609,6 +263,372 @@ Widget showItem2()//Text below images
         child: Text("Burger",style:burger?AppWidget.boldTextFeildSstyleSmallDark():AppWidget.boldTextFeildSstyleSmall()),
       ),
     ],
+  );
+}
+
+Widget Columm()//Horizontal Data
+{
+  return Container(
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+
+        children: [
+
+          GestureDetector(
+            onTap:() {
+              Navigator.push(context,MaterialPageRoute(builder: (context) => Details(),)
+              );
+            },
+            child: Container(
+
+              margin: EdgeInsets.all(5),
+              child: Material(
+
+
+                borderRadius: BorderRadius.circular(25),
+
+                elevation: 8.0,
+                child: Container(
+
+                  child: Column(
+
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                          "images/SaladQ.png",
+                          height: 180,
+                          width:190,
+                          fit:BoxFit.cover
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:7),
+                        child: Text("Veggie Taco Hash",style: AppWidget.boldTextFeildSstyleTop(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:7),
+                        child: Text("Fresh and Healthy",style: AppWidget.boldTextFeildSstyleSmall(),),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:10),
+                        child: Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: MediaQuery.of(context).size.width/60,),
+
+          Container(
+            margin: EdgeInsets.all(5
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(25),
+
+              elevation: 8.0,
+              child: Container(
+
+                child: Column(
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                        "images/Salad1.png",
+                        height: 180,
+                        width:190,
+                        fit:BoxFit.cover
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Hamburger Salad",style: AppWidget.boldTextFeildSstyleTop(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Explore The Test of Sea",style: AppWidget.boldTextFeildSstyleSmall(),),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:10),
+                      child: Text("\$40",style: AppWidget.boldTextFeildSstyleTop1(),),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: MediaQuery.of(context).size.width/60,),
+          Container(
+            margin: EdgeInsets.all(5
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(25),
+
+              elevation: 8.0,
+              child: Container(
+
+                child: Column(
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                        "images/Salad2.png",
+                        height: 180,
+                        width:190,
+                        fit:BoxFit.cover
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Salad with Pronz",style: AppWidget.boldTextFeildSstyleTop(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:10),
+                      child: Text("\$37",style: AppWidget.boldTextFeildSstyleTop1(),),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: MediaQuery.of(context).size.width/60,),
+          Container(
+            margin: EdgeInsets.all(5
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(25),
+
+              elevation: 5.0,
+              child: Container(
+
+                child: Column(
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                        "images/SaladQ2.png"
+                        ,
+                        height: 180,
+                        width:190,
+                        fit:BoxFit.cover
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Green Garden",style: AppWidget.boldTextFeildSstyleTop(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:10),
+                      child: Text("\$20",style: AppWidget.boldTextFeildSstyleTop1(),),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: MediaQuery.of(context).size.width/60,),
+          Container(
+            margin: EdgeInsets.all(5
+            ),
+            child: Material(
+              borderRadius: BorderRadius.circular(25),
+
+              elevation: 5.0,
+              child: Container(
+
+                child: Column(
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                        "images/SaladQ3.png"
+                        ,
+                        height: 180,
+                        width:190,
+                        fit:BoxFit.cover
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Salad with Chiken",style: AppWidget.boldTextFeildSstyleTop(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:7),
+                      child: Text("Fun of Sea with Green",style: AppWidget.boldTextFeildSstyleSmall(),),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:10),
+                      child: Text("\$55",style: AppWidget.boldTextFeildSstyleTop1(),),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget RoW()//Vertical Data
+{
+  return Container(
+    child: Column(
+      children: [
+        Container(
+          margin: EdgeInsets.all(5),
+          child: Material(
+            elevation: 8.0,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+
+              child: Row(
+                children: [
+                  Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
+                  SizedBox(width: 10.0,),
+                  Column(
+
+                    children: [
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
+                      ),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child:
+                          Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
+                      ),
+                    ],
+                  ),
+                ],
+
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height/160),
+        Container(
+          margin: EdgeInsets.all(5),
+          child: Material(
+            elevation: 8.0,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+
+              child: Row(
+                children: [
+                  Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
+                  SizedBox(width: 20.0,),
+                  Column(
+
+                    children: [
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
+                      ),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child:
+                          Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
+                      ),
+                    ],
+                  ),
+                ],
+
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height/160),
+        Container(
+          margin: EdgeInsets.all(5),
+          child: Material(
+            elevation: 8.0,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+
+              child: Row(
+                children: [
+                  Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
+                  SizedBox(width: 20.0,),
+                  Column(
+
+                    children: [
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
+                      ),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child:
+                          Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
+                      ),
+                    ],
+                  ),
+                ],
+
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height/160),
+        Container(
+          margin: EdgeInsets.all(5),
+          child: Material(
+          elevation: 8.0,
+
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+
+
+              child: Row(
+                children: [
+                  Image.asset("images/Salad1.png",height: 120,width: 120,fit: BoxFit.cover,),
+                  SizedBox(width: 20.0,),
+                   Column(
+
+                    children: [
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Mediterranean chickanpea Salad",style: AppWidget.boldTextFeildSstyleTop(),)),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child: Text("Honey goot chese",style: AppWidget.boldTextFeildSstyleSmall(),)
+                      ),
+                      SizedBox(
+                          width:MediaQuery.of(context).size.width/2,
+                          child:
+                          Text("\$25",style: AppWidget.boldTextFeildSstyleTop1(),)
+                      ),
+                    ],
+                  ),
+                ],
+
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }
 }

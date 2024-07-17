@@ -1,11 +1,7 @@
 import 'package:batchloreskitchen/widgets/widget_support.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-import 'package:intl_phone_field/country_picker_dialog.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,11 +16,12 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
 
-@override
-
+  @override
+  String sms='';
   @override
 
   Widget build(BuildContext context) {
+    FirebaseAuth auth = FirebaseAuth.instance;
 
     return Scaffold(
 
@@ -32,19 +29,19 @@ class _LoginState extends State<Login> {
         physics: NeverScrollableScrollPhysics(),
 
         child: Stack(
-        
+
             children: [
-        
-        
+
+
               Image.asset("images/log3.jpg",
                 height:330.h,
                 width: 400.w,
                 fit:BoxFit.cover,
                 filterQuality: FilterQuality.high,
               ),
-        
-        
-        
+
+
+
               Container(
                 margin: EdgeInsets.symmetric(vertical: 300.h),
                 width: 400.w,
@@ -53,13 +50,13 @@ class _LoginState extends State<Login> {
                     color: Colors.white,
                     borderRadius: BorderRadius.only(topLeft:Radius.circular(40.r),topRight: Radius.circular(40.r))
                 ),
-              
+
                 child: Column(
                   children: [
                     Row(
-              
+
                       children: [
-              
+
                         Padding(
                           padding:  EdgeInsets.symmetric(vertical: 20.h,horizontal: 20.w),
                           child: GestureDetector(
@@ -71,39 +68,39 @@ class _LoginState extends State<Login> {
                         Padding(
                           padding:  EdgeInsets.symmetric(vertical: 20.h),
                           child: Container(
-                            width: 180.h,
+                              width: 180.h,
                               child: Text("We Texted You a verification code.",style: AppWidget.boldTextFeildSstyleSmall(),)),
                         ),
                       ],
                     ),
-              
+
                     Padding(
                       padding:  EdgeInsets.only(top: 40.h,left: 23.w),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
-              
+
                         children: [
-              
+
                           Padding(
-                            padding: EdgeInsets.only(left: 52.w),
+                            padding: EdgeInsets.symmetric(horizontal: 30.w),
                             child: OtpTextField(
                               borderWidth: 3,
 
                               decoration: InputDecoration(
-                               border: OutlineInputBorder(
-              
-                                 borderSide: BorderSide(
-                                   color: Colors.red,
-                                 ),
-              
-                               ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
+                                  border: OutlineInputBorder(
+
+                                    borderSide: BorderSide(
+                                      color: Colors.red,
+                                    ),
+
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.red,
+                                      )
                                   )
-                                )
                               ),
-                              numberOfFields: 5,
+                              numberOfFields: 6,
                               borderColor: Colors.black,
                               //set to true to show as box or false to show as dash
                               showFieldAsBox: true,
@@ -113,21 +110,14 @@ class _LoginState extends State<Login> {
                               },
                               //runs when every textfield is filled
                               onSubmit: (String verificationCode){
-                                showDialog(
-                                    context: context,
-                                    builder: (context){
-                                      return AlertDialog(
-                                        title: Text("Verification Code"),
-                                        content: Text('Code entered is $verificationCode'),
-                                      );
-                                    }
-                                );
+                                sms=verificationCode;
+
                               }, // end onSubmit
                             ),
                           ),
-              
+
                         ],
-              
+
                       ),
                     ),
                     Row(
@@ -144,8 +134,30 @@ class _LoginState extends State<Login> {
                     SizedBox(
                       height: 50.h,
                       width: 100.w,
-                      child: TextButton (onPressed: () {
-                            Navigator.push(context, _createRoute(BottomBar()));
+                      child: TextButton (onPressed: () async {
+                       try{
+                         PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId:Log.verify, smsCode: sms);
+                         await auth.signInWithCredential(credential);
+                         Navigator.push(context, _createRoute(BottomBar()));
+                       }
+                       catch(e)
+                        {
+                          showDialog(context: context, builder:(context) {
+                            return AlertDialog(
+                              icon:Icon(Icons.error),
+                              actions: [
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Wrong Otp",style: AppWidget.boldTextFeildSstyleSmallDark(),)
+                                    ],
+                                  ),
+                                )
+                              ],
+                            );
+                          },);
+                        }
                       },
                           style: ButtonStyle(
                             elevation:MaterialStateProperty.all(10),
@@ -165,10 +177,10 @@ class _LoginState extends State<Login> {
                       ],
                     )
                   ],
-              
+
                 ),
               ),
-        
+
             ]
         ),
       ),

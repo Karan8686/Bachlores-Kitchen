@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "348728758965",
-    "project_id": "otp0-ee689",
-    "storage_bucket": "otp0-ee689.appspot.com"
+    "project_number": "404616123040",
+    "project_id": "authe-afcbf",
+    "storage_bucket": "authe-afcbf.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:348728758965:android:b9cbfea441901266f0e4fc",
+        "mobilesdk_app_id": "1:404616123040:android:162decfb447a72694bafc5",
         "android_client_info": {
           "package_name": "com.example.batchloreskitchen"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCUs6-R7w8Y7nGzbCHRTuG6e6iuYaDF_oQ"
+          "current_key": "AIzaSyBN6PuIf3TsMy0RS2mSlp_GQF10j1lQ4IU"
         }
       ],
       "services": {
