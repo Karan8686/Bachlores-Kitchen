@@ -1,24 +1,26 @@
 
 
+import 'package:batchloreskitchen/Logins/NewL.dart';
+import 'package:batchloreskitchen/Onboard/PageView.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:batchloreskitchen/src/repository/authentication_repository/exceptions/authentication_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/services.dart';
-import 'package:batchloreskitchen/Logins/login.dart';
-import 'package:batchloreskitchen/Logins/signup.dart';
-import 'package:batchloreskitchen/Logins/NewL.dart';
+import 'package:batchloreskitchen/Pages/SplashMain.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:get/get.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
  SystemChrome.setPreferredOrientations(
    [
      DeviceOrientation.portraitUp,
@@ -39,7 +41,9 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
+
   Widget build(BuildContext context) {
+    FirebaseAuth auth = FirebaseAuth.instance;
     return ScreenUtilInit(
         builder:(context, child) =>  MaterialApp(
 
@@ -52,7 +56,12 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
 
-        home: Log()
+        home: //View1()
+        //SplashScreen1()
+
+          auth.currentUser != null?  const BottomBar():Log()
+
+          //Log()
         //Sign()
         //Otp()
        //BottomBar()
@@ -82,6 +91,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  @override
+  Future<void> initState() async {
+    await FlutterDisplayMode.setHighRefreshRate();
+    super.initState();
+  }
+
+
   int _counter = 0;
 
   void _incrementCounter() {

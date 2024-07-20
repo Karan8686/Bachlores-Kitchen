@@ -116,7 +116,7 @@ class _LogState extends State<Log> {
                           },
                           codeAutoRetrievalTimeout: (String verificationId) {},
                         );
-                        Navigator.push(context, _createRoute(Login()));
+                        Navigator.pushReplacement(context, _createRoute(Login()));
                       },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(Colors.deepOrangeAccent),

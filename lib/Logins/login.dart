@@ -1,3 +1,4 @@
+import 'package:batchloreskitchen/Onboard/PageView.dart';
 import 'package:batchloreskitchen/widgets/widget_support.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:batchloreskitchen/Logins/NewL.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
+  static bool h=false;
 
   @override
   State<Login> createState() => _LoginState();
@@ -138,7 +140,8 @@ class _LoginState extends State<Login> {
                        try{
                          PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId:Log.verify, smsCode: sms);
                          await auth.signInWithCredential(credential);
-                         Navigator.push(context, _createRoute(BottomBar()));
+                         Navigator.pushReplacement(context, _createRoute(View1()));
+                         Login.h=true;
                        }
                        catch(e)
                         {
