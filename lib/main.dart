@@ -17,6 +17,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:telephony/telephony.dart';
 
+import 'Pages/Pay.dart';
+
 
 Future<void> main() async {
 
@@ -65,7 +67,7 @@ class MyApp extends StatelessWidget {
         //PermissionHandlerWidget()
 
           //auth.currentUser != null?  const BottomBar():Log()
-        OrderTrackingPage()
+        RazorpayExample()
           //Log()
         //Login()
         //Otp()
