@@ -7,6 +7,7 @@ import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:batchloreskitchen/Logins/NewL.dart';
+import 'package:telephony/telephony.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -24,6 +25,7 @@ class _LoginState extends State<Login> {
 
   Widget build(BuildContext context) {
     FirebaseAuth auth = FirebaseAuth.instance;
+
 
     return Scaffold(
 
@@ -63,7 +65,7 @@ class _LoginState extends State<Login> {
                           padding:  EdgeInsets.symmetric(vertical: 20.h,horizontal: 20.w),
                           child: GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(context, _createRoute(Log()));
                               },
                               child: Icon(Icons.arrow_circle_left_rounded,size:38.sp,color:Colors.deepOrangeAccent,)),
                         ),
@@ -137,11 +139,13 @@ class _LoginState extends State<Login> {
                       height: 50.h,
                       width: 100.w,
                       child: TextButton (onPressed: () async {
+
                        try{
                          PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId:Log.verify, smsCode: sms);
                          await auth.signInWithCredential(credential);
                          Navigator.pushReplacement(context, _createRoute(View1()));
                          Login.h=true;
+
                        }
                        catch(e)
                         {
@@ -159,9 +163,13 @@ class _LoginState extends State<Login> {
                                 )
                               ],
                             );
+
                           },);
+
                         }
-                      },
+                        },
+
+
                           style: ButtonStyle(
                             elevation:MaterialStateProperty.all(10),
                             backgroundColor: MaterialStateProperty.all(Colors.deepOrangeAccent),

@@ -1,6 +1,7 @@
 
 
 import 'package:batchloreskitchen/Logins/NewL.dart';
+import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:batchloreskitchen/Onboard/PageView.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
@@ -10,16 +11,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/services.dart';
-import 'package:batchloreskitchen/Pages/SplashMain.dart';
+import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:telephony/telephony.dart';
 
 
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  final Telephony telephony = Telephony.instance;
+  bool? permissionsGranted = await telephony.requestPhoneAndSmsPermissions;
 
  SystemChrome.setPreferredOrientations(
    [
@@ -44,6 +48,7 @@ class MyApp extends StatelessWidget {
 
   Widget build(BuildContext context) {
     FirebaseAuth auth = FirebaseAuth.instance;
+
     return ScreenUtilInit(
         builder:(context, child) =>  MaterialApp(
 
@@ -57,12 +62,12 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
 
         home: //View1()
-        //SplashScreen1()
+        //PermissionHandlerWidget()
 
-          auth.currentUser != null?  const BottomBar():Log()
-
+          //auth.currentUser != null?  const BottomBar():Log()
+        OrderTrackingPage()
           //Log()
-        //Sign()
+        //Login()
         //Otp()
        //BottomBar()
         //Details()

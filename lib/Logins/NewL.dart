@@ -6,7 +6,7 @@ import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+import 'package:telephony/telephony.dart';
 class Log extends StatefulWidget {
   const Log({super.key});
   static String verify='';
@@ -17,7 +17,6 @@ class Log extends StatefulWidget {
 }
 
 class _LogState extends State<Log> {
-
   late String number;
   late String code;
   @override
@@ -27,6 +26,7 @@ class _LogState extends State<Log> {
     double h=MediaQuery.of(context).size.height;
 
     return Scaffold(
+      
 
       body: Stack(
           children: [
@@ -72,9 +72,11 @@ class _LogState extends State<Log> {
                       child: SizedBox(
                         height: 70.h,
                         child: IntlPhoneField(
+                          initialCountryCode: "IN",
                           onChanged: (value) {
                             number= value.number;
                             code = value.countryCode;
+
 
                           },
                           dropdownTextStyle:AppWidget.boldTextFeildSstyleSmallDark(),

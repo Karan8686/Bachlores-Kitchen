@@ -4,6 +4,7 @@ import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:batchloreskitchen/widgets/widget_support.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -18,12 +19,14 @@ class _View1State extends State<View1> {
   final controller=PageController();
   bool isLastPage = false;
   @override
+
   void dispose(){
     controller.dispose();
     super.dispose();
   }
 
   @override
+
   Widget build(BuildContext context) {
     String s= "images/VerityFood.json";
     String s2="images/QualityFood.json";
@@ -34,6 +37,7 @@ class _View1State extends State<View1> {
         height: 735.h,
         child: PageView(
           onPageChanged: (index) {
+
             setState(() {
               isLastPage = index ==2;
             });
@@ -59,12 +63,10 @@ class _View1State extends State<View1> {
             minimumSize: const Size.fromHeight(85)
           ),
           onPressed:() {
-            Container(
-              child: Lottie.asset("images/Loading.json"),
-            );
-            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) => SplashScreen(),));
 
-          },
+            Navigator.pushReplacement(context,_createRoute(BottomBar()) );
+
+            },
           child: Text("Get Started",style: AppWidget.boldTextFeildSstyleTop1(),)
       ):
       
@@ -107,6 +109,7 @@ class _View1State extends State<View1> {
               padding:  EdgeInsets.only(right: 20.w),
               child: TextButton(
                 onPressed: () {
+
                   controller.nextPage(duration: Duration(milliseconds:400), curve: Curves.easeInOutQuad);
 
                 },
@@ -121,6 +124,25 @@ class _View1State extends State<View1> {
           ],
         ),
       ),
+    );
+    
+  }
+
+  Route _createRoute(Widget child) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
     );
   }
 }
