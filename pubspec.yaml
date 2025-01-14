@@ -50,6 +50,15 @@ dependencies:
   lottie: ^3.1.2
   smooth_page_indicator: ^1.2.0
   telephony: ^0.2.0
+  shake: ^2.0.0
+  vibration: ^1.7.4
+  material_color_utilities:  ^0.5.0
+  cached_network_image: ^3.2.3 # Or latest version
+  animate_do: ^3.0.2 # Or latest version
+
+  sim_data: ^0.0.2
+  device_info_plus: ^9.1.2
+  contacts_service: ^0.6.3
   baseflow_plugin_template: ^2.1.2
   permission_handler: ^11.3.1
 

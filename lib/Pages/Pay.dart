@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
-
-
-
 class RazorpayExample extends StatefulWidget {
   @override
   _RazorpayExampleState createState() => _RazorpayExampleState();
@@ -19,6 +16,8 @@ class _RazorpayExampleState extends State<RazorpayExample> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    _openCheckout();
   }
 
   @override
@@ -49,32 +48,28 @@ class _RazorpayExampleState extends State<RazorpayExample> {
     }
   }
 
-  // Payment Success Handler
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     print('Payment Success: ' + response.paymentId!);
-    // You can send the payment response to your server for verification
+    // Handle success (e.g., show success message)
+    Navigator.pop(context); // Go back to the previous screen (Cart Screen)
   }
 
-  // Payment Error Handler
   void _handlePaymentError(PaymentFailureResponse response) {
     print('Payment Error: ' + response.code.toString() + ' - ' + response.message!);
+    Navigator.pop(context); // Go back to the previous screen (Cart Screen)
   }
 
-  // External Wallet Handler
   void _handleExternalWallet(ExternalWalletResponse response) {
     print('External Wallet: ' + response.walletName!);
+    Navigator.pop(context); // Go back to the previous screen (Cart Screen)
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Razorpay Flutter Integration")),
+      appBar: null, // Removed the AppBar completely
       body: Center(
-        child: ElevatedButton(
-          onPressed: _openCheckout,
-          child: Text('Pay with Razorpay'),
-        ),
-      ),
+          child: CircularProgressIndicator()),
     );
   }
 }
