@@ -18,6 +18,7 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:telephony/telephony.dart';
 
 import 'Pages/Pay.dart';
+import 'Pages/cart.dart';
 
 
 Future<void> main() async {
@@ -67,11 +68,13 @@ class MyApp extends StatelessWidget {
         //PermissionHandlerWidget()
 
           //auth.currentUser != null?  const BottomBar():Log()
-        RazorpayExample()
+        //RazorpayExample()
+          BottomBar()
+        //OrderTrackingPage()
           //Log()
         //Login()
         //Otp()
-       //BottomBar()
+        //CartScreen()
         //Details()
       ),
       designSize: Size(375,812),

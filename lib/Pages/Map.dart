@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class OrderTrackingPage extends StatefulWidget {
   @override
@@ -9,57 +15,153 @@ class OrderTrackingPage extends StatefulWidget {
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   late GoogleMapController _mapController;
-  final LatLng _restaurantLocation = LatLng(37.7749, -122.4194); // Example: San Francisco
-  final LatLng _deliveryLocation = LatLng(37.7849, -122.4094); // Example: Cupertino
-  final LatLng _driverLocation = LatLng(37.7799, -122.4144); // Example: Intermediate location
+  final LatLng _restaurantLocation = LatLng(19.1933991,72.8672557);
+  LatLng? _deliveryLocation;
+  double? locationn;
+  String _distance='';
+  String _estimatedTime='';
+
   final Set<Marker> _markers = {};
   final List<LatLng> _polylineCoordinates = [];
-  String _distance = 'Calculating...';
-  String _estimatedTime = 'Calculating...';
+  bool _isDetailsExpanded = false;
+  bool _isLoading = true;
+
+  // Constants for positioning
+  final double _collapsedBottomPadding = 90.0;
+  final double _expandedBottomPadding = 220.0;
 
   @override
   void initState() {
     super.initState();
-    _initializeMap();
+    _requestLocationPermission();
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _requestLocationPermission() async {
+    final status = await Permission.location.request();
+
+    if (status.isGranted) {
+      await _getCurrentLocation();
+    } else {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: Text('Location Permission Required'),
+            content: Text('We need your location to deliver your order. Please enable location services to continue.'),
+            actions: [
+              TextButton(
+                child: Text('Open Settings'),
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.pop(context);
+                },
+              ),
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location services are disabled. Please enable the services')),
+      );
+      return false;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Location permissions are denied')),
+        );
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location permissions are permanently denied')),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high
+      );
+
+      setState(() {
+         _deliveryLocation = LatLng(position.latitude, position.longitude);
+        _isLoading = false;
+      });
+
+      _initializeMap();
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _initializeMap() {
-    _setMarkers();
-    _setPolylineCoordinates();
-    _calculateDistanceAndTime();
+    if (_deliveryLocation != null) {
+      _setMarkers();
+      _setPolylineCoordinates();
+    }
   }
 
   void _setMarkers() {
+    _markers.clear();
     _markers.addAll([
       Marker(
         markerId: MarkerId('restaurant'),
         position: _restaurantLocation,
-        infoWindow: InfoWindow(title: 'Restaurant'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       ),
-      Marker(
-        markerId: MarkerId('delivery'),
-        position: _deliveryLocation,
-        infoWindow: InfoWindow(title: 'Delivery Location'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      ),
-      Marker(
-        markerId: MarkerId('driver'),
-        position: _driverLocation,
-        infoWindow: InfoWindow(title: 'Driver'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
-      ),
+      if (_deliveryLocation != null)
+        Marker(
+          markerId: MarkerId('delivery'),
+          position: _deliveryLocation!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        ),
     ]);
   }
 
   void _setPolylineCoordinates() {
-    _polylineCoordinates.addAll([
-      _restaurantLocation,
-      _driverLocation,
-      _deliveryLocation,
-    ]);
+    _polylineCoordinates.clear();
+    if (_deliveryLocation != null) {
+      _polylineCoordinates.addAll([
+        _restaurantLocation,
+        _deliveryLocation!,
+      ]);
+    }
   }
-
   /// Haversine Formula to Calculate Distance
   double _calculateDistance(LatLng start, LatLng end) {
     const double radiusOfEarth = 6371; // Radius of Earth in kilometers
@@ -79,8 +181,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     return degrees * pi / 180;
   }
 
+
   void _calculateDistanceAndTime() {
-    double distance = _calculateDistance(_driverLocation, _deliveryLocation);
+    double distance = _calculateDistance(_restaurantLocation, _restaurantLocation);
     const double averageSpeedKmPerHour = 40.0; // Assume average speed in km/h
     double estimatedTimeInHours = distance / averageSpeedKmPerHour;
     double estimatedTimeInMinutes = estimatedTimeInHours * 60;
@@ -93,103 +196,196 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    _mapController.setMapStyle('''
+      [
+        {
+          "featureType": "all",
+          "elementType": "geometry",
+          "stylers": [{"color": "#f5f5f5"}]
+        },
+        {
+          "featureType": "road",
+          "elementType": "geometry",
+          "stylers": [{"color": "#ffffff"}]
+        }
+      ]
+    ''');
   }
 
-  void _centerOnDriver() {
-    _mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(_driverLocation, 15.0),
-    );
+  Future<void> _centerOnLocation() async {
+    if (_deliveryLocation != null) {
+      await _mapController.animateCamera(
+        CameraUpdate.newLatLngZoom(_deliveryLocation!, 16.0),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Colors.deepOrangeAccent,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Track Order'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
       body: Stack(
         children: [
           GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
-              target: _driverLocation,
-              zoom: 13.0,
+              target: _deliveryLocation ?? _restaurantLocation,
+              zoom: 15.0,
             ),
             markers: _markers,
             polylines: {
               Polyline(
                 polylineId: PolylineId('route'),
                 points: _polylineCoordinates,
-                color: Colors.blueAccent,
-                width: 5,
+                color: Colors.deepOrangeAccent,
+                width: 4,
               ),
             },
             zoomControlsEnabled: false,
+            mapToolbarEnabled: false,
+            myLocationButtonEnabled: false,
+            myLocationEnabled: true,
           ),
           Positioned(
-            bottom: 20,
+            top: 40,
             left: 16,
-            right: 16,
-            child: Container(
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/driver_avatar.png'), // Replace with your asset
-                    radius: 30,
-                  ),
-                  SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Mike Rojnidoost',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '$_distance - $_estimatedTime',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(),
-                      padding: EdgeInsets.all(16),
-                      backgroundColor: Colors.purple,
-                    ),
-                    child: Icon(Icons.phone, color: Colors.white),
-                  ),
-                ],
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: IconButton(
+                icon: Icon(Icons.refresh, color: Colors.black),
+                onPressed: _getCurrentLocation,
               ),
             ),
           ),
           Positioned(
-            bottom: 100,
+            top: 40,
             right: 16,
-            child: FloatingActionButton(
-              onPressed: _centerOnDriver,
+            child: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.my_location, color: Colors.black),
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.black),
+                onPressed: () {
+
+                },
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            right: 16,
+            bottom: _isDetailsExpanded ? _expandedBottomPadding : _collapsedBottomPadding,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: IconButton(
+                icon: Icon(Icons.my_location, color: Colors.black),
+                onPressed: _centerOnLocation,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDetailsExpanded = !_isDetailsExpanded;
+                });
+              },
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.deepOrangeAccent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _isDetailsExpanded
+                    ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'On The Way',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Arrives between 11:23 PM-12:01 AM',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.store, color: Colors.white),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white,
+                            indent: 8,
+                            endIndent: 8,
+                          ),
+                        ),
+                        Icon(Icons.delivery_dining, color: Colors.white),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white,
+                            indent: 8,
+                            endIndent: 8,
+                          ),
+                        ),
+                        Icon(Icons.home, color: Colors.white),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Karan is preparing your order.',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Center(
+                      child: Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                )
+                    : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Arrives in ${_distance.toString()}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
