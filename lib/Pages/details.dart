@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'dart:math';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Details extends StatefulWidget {
   const Details({Key? key}) : super(key: key);
@@ -14,6 +15,8 @@ class _DetailsState extends State<Details> {
   bool isButtonClicked = false;
   bool isFavorite = false;
   String dropdownValue = 'per 100g';
+  final double _panelHeightOpen = 575.0;
+  final double _panelHeightClosed = 480.0;
 
   void incrementItemCount() {
     if (itemCount < 9) {
@@ -34,235 +37,326 @@ class _DetailsState extends State<Details> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff0f5f9),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Container
-                Container(
-                  padding: EdgeInsets.fromLTRB(16.w, 48.h, 16.w, 0),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              isFavorite ? Icons.favorite : Icons.favorite_border,
-                              color: isFavorite ? Colors.red : Colors.black,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isFavorite = !isFavorite;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      Center(
-                        child: Text(
-                          "Savory Street Eats",
-                          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Center(
-                        child: Text(
-                          "Mediterranean sunshine bowl",
-                          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      Center(
-                        child: Image.asset(
-                          "images/SaladQ.png", // Replace with your image path
-                          width: 350.w,
-                          height: 250.h,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      SizedBox(height: 50.h),
-                    ],
+      backgroundColor: Colors.grey[50],
+      body: SlidingUpPanel(
+        maxHeight: _panelHeightOpen,
+        minHeight: _panelHeightClosed,
+        parallaxEnabled: true,
+        parallaxOffset: .5,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
+        ),
+        body: Stack(
+          children: [
+            Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).padding.top + 16.h),
+                  _buildHeader(),
+                  Center(
+                    child: Image.asset(
+                      "images/SaladQ.png",
+                      width: 350.w,
+                      height: 230.h,
+                      fit: BoxFit.contain,
+                    ),
+                  ).animate().fadeIn(duration: 600.ms).scale(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        panel: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24.r),
+              topRight: Radius.circular(24.r),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12.h),
+                  child: Container(
+                    width: 40.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                   ),
                 ),
-                // Bottom Container (Overlapping with the image)
-                Transform.translate(
-                  offset: Offset(0, -50.h),
-                  child: Container(
-                    height: 500.h,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.r),
-                        topRight: Radius.circular(30.r),
+              ),
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Mediterranean sunshine bowl",
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        foreground: Paint()
+                          ..shader = const LinearGradient(
+                            colors: [
+                              Color(0xFFFF7F50),
+                              Color(0xFFFF6B3D),
+                            ],
+                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+                    ).animate().fadeIn(delay: 200.ms).slideX(),
+                    SizedBox(height: 8.h),
+                    Text(
+                      "Savory Street Eats",
+                      style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
                     ),
-                    padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 32.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Text("Ingredients:",
-                                    style: TextStyle(
-                                        fontSize: 18.sp, fontWeight: FontWeight.bold)),
-                                SizedBox(width: 8.w),
-                                Text("Manage",
-                                    style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
-                              ],
+                            Icon(
+                              Icons.restaurant_menu,
+                              color: const Color(0xFFFF7F50),
+                              size: 24.w,
                             ),
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: Colors.amber),
-                                SizedBox(width: 4.w),
-                                Text("4.6", style: TextStyle(fontSize: 16.sp)),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Wrap(
-                          spacing: 8.w,
-                          children: [
-                            _buildIngredientChip("Rise"),
-                            _buildIngredientChip("Carrot"),
-                            _buildIngredientChip("Broccoli"),
-                          ],
-                        ),
-                        SizedBox(height: 16.h),
-                        Text(
-                          "Harmonious blend of vibrant vegetables, fluffy couscous, and creamy hummus drizzled with a zesty lemon tahini dressing",
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                        SizedBox(height: 16.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                            SizedBox(width: 8.w),
                             Text(
-                              "Nutritional value:",
-                              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                            ),
-                            DropdownButton<String>(
-                              value: dropdownValue,
-                              icon: const Icon(Icons.arrow_drop_down),
-                              elevation: 16,
-                              style: const TextStyle(color: Colors.black),
-                              underline: Container(
-                                height: 1,
-                                color: Colors.grey,
+                              "Ingredients",
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
                               ),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  dropdownValue = newValue!;
-                                });
-                              },
-                              items: <String>['per 100g', 'per serving']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
                             ),
                           ],
                         ),
-                        SizedBox(height: 8.h),
-                        Text("198 kal", style: TextStyle(fontSize: 16.sp)),
-                        SizedBox(height: 32.h),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(25.r),
-                              ),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: decrementItemCount,
-                                    icon: const Icon(Icons.remove),
-                                  ),
-                                  Text("$itemCount",
-                                      style: TextStyle(fontSize: 20.sp)),
-                                  IconButton(
-                                    onPressed: incrementItemCount,
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
-                              ),
+                            Icon(
+                              Icons.star_rounded,
+                              color: const Color(0xFFFF7F50),
+                              size: 24.w,
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  isButtonClicked = !isButtonClicked;
-                                });
-                                Future.delayed(const Duration(milliseconds: 200), () {
-                                  setState(() {
-                                    isButtonClicked = !isButtonClicked;
-                                  });
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isButtonClicked
-                                    ? Colors.pink
-                                    : Colors.orangeAccent,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 32.w, vertical: 16.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25.r),
-                                ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              "4.6",
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
                               ),
-                              child: Text(
-                                  "Add to card \$${(12.8 * itemCount).round()}"),
                             ),
                           ],
                         ),
                       ],
+                    ).animate().fadeIn(delay: 400.ms),
+                    SizedBox(height: 16.h),
+                    Wrap(
+                      spacing: 8.w,
+                      children: [
+                        _buildIngredientChip("Rice"),
+                        _buildIngredientChip("Carrot"),
+                        _buildIngredientChip("Broccoli"),
+                      ],
+                    ).animate().fadeIn(delay: 600.ms),
+                    SizedBox(height: 24.h),
+                    Text(
+                      "Harmonious blend of vibrant vegetables, fluffy couscous, and creamy hummus drizzled with a zesty lemon tahini dressing",
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey[600],
+                        height: 1.5,
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 24.h),
+                    _buildNutritionalInfo(),
+                    SizedBox(height: 32.h),
+                    _buildBottomBar(),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
+  Widget _buildHeader() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => Navigator.pop(context),
+            color: const Color(0xFFFF7F50),
+          ),
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: const Color(0xFFFF7F50),
+            ),
+            onPressed: () {
+              setState(() {
+                isFavorite = !isFavorite;
+              });
+            },
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2);
+  }
+
   Widget _buildIngredientChip(String label) {
     return Chip(
-      label: Text(label),
-      backgroundColor: const Color(0xffe2e2e2),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: const Color(0xFFFF7F50),
+          fontSize: 14.sp,
+        ),
+      ),
+      backgroundColor: const Color(0xFFFF7F50).withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.r),
       ),
     );
+  }
+
+  Widget _buildNutritionalInfo() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Nutritional value",
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              DropdownButton<String>(
+                value: dropdownValue,
+                icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFFF7F50)),
+                style: TextStyle(
+                  color: const Color(0xFFFF7F50),
+                  fontSize: 14.sp,
+                ),
+                underline: Container(
+                  height: 1,
+                  color: const Color(0xFFFF7F50),
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue!;
+                  });
+                },
+                items: ['per 100g', 'per serving']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            "198 kal",
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: const Color(0xFFFF7F50),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 800.ms);
+  }
+
+  Widget _buildBottomBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFFF7F50)),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: decrementItemCount,
+                icon: const Icon(Icons.remove, color: Color(0xFFFF7F50)),
+              ),
+              Text(
+                "$itemCount",
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  color: const Color(0xFFFF7F50),
+                ),
+              ),
+              IconButton(
+                onPressed: incrementItemCount,
+                icon: const Icon(Icons.add, color: Color(0xFFFF7F50)),
+              ),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              isButtonClicked = !isButtonClicked;
+            });
+            Future.delayed(const Duration(milliseconds: 200), () {
+              setState(() {
+                isButtonClicked = !isButtonClicked;
+              });
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFF7F50),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 16.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.r),
+            ),
+            elevation: 2,
+          ),
+          child: Text(
+            "Add to cart \u{20B9}${(12.8 * itemCount).round()}",
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ).animate().fadeIn(delay: 1000.ms);
   }
 }
