@@ -64,7 +64,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               ),
               TextButton(
                 child: Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),
@@ -274,7 +276,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               child: IconButton(
                 icon: Icon(Icons.close, color: Colors.black),
                 onPressed: () {
-
+                  Navigator.pop(context);
                 },
               ),
             ),

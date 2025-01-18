@@ -74,12 +74,25 @@ class _RazorpayExampleState extends State<RazorpayExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Razorpay Payment'),
-      ),
-      body: Center(
-        child: CircularProgressIndicator(),
+    return WillPopScope(
+      onWillPop: () async {
+        // Intercept the back button and navigate back to the cart page
+        Navigator.pop(context);
+        return false; // Prevent the default back button behavior
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Razorpay Payment'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // Go back to the cart page
+            },
+          ),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:batchloreskitchen/Logins/NewL.dart';
 import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:batchloreskitchen/Onboard/PageView.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
+import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
         },
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
-        home: Details(),
+        home: auth.currentUser != null ? const BottomBar() : const Log(),
       ),
       designSize: Size(375, 812),
     );

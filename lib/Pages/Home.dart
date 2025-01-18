@@ -1,3 +1,4 @@
+import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -181,7 +182,9 @@ class _HomeState extends State<Home> {
                 _buildHeaderButton(
                   icon: Icons.person_4_outlined,
                   showBadge: false,
-                  onPressed: () => _showCart(context),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => OrderTrackingPage(),));
+                  },
                 ),
               ],
             ),

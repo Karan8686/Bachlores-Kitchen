@@ -1,3 +1,4 @@
+import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/wallet.dart';
@@ -25,7 +26,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
     pages = [
       Home(),
       Order(),
-      Wallet(),
+      CartScreen(),
       Profile(),
     ];
 
