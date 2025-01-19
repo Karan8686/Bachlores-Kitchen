@@ -166,7 +166,7 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.secondary.withOpacity(0.4),
+            color: colorScheme.primary.withOpacity(0.3),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -177,7 +177,7 @@ class _HomeState extends State<Home> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            color: colorScheme.secondary.withOpacity(0.03),
+            color: Colors.white10,
             child: Row(
               children: [
                 _buildHeaderButton(
@@ -277,7 +277,7 @@ class _HomeState extends State<Home> {
         Text(
           'food for you',
           style: theme.textTheme.displayLarge?.copyWith(
-            color: colorScheme.secondary,
+            color: colorScheme.onBackground,
             fontSize: 32.sp
           )
         ),

@@ -1,75 +1,105 @@
-import 'package:batchloreskitchen/widgets/widget_support.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 
-// Function to create a page with image and content
-Widget page({
-  required String imagePath,
-  required String content1,
-  required String content2,
-  required String content3,
-  required Color backgroundColor,
-}) {
-  return Container(
-    color: backgroundColor, // Use the provided background color
-    child: Column(
-      children: [
-        SizedBox(height: 150.h),
-        Lottie.asset(
-          imagePath, // Path to the Lottie animation file
-          fit: BoxFit.cover,
-          height: 290.h,
-          filterQuality: FilterQuality.high,
-        ),
-        SizedBox(height: 50.h),
-        // First content row with bold text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              content1,
-              style: TextStyle(
-                fontSize: 22.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+class BottomBar extends StatefulWidget {
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: _buildPage(_selectedIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.background,
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(0, -5),
             ),
           ],
         ),
-        SizedBox(height: 20.h),
-        // Second content row with medium text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              content2,
-              style: TextStyle(
-                fontSize: 16.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNavItem(0, Icons.home_rounded, "Home"),
+                  _buildNavItem(1, Icons.search_rounded, "Search"),
+                  _buildNavItem(2, Icons.shopping_cart_rounded, "Cart"),
+                  _buildNavItem(3, Icons.person_rounded, "Profile"),
+                ],
               ),
             ),
-          ],
+          ),
         ),
-        // Third content row with medium text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    final theme = Theme.of(context);
+    final isSelected = _selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = index),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? theme.colorScheme.secondary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
           children: [
-            Text(
-              content3,
-              style: TextStyle(
-                fontSize: 16.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
+            Icon(
+              icon,
+              color: isSelected
+                  ? theme.colorScheme.onSecondary
+                  : theme.colorScheme.onPrimary.withOpacity(0.7),
+              size: 24.sp,
             ),
+            if (isSelected) ...[
+              SizedBox(width: 8.w),
+              Text(
+                label,
+                style: theme.textTheme.button?.copyWith(
+                  fontSize: 14.sp,
+                  color: theme.colorScheme.onSecondary,
+                ),
+              ),
+            ],
           ],
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
+
+  Widget _buildPage(int index) {
+    // Replace these with your actual page widgets
+    final pages = [
+      Center(child: Text('Home Page')),
+      Center(child: Text('Search Page')),
+      Center(child: Text('Cart Page')),
+      Center(child: Text('Profile Page')),
+    ];
+
+    return pages[index];
+  }
 }

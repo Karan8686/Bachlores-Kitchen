@@ -24,13 +24,13 @@ class _LogState extends State<Log> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           // Background Image
           Image.asset(
             "images/logo.jpeg",
-            height: 530.h,
+            height: 450.h,
             width: 400.w,
             fit: BoxFit.fitHeight,
             filterQuality: FilterQuality.high,
@@ -48,7 +48,7 @@ class _LogState extends State<Log> {
                         // Form Container
                         Container(
                           width: 400.w,
-                          height: 410.h, // Increased height
+                          height: 400.h, // Increased height
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surface,
                             borderRadius: BorderRadius.only(
@@ -69,7 +69,7 @@ class _LogState extends State<Log> {
                               children: [
                                 // Welcome Text
                                 Padding(
-                                  padding: EdgeInsets.only(top: 25.h, left: 20.w),
+                                  padding: EdgeInsets.only(top: 25.h, left:3.w),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -78,7 +78,7 @@ class _LogState extends State<Log> {
                                         style: theme.textTheme.headline1?.copyWith(
                                           fontSize: 32.sp,
                                           fontFamily: "poppins",
-                                          color: theme.colorScheme.primary,
+                                          color: theme.colorScheme.secondary,
                                         ),
                                       ),
                                       SizedBox(height: 8.h),
@@ -87,6 +87,7 @@ class _LogState extends State<Log> {
                                         style: theme.textTheme.bodyText2?.copyWith(
                                           fontSize: 16.sp,
                                           color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                          fontFamily: "poppins"
                                         ),
                                       ),
                                     ],
@@ -128,11 +129,11 @@ class _LogState extends State<Log> {
                                           decoration: InputDecoration(
                                             hintText: "Enter your number",
                                             hintStyle: TextStyle(
-                                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                              color: theme.colorScheme.primary.withOpacity(0.6),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderSide: BorderSide(
-                                                color: theme.colorScheme.primary,
+                                                color: theme.colorScheme.secondary,
                                                 width: 2,
                                               ),
                                               borderRadius: BorderRadius.circular(40.r),
@@ -211,6 +212,7 @@ class _LogState extends State<Log> {
                                         "Get OTP",
                                         style: theme.textTheme.button?.copyWith(
                                           fontSize: 18.sp,
+                                          color: theme.colorScheme.background
                                         ),
                                       ),
                                     ),

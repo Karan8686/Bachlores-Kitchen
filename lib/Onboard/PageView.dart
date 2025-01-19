@@ -1,13 +1,110 @@
-import 'package:batchloreskitchen/Onboard/pages.dart';
-import 'package:batchloreskitchen/Onboard/spalsh.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
-import 'package:batchloreskitchen/widgets/widget_support.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+// Page Widget
+Widget page({
+  required String imagePath,
+  required String content1,
+  required String content2,
+  required String content3,
+  required Color backgroundColor,
+  required String heroTag,
+}) {
+  return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Container(
+          color: backgroundColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Hero(
+                tag: heroTag,
+                child: Lottie.asset(
+                  imagePath,
+                  height: 300.h,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                ),
+              )
+                  .animate()
+                  .scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1, 1),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeOutCubic,
+              )
+                  .fade(
+                duration: const Duration(milliseconds: 600),
+              ),
+              SizedBox(height: 40.h),
+              Column(
+                children: [
+                  Text(
+                    content1,
+                    style: theme.textTheme.headline2,
+                  )
+                      .animate()
+                      .fadeIn(
+                    duration: const Duration(milliseconds: 600),
+                    delay: const Duration(milliseconds: 200),
+                  )
+                      .slideY(
+                    begin: 0.2,
+                    end: 0,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                  ),
+                  SizedBox(height: 16.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Text(
+                      content2,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyText1,
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(
+                    duration: const Duration(milliseconds: 600),
+                    delay: const Duration(milliseconds: 400),
+                  )
+                      .slideY(
+                    begin: 0.2,
+                    end: 0,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    content3,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyText2,
+                  )
+                      .animate()
+                      .fadeIn(
+                    duration: const Duration(milliseconds: 600),
+                    delay: const Duration(milliseconds: 600),
+                  )
+                      .slideY(
+                    begin: 0.2,
+                    end: 0,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }
+  );
+}
 
 class View1 extends StatefulWidget {
   const View1({super.key});
@@ -16,43 +113,23 @@ class View1 extends StatefulWidget {
   State<View1> createState() => _View1State();
 }
 
-class _View1State extends State<View1> with WidgetsBindingObserver {
-  final controller = PageController();
+class _View1State extends State<View1> with TickerProviderStateMixin {
+  final PageController controller = PageController();
   bool isLastPage = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      requestPermissions();
-    });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // App has resumed, check permissions again
-      checkPermissions();
-    }
+    requestPermissions();
   }
 
   Future<void> requestPermissions() async {
     try {
-      // Check and request location permission
       var locationStatus = await Permission.location.status;
       if (!locationStatus.isGranted) {
         await Permission.location.request();
       }
 
-      // Check and request storage permissions for photos and videos
       var photosStatus = await Permission.photos.status;
       if (!photosStatus.isGranted) {
         await Permission.photos.request();
@@ -67,227 +144,272 @@ class _View1State extends State<View1> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> checkPermissions() async {
-    try {
-      // Check location permission
-      if (await Permission.location.isGranted) {
-        // Location permission is granted
-      } else {
-        // Location permission is not granted, handle accordingly
-      }
-
-      // Check storage permissions for photos and videos
-      if (await Permission.photos.isGranted) {
-        // Photos permission is granted
-      } else {
-        // Photos permission is not granted, handle accordingly
-      }
-
-      if (await Permission.videos.isGranted) {
-        // Videos permission is granted
-      } else {
-        // Videos permission is not granted, handle accordingly
-      }
-    } catch (e) {
-      print('Error checking permissions: $e');
-    }
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Lottie animation file paths
+    final theme = Theme.of(context);
     String s = "images/VerityFood.json";
     String s2 = "images/QualityFood.json";
     String s3 = "images/Animation3.json";
 
     return Scaffold(
-      body: Container(
-        height: 735.h,
-        child: PageView(
-          onPageChanged: (index) {
-            setState(() {
-              isLastPage = index == 2;
-            });
-          },
-          controller: controller,
-          children: [
-            page(
-              imagePath: s,
-              content1: "Delivery in 30 min",
-              content2: "Get all your loved foods in once place to eat",
-              content3: "just by placing an order.",
-              backgroundColor: Colors.red.withOpacity(0.1),
+      backgroundColor: theme.colorScheme.background,
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  theme.colorScheme.background,
+                  theme.colorScheme.tertiary.withOpacity(0.1),
+                ],
+              ),
             ),
-            page(
-              imagePath: s2,
-              content1: "Delivery in 30 min",
-              content2: "Get all your loved foods in once place to eat",
-              content3: "just by placing an order.",
-              backgroundColor: Colors.green.withOpacity(0.1),
-            ),
-            page(
-              imagePath: s3,
-              content1: "All Your Favorites",
-              content2: "Variety of food available here only for You",
-              content3: "Give your tongue new taste.",
-              backgroundColor: Colors.blue.withOpacity(0.1),
-            ),
-          ],
-        ),
-      ),
-
-      // Bottom Part
-      bottomSheet: isLastPage
-          ? TextButton(
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
           ),
-          backgroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(85),
+          PageView(
+            onPageChanged: (index) {
+              setState(() {
+                isLastPage = index == 2;
+              });
+            },
+            controller: controller,
+            children: [
+              page(
+                imagePath: s,
+                content1: "Quick Delivery",
+                content2: "Delicious food at your doorstep",
+                content3: "in just 30 minutes",
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.05),
+                heroTag: "page1",
+              ),
+              page(
+                imagePath: s2,
+                content1: "Premium Quality",
+                content2: "Savor the finest ingredients",
+                content3: "crafted just for you",
+                backgroundColor: theme.colorScheme.secondary.withOpacity(0.05),
+                heroTag: "page2",
+              ),
+              page(
+                imagePath: s3,
+                content1: "Endless Variety",
+                content2: "Explore a world of flavors",
+                content3: "all in one place",
+                backgroundColor: theme.colorScheme.tertiary.withOpacity(0.05),
+                heroTag: "page3",
+              ),
+            ],
+          )
+              .animate()
+              .fadeIn(duration: const Duration(milliseconds: 600))
+              .slideY(
+            begin: 0.2,
+            end: 0,
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+          ),
+        ],
+      ),
+      bottomSheet: Container(
+        height: 100.h,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              theme.colorScheme.background.withOpacity(0),
+              theme.colorScheme.tertiary.withOpacity(0.1),
+            ],
+          ),
         ),
-        onPressed: () {
-          // Use ScaleTransition animation for navigation
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => BottomBar(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return ScaleTransition(
-                  scale: animation,
-                  child: child,
-                );
-              },
+        child: isLastPage
+            ? Center(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                  const BottomBar(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+            child: Container(
+              width: 200.w,
+              height: 50.h,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.secondary,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  "Get Started",
+                  style: theme.textTheme.button?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            )
+                .animate(
+              onPlay: (controller) => controller.repeat(reverse: true),
+            )
+                .scaleXY(
+              begin: 1,
+              end: 0.95,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
             ),
-          );
-        },
-        child: Text(
-          "Get Started",
-          style: AppWidget.boldTextFeildSstyleTop1(),
-        ),
-      )
-          : Container(
-        decoration: BoxDecoration(color: Colors.white),
-        height: 80.h,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 20.w),
-              child: TextButton(
-                onPressed: () {
+          ),
+        )
+            .animate()
+            .fadeIn(duration: const Duration(milliseconds: 600))
+            .slideY(
+          begin: 0.2,
+          end: 0,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOutCubic,
+        )
+            : Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
                   controller.animateToPage(
                     2,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.easeIn,
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeInOut,
                   );
                 },
-                child: Text(
-                  "Skip",
-                  style: AppWidget.boldTextFeildSstyleTop1(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "Skip",
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
+              )
+                  .animate(
+                onPlay: (controller) => controller.repeat(reverse: true),
+              )
+                  .shimmer(
+                duration: const Duration(milliseconds: 1500),
+                delay: const Duration(milliseconds: 200),
               ),
-            ),
-            Center(
-              child: SmoothPageIndicator(
+              SmoothPageIndicator(
                 controller: controller,
                 count: 3,
-                effect: JumpingDotEffect(
-                  activeDotColor: Colors.deepOrangeAccent,
-                  dotHeight: 15.h,
-                  radius: 80,
+                effect: WormEffect(
+                  dotColor: theme.colorScheme.primary.withOpacity(0.2),
+                  activeDotColor: theme.colorScheme.primary,
+                  dotHeight: 8.h,
+                  dotWidth: 8.w,
+                  spacing: 8,
+                  strokeWidth: 1.5,
+                  paintStyle: PaintingStyle.fill,
                 ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 20.w),
-              child: TextButton(
-                onPressed: () {
+              )
+                  .animate()
+                  .fadeIn(duration: const Duration(milliseconds: 600))
+                  .scale(delay: const Duration(milliseconds: 300)),
+              GestureDetector(
+                onTap: () {
                   controller.nextPage(
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.easeInOutQuad,
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeInOut,
                   );
                 },
-                child: Text(
-                  "Next",
-                  style: AppWidget.boldTextFeildSstyleTop1(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.secondary,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    "Next",
+                    style: TextStyle(
+                      color: theme.colorScheme.background,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
+              )
+                  .animate(
+                onPlay: (controller) => controller.repeat(reverse: true),
+              )
+                  .scaleXY(
+                begin: 1,
+                end: 0.95,
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeInOut,
               ),
-            ),
-          ],
+            ],
+          ),
+        )
+            .animate()
+            .fadeIn(duration: const Duration(milliseconds: 600))
+            .slideY(
+          begin: 0.2,
+          end: 0,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOutCubic,
         ),
       ),
     );
   }
-}
-
-// Function to create page with image and content
-Widget page({
-  required String imagePath,
-  required String content1,
-  required String content2,
-  required String content3,
-  required Color backgroundColor,
-}) {
-  return Container(
-    color: backgroundColor, // Use the provided background color
-    child: Column(
-      children: [
-        SizedBox(height: 150.h),
-        Lottie.asset(
-          imagePath, // Path to the Lottie animation file
-          fit: BoxFit.cover,
-          height: 290.h,
-          filterQuality: FilterQuality.high,
-        ),
-        SizedBox(height: 50.h),
-        // First content row with bold text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              content1,
-              style: TextStyle(
-                fontSize: 22.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 20.h),
-        // Second content row with medium text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              content2,
-              style: TextStyle(
-                fontSize: 16.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        // Third content row with medium text
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              content3,
-              style: TextStyle(
-                fontSize: 16.sp, // Using ScreenUtil for responsive font size
-                fontFamily: 'Poppins',
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
 }

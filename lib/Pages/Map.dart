@@ -67,6 +67,33 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       }
     }
   }
+  void _showEnableLocationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+      builder: (context) => AlertDialog(
+        title: Text('Enable Location Services'),
+        content: Text('Location services are required to use this feature. Please enable them in your device settings.'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              // Open location settings
+              await Geolocator.openLocationSettings();
+              Navigator.pop(context); // Close dialog
+              _requestLocationPermission(); // Recheck location services
+            },
+            child: Text('Open Settings'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+            },
+            child: Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
 
 
   Future<bool> _handleLocationPermission() async {
@@ -235,9 +262,11 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     }
 
     return Scaffold(
+
       body: Stack(
         children: [
           GoogleMap(
+
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: _deliveryLocation ?? _restaurantLocation,
@@ -261,9 +290,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             top: 40,
             left: 16,
             child: CircleAvatar(
-              backgroundColor: theme.colorScheme.surface,
+              backgroundColor: theme.colorScheme.primary,
               child: IconButton(
-                icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
+                icon: Icon(Icons.refresh, color: theme.colorScheme.surface),
                 onPressed: _getCurrentLocation,
               ),
             ),
@@ -272,9 +301,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             top: 40,
             right: 16,
             child: CircleAvatar(
-              backgroundColor: theme.colorScheme.surface,
+              backgroundColor: theme.colorScheme.primary,
               child: IconButton(
-                icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
+                icon: Icon(Icons.close, color: theme.colorScheme.surface),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -287,9 +316,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             right: 16,
             bottom: _isDetailsExpanded ? _expandedBottomPadding : _collapsedBottomPadding,
             child: CircleAvatar(
-              backgroundColor: theme.colorScheme.surface,
+              backgroundColor: theme.colorScheme.primary,
               child: IconButton(
-                icon: Icon(Icons.my_location, color: theme.colorScheme.onSurface),
+                icon: Icon(Icons.my_location, color: theme.colorScheme.surface),
                 onPressed: _centerOnLocation,
               ),
             ),
@@ -326,20 +355,21 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     Text(
                       'On The Way',
                       style: theme.textTheme.headline2?.copyWith(
-                        color: theme.colorScheme.onPrimary,
+                        color: theme.colorScheme.background,
+                        fontFamily: "poppins"
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Arrives between 11:23 PM-12:01 AM',
                       style: theme.textTheme.bodyText1?.copyWith(
-                        color: theme.colorScheme.onPrimary,
+                        color: theme.colorScheme.background,
                       ),
                     ),
                     SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.store, color: theme.colorScheme.onPrimary),
+                        Icon(Icons.store, color: theme.colorScheme.background),
                         Expanded(
                           child: Divider(
                             color: theme.colorScheme.onPrimary,
@@ -347,22 +377,23 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.delivery_dining, color: theme.colorScheme.onPrimary),
+                        Icon(Icons.delivery_dining, color: theme.colorScheme.background),
                         Expanded(
                           child: Divider(
-                            color: theme.colorScheme.onPrimary,
+                            color: theme.colorScheme.secondary,
                             indent: 8,
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.home, color: theme.colorScheme.onPrimary),
+                        Icon(Icons.home, color: theme.colorScheme.background),
                       ],
                     ),
                     SizedBox(height: 12),
                     Text(
                       'Karan is preparing your order.',
                       style: theme.textTheme.bodyText1?.copyWith(
-                        color: theme.colorScheme.onPrimary,
+                        color: theme.colorScheme.background,
+                        fontFamily: "poppins"
                       ),
                     ),
                     SizedBox(height: 8),
@@ -381,6 +412,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                       'Arrives in ${_estimatedTime}',
                       style: theme.textTheme.bodyText1?.copyWith(
                         color: theme.colorScheme.onPrimary,
+                        fontFamily: "poppins"
                       ),
                     ),
                     Icon(

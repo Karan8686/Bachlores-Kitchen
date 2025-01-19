@@ -32,7 +32,7 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness:Brightness.dark,
     ),
   );
 
@@ -69,8 +69,8 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
           themeMode: ThemeMode.light,
                 // Enable system theme mode
-        home: //auth.currentUser != null ? const BottomBar() : const Log(),
-        BottomBar()
+        home: auth.currentUser != null ? const BottomBar() : const Log(),
+
       ),
       designSize: Size(375, 812),
     );
