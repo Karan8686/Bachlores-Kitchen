@@ -95,8 +95,10 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Fetch the current theme
+    final colorScheme = theme.colorScheme; // Access the color scheme
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: ColorEffect.neutralValue,
       floatingActionButton: AnimatedOpacity(
         opacity: _showFloatingButton ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
@@ -108,7 +110,7 @@ class _HomeState extends State<Home> {
               curve: Curves.easeOutCubic,
             );
           },
-          backgroundColor: const Color(0xFFFF7F50),
+          backgroundColor: colorScheme.background,
           child: const Icon(Icons.arrow_upward_rounded),
         ),
       ),
@@ -123,13 +125,13 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 16.h),
-                    _buildHeader(),
+                    _buildHeader(colorScheme),
                     SizedBox(height: 24.h),
-                    _buildTitle(),
+                    _buildTitle(colorScheme),
                     SizedBox(height: 24.h),
-                    _buildSpecialOffer(),
+                    _buildSpecialOffer(colorScheme),
                     SizedBox(height: 24.h),
-                    _buildCategories(),
+                    _buildCategories(colorScheme),
                     SizedBox(height: 24.h),
 
 
@@ -139,7 +141,7 @@ class _HomeState extends State<Home> {
             ),
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              sliver: _buildFoodGrid(),
+              sliver: _buildFoodGrid(colorScheme),
             ),
             SliverToBoxAdapter(
               child: SizedBox(height: 24.h),
@@ -150,16 +152,22 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
+
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
-        color: Colors.white,
+        border: Border.all(
+          color: colorScheme.secondary
+        ),
+        color:Colors.white30 ,
+
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: colorScheme.secondary.withOpacity(0.4),
+            blurRadius: 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -169,17 +177,19 @@ class _HomeState extends State<Home> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            color: Colors.white.withOpacity(0.9),
+            color: colorScheme.secondary.withOpacity(0.03),
             child: Row(
               children: [
                 _buildHeaderButton(
+                  colorScheme: colorScheme,
                   icon: Icons.menu_rounded,
                   onPressed: () => _showMenu(context),
                 ),
                 Expanded(
-                  child: _buildSearchField(),
+                  child: _buildSearchField(colorScheme),
                 ),
                 _buildHeaderButton(
+                  colorScheme: colorScheme,
                   icon: Icons.person_4_outlined,
                   showBadge: false,
                   onPressed: () {
@@ -196,15 +206,17 @@ class _HomeState extends State<Home> {
 
   Widget _buildHeaderButton({
     required IconData icon,
+    required ColorScheme colorScheme,
     required VoidCallback onPressed,
     bool showBadge = false,
   }) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Stack(
       children: [
         IconButton(
           icon: Icon(icon, size: 24.w),
           onPressed: onPressed,
-          color: const Color(0xFFFF7F50),
+          color: colorScheme.secondary ,
         ),
 
 
@@ -212,27 +224,33 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSearchField() {
+  Widget _buildSearchField(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
+
     return Container(
       height: 40.h,
       margin: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12.r),
+
+        color: colorScheme.primary,
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: TextField(
         controller: _searchController,
-        style: TextStyle(fontSize: 14.sp),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: colorScheme.secondary
+        ),
         decoration: InputDecoration(
           hintText: 'Search for food...',
           hintStyle: TextStyle(
+
             fontSize: 14.sp,
-            color: Colors.grey[600],
+            color: colorScheme.secondary,
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
             size: 20.w,
-            color: const Color(0xFFFF7F50),
+            color: colorScheme.secondary,
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
@@ -244,44 +262,38 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Delicious',
-          style: TextStyle(
-            fontSize: 32.sp,
-            fontWeight: FontWeight.bold,
-            foreground: Paint()
-              ..shader = const LinearGradient(
-                colors: [
-                  Color(0xFFFF7F50),
-                  Color(0xFFFF6B3D),
-                ],
-              ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+          style: theme.textTheme.displayLarge?.copyWith(
+            color: colorScheme.primary, // Use theme's primary color
           ),
         ),
         Text(
           'food for you',
-          style: TextStyle(
-            fontSize: 32.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          style: theme.textTheme.displayLarge?.copyWith(
+            color: colorScheme.secondary,
+            fontSize: 32.sp
+          )
         ),
       ],
     ).animate().fadeIn(delay: 200.ms).slideX();
   }
 
-  Widget _buildSpecialOffer() {
+  Widget _buildSpecialOffer(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Container(
-      height: 160.h,
+      height: 163.h,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFFFF7F50),
-            Color(0xFFFF6B3D),
+            Color(0xFFDDA01E),
+            Color(0xFFDDA00E),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -289,7 +301,7 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF7F50).withOpacity(0.3),
+            color: const Color(0xFFDDA15E).withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -317,11 +329,9 @@ class _HomeState extends State<Home> {
                   ),
                   child: Text(
                     'Special Offer',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white
+                    )
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -349,7 +359,8 @@ class _HomeState extends State<Home> {
     ).animate().fadeIn(delay: 400.ms).scale();
   }
 
-  Widget _buildCategories() {
+  Widget _buildCategories(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return SizedBox(
       height: 44.h,
       child: ListView.builder(
@@ -363,32 +374,21 @@ class _HomeState extends State<Home> {
               margin: EdgeInsets.only(right: 12.w),
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
-                gradient: isSelected
-                    ? const LinearGradient(
-                  colors: [
-                    Color(0xFFFF7F50),
-                    Color(0xFFFF6B3D),
-                  ],
-                )
-                    : null,
-                color: isSelected ? null : Colors.white,
+                border: Border.all(color: colorScheme.secondary),
+                color: isSelected ? colorScheme.primary.withOpacity(0.3): Colors.white,
+
                 borderRadius: BorderRadius.circular(29.r),
-                boxShadow: [
-                  if (isSelected)
-                    BoxShadow(
-                      color: const Color(0xFFFF7F50).withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                ],
+
+
               ),
               child: Center(
                 child: Text(
                   _categories[index],
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
+                    color: isSelected ? colorScheme.primary : Colors.black87,
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
+                    fontFamily: "poppins"
                   ),
                 ),
               ),
@@ -399,69 +399,71 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildPopularSection() {
+  Widget _buildPopularSection(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-      Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(
-              Icons.local_fire_department_rounded,
-              color: const Color(0xFFFF7F50),
-              size: 24.w,
+            Row(
+              children: [
+                Icon(
+                  Icons.local_fire_department_rounded,
+                  color: const Color(0xFFFF7F50),
+                  size: 24.w,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'Popular Now',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 8.w),
-            Text(
-              'Popular Now',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFF7F50),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'See All',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Icon(Icons.arrow_forward_rounded, size: 16.w),
+                ],
               ),
             ),
           ],
         ),
-        TextButton(
-          onPressed: () {},
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFFFF7F50),
+        SizedBox(height: 16.h),
+        SizedBox(
+          height: 200.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _foodItems.where((item) => item['isPopular']).length,
+            itemBuilder: (context, index) {
+              final popularItems = _foodItems.where((item) => item['isPopular']).toList();
+              final item = popularItems[index];
+              return _buildPopularItem(item,colorScheme);
+            },
           ),
-          child: Row(
-            children: [
-              Text(
-                'See All',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(width: 4.w),
-              Icon(Icons.arrow_forward_rounded, size: 16.w),
-            ],
-          ),
-        ),
-      ],
-    ),
-    SizedBox(height: 16.h),
-    SizedBox(
-      height: 200.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _foodItems.where((item) => item['isPopular']).length,
-        itemBuilder: (context, index) {
-          final popularItems = _foodItems.where((item) => item['isPopular']).toList();
-          final item = popularItems[index];
-          return _buildPopularItem(item);
-          },
-        ),
-      ),],
+        ),],
     );
   }
 
-  Widget _buildPopularItem(Map<String, dynamic> item) {
+  Widget _buildPopularItem(Map<String, dynamic> item,ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Container(
       width: 200.w,
       margin: EdgeInsets.only(right: 16.w),
@@ -596,7 +598,8 @@ class _HomeState extends State<Home> {
     ).animate().fadeIn().scale();
   }
 
-  Widget _buildFoodGrid() {
+  Widget _buildFoodGrid(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -607,21 +610,23 @@ class _HomeState extends State<Home> {
       delegate: SliverChildBuilderDelegate(
             (context, index) {
           final item = _foodItems[index];
-          return _buildFoodItem(item);
+          return _buildFoodItem(item,colorScheme);
         },
         childCount: _foodItems.length,
       ),
     );
   }
 
-  Widget _buildFoodItem(Map<String, dynamic> item) {
+  Widget _buildFoodItem(Map<String, dynamic> item,ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        border: Border.all(color: colorScheme.secondary),
+        color: colorScheme.background.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: colorScheme.secondary.withOpacity(0.01),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -640,10 +645,10 @@ class _HomeState extends State<Home> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor: colorScheme.primary.withOpacity(0.03)!,
+                    highlightColor: colorScheme.background!,
                     child: Container(
-                      color: Colors.white,
+                      color: colorScheme.background,
                       height: 120.h,
                     ),
                   ),
@@ -658,14 +663,14 @@ class _HomeState extends State<Home> {
                     vertical: 4.h,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: colorScheme.secondary.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.star_rounded,
-                        color: const Color(0xFFFF7F50),
+                        color: Colors.deepOrangeAccent,
                         size: 16.w,
                       ),
                       SizedBox(width: 4.w),
@@ -690,9 +695,8 @@ class _HomeState extends State<Home> {
               children: [
                 Text(
                   item['name'],
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
+                  style: theme.textTheme.bodyText1?.copyWith(
+                    color: colorScheme.secondary
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -700,9 +704,8 @@ class _HomeState extends State<Home> {
                 SizedBox(height: 4.h),
                 Text(
                   item['description'],
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
+                  style:theme.textTheme.bodyText2?.copyWith(
+                    color: colorScheme.primary
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -713,13 +716,13 @@ class _HomeState extends State<Home> {
                   children: [
                     Text(
                       '\u{20B9}${item['price']}',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFFFF7F50),
-                      ),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: colorScheme.secondary,
+                        fontFamily: "poppins",
+                        fontSize: 19.spMax
+                      )
                     ),
-                    _buildAddButton(),
+                    _buildAddButton(colorScheme),
                   ],
                 ),
               ],
@@ -730,10 +733,11 @@ class _HomeState extends State<Home> {
     ).animate().fadeIn().scale();
   }
 
-  Widget _buildAddButton() {
+  Widget _buildAddButton(ColorScheme colorScheme) {
+    final theme = Theme.of(context); // Fetch the current theme
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFF7F50).withOpacity(0.1),
+        color: colorScheme.secondary.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Material(
@@ -747,7 +751,7 @@ class _HomeState extends State<Home> {
             padding: EdgeInsets.all(8.w),
             child: Icon(
               Icons.add_rounded,
-              color: const Color(0xFFFF7F50),
+              color: colorScheme.secondary,
               size: 20.w,
             ),
           ),

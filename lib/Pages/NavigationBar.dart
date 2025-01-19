@@ -1,5 +1,5 @@
-import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:flutter/material.dart';
+import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/wallet.dart';
 import 'package:batchloreskitchen/Pages/order.dart';
@@ -51,6 +51,9 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       extendBody: true,
       floatingActionButton: ScaleTransition(
@@ -58,14 +61,14 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFFFF7F50), Color(0xFFFF6B3D)],
+              colors: [colorScheme.primary, colorScheme.secondary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Color(0xFFFF7F50).withOpacity(0.3),
+                color: colorScheme.primary.withOpacity(0.3),
                 blurRadius: 10,
                 offset: Offset(0, 5),
               ),
@@ -82,7 +85,11 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                 });
               });
             },
-            child: Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 28),
+            child: Icon(
+              Icons.shopping_bag_outlined,
+              color: colorScheme.onPrimary,
+              size: 28,
+            ),
           ),
         ),
       ),
@@ -117,15 +124,15 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                 ),
               ),
             ),
-            color: Colors.white,
+            color: colorScheme.surface,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildTabItem(0, Icons.home_outlined, 'Home'),
-                _buildTabItem(1, Icons.favorite_border, 'Favorites'),
+                _buildTabItem(0, Icons.home_outlined, 'Home', theme),
+                _buildTabItem(1, Icons.favorite_border, 'Favorites', theme),
                 SizedBox(width: 40.w),
-                _buildTabItem(3, Icons.monetization_on_outlined, 'Money'),
-                _buildTabItem(4, Icons.settings_outlined, 'Notifications'),
+                _buildTabItem(3, Icons.monetization_on_outlined, 'Money', theme),
+                _buildTabItem(4, Icons.settings_outlined, 'Notifications', theme),
               ],
             ),
           ),
@@ -145,13 +152,15 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildTabItem(int index, IconData icon, String label) {
+  Widget _buildTabItem(int index, IconData icon, String label, ThemeData theme) {
     final isSelected = currentTabIndex == index;
+    final colorScheme = theme.colorScheme;
+
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: isSelected ? Color(0xFFFF7F50).withOpacity(0.1) : Colors.transparent,
+        color: isSelected ? colorScheme.primary.withOpacity(0.1) : Colors.transparent,
       ),
       child: Material(
         color: Colors.transparent,
@@ -169,8 +178,8 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? Color(0xFFFF7F50) : Colors.grey,
-                  size: 25.dg,
+                  color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                  size: 25,
                 ),
                 AnimatedContainer(
                   duration: Duration(milliseconds: 200),
@@ -178,7 +187,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                   width: isSelected ? 4 : 0,
                   margin: EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFF7F50),
+                    color: colorScheme.primary,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

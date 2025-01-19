@@ -5,6 +5,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+
 class Log extends StatefulWidget {
   const Log({super.key});
   static String verify = '';
@@ -20,6 +21,8 @@ class _LogState extends State<Log> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -45,122 +48,187 @@ class _LogState extends State<Log> {
                         // Form Container
                         Container(
                           width: 400.w,
-                          height: 310.h,
+                          height: 410.h, // Increased height
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: theme.colorScheme.surface,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(40.r),
                               topRight: Radius.circular(40.r),
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, -5),
+                              ),
+                            ],
                           ),
                           child: Form(
                             key: _formKey,
                             child: Column(
                               children: [
-                                // Login Title
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 25.h, left: 20.w),
-                                      child: Text(
-                                        "Login",
-                                        style: TextStyle(
-                                          fontSize: 30.sp,
-                                          fontFamily: "poppins",
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 39.h),
-                                // Phone Number Input
+                                // Welcome Text
                                 Padding(
-                                  padding: EdgeInsets.only(left: 25.w, right: 25.w),
-                                  child: SizedBox(
-                                    height: 70.h,
-                                    child: IntlPhoneField(
-                                      initialCountryCode: "IN",
-                                      validator: (value) {
-                                        if (value == null || value.number.isEmpty) {
-                                          return 'Please enter your phone number';
-                                        }
-                                        return null;
-                                      },
-                                      onChanged: (value) {
-                                        number = value.number;
-                                        code = value.countryCode;
-                                      },
-                                      dropdownTextStyle: AppWidget.boldTextFeildSstyleSmallDark(),
-                                      decoration: InputDecoration(
-                                        hintText: "Enter a Number",
-                                        hintStyle: AppWidget.boldTextFeildSstyleSmall(),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: Colors.black,
-                                            width: 1.5,
-                                          ),
-                                          borderRadius: BorderRadius.circular(40.r),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(40.r),
-                                          borderSide: BorderSide(
-                                            width: 1.5,
-                                            color: Colors.black,
-                                          ),
+                                  padding: EdgeInsets.only(top: 25.h, left: 20.w),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Welcome",
+                                        style: theme.textTheme.headline1?.copyWith(
+                                          fontSize: 32.sp,
+                                          fontFamily: "poppins",
+                                          color: theme.colorScheme.primary,
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(height: 8.h),
+                                      Text(
+                                        "Enter your phone number to continue",
+                                        style: theme.textTheme.bodyText2?.copyWith(
+                                          fontSize: 16.sp,
+                                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 SizedBox(height: 30.h),
+
+                                // Phone Number Input
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25.w),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Phone Number",
+                                        style: theme.textTheme.bodyText1?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      SizedBox(
+                                        height: 70.h,
+                                        child: IntlPhoneField(
+                                          initialCountryCode: "IN",
+                                          validator: (value) {
+                                            if (value == null || value.number.isEmpty) {
+                                              return 'Please enter your phone number';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (value) {
+                                            number = value.number;
+                                            code = value.countryCode;
+                                          },
+                                          dropdownTextStyle: TextStyle(
+                                            color: theme.colorScheme.onSurface,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: "Enter your number",
+                                            hintStyle: TextStyle(
+                                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: theme.colorScheme.primary,
+                                                width: 2,
+                                              ),
+                                              borderRadius: BorderRadius.circular(40.r),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(40.r),
+                                              borderSide: BorderSide(
+                                                width: 1.5,
+                                                color: theme.colorScheme.onSurface.withOpacity(0.3),
+                                              ),
+                                            ),
+                                            filled: true,
+                                            fillColor: theme.colorScheme.surface,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                SizedBox(height: 30.h),
+
                                 // Get OTP Button
-                                SizedBox(
-                                  height: 50.h,
-                                  width: 110.w,
-                                  child: TextButton(
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        await FirebaseAuth.instance.verifyPhoneNumber(
-                                          phoneNumber: code + number,
-                                          verificationCompleted: (PhoneAuthCredential credential) {},
-                                          verificationFailed: (FirebaseAuthException e) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(e.message ?? 'Verification failed')),
-                                            );
-                                          },
-                                          codeSent: (String verificationId, int? resendToken) {
-                                            Log.verify = verificationId;
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('OTP sent successfully')),
-                                            );
-                                          },
-                                          codeAutoRetrievalTimeout: (String verificationId) {},
-                                        );
-                                        Navigator.of(context).pushReplacement(
-                                          PageRouteBuilder(
-                                            pageBuilder: (context, animation, secondaryAnimation) => Login(p: number, c: code),
-                                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                              return FadeTransition(
-                                                opacity: animation,
-                                                child: child,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25.w),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 55.h,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          await FirebaseAuth.instance.verifyPhoneNumber(
+                                            phoneNumber: code + number,
+                                            verificationCompleted: (PhoneAuthCredential credential) {},
+                                            verificationFailed: (FirebaseAuthException e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(e.message ?? 'Verification failed'),
+                                                  backgroundColor: theme.colorScheme.error,
+                                                ),
                                               );
                                             },
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.all(Colors.deepOrangeAccent),
-                                    ),
-                                    child: Text(
-                                      "Get Otp",
-                                      style: AppWidget.boldTextFeildSstyleWhite(),
+                                            codeSent: (String verificationId, int? resendToken) {
+                                              Log.verify = verificationId;
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('OTP sent successfully'),
+                                                  backgroundColor: theme.colorScheme.primary,
+                                                ),
+                                              );
+                                            },
+                                            codeAutoRetrievalTimeout: (String verificationId) {},
+                                          );
+                                          Navigator.of(context).pushReplacement(
+                                            PageRouteBuilder(
+                                              pageBuilder: (context, animation, secondaryAnimation) =>
+                                                  Login(p: number, c: code),
+                                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                return FadeTransition(
+                                                  opacity: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: theme.colorScheme.primary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(40.r),
+                                        ),
+                                        elevation: 2,
+                                      ),
+                                      child: Text(
+                                        "Get OTP",
+                                        style: theme.textTheme.button?.copyWith(
+                                          fontSize: 18.sp,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                )
+                                ),
+
+                                // Terms and Conditions
+                                Padding(
+                                  padding: EdgeInsets.only(top: 20.h),
+                                  child: Text(
+                                    "By continuing, you agree to our Terms & Conditions",
+                                    style: theme.textTheme.bodyText2?.copyWith(
+                                      fontSize: 14.sp,
+                                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ],
                             ),
                           ),

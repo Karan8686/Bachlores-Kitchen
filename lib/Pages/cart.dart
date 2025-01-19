@@ -112,19 +112,23 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text("Cart", style: TextStyle(color: Colors.black)),
+        title: Text("Cart", style: textTheme.headline6?.copyWith(color: colorScheme.onSurface)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.black),
+            icon: Icon(Icons.close, color: colorScheme.onSurface),
             onPressed: () {},
           ),
         ],
@@ -143,25 +147,29 @@ class _CartScreenState extends State<CartScreen> {
                   item.name,
                   item.details,
                   "₹${item.price.toStringAsFixed(2)}",
+                  colorScheme,
+                  textTheme,
                 ),
                 SizedBox(height: 16.h),
               ],
             )),
             SizedBox(height: 24.h),
-            const Divider(color: Colors.grey, thickness: 1),
+            Divider(color: colorScheme.outline, thickness: 1),
             SizedBox(height: 16.h),
-            _buildPriceRow("Subtotal", "₹${subtotal.toStringAsFixed(2)}"),
+            _buildPriceRow("Subtotal", "₹${subtotal.toStringAsFixed(2)}", textTheme, colorScheme),
             SizedBox(height: 12.h),
-            _buildPriceRow("Shipping", "₹50.00"), // Example shipping cost
+            _buildPriceRow("Shipping", "₹50.00", textTheme, colorScheme), // Example shipping cost
             SizedBox(height: 12.h),
             _buildPriceRow(
               "Total",
               "₹${(subtotal + 50).toStringAsFixed(2)}",
+              textTheme,
+              colorScheme,
               isTotal: true,
             ),
             SizedBox(height: 170.h),
-            _PayButton("Click To Pay", _openCheckout),
-            SizedBox(height: 24.h), // Extra padding for scrollability
+            _PayButton("Click To Pay", _openCheckout, colorScheme, textTheme),
+            SizedBox(height: 24.h),
           ],
         ),
       ),
@@ -169,12 +177,25 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(
-      String imageUrl, String name, String details, String price) {
+      String imageUrl,
+      String name,
+      String details,
+      String price,
+      ColorScheme colorScheme,
+      TextTheme textTheme,
+      ) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(8.r),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -183,22 +204,22 @@ class _CartScreenState extends State<CartScreen> {
             child: Image.network(
               imageUrl,
               width: 60.w,
-              height: 60.w,
+              height: 20.w,
               fit: BoxFit.cover,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
+                  baseColor: colorScheme.onBackground.withOpacity(0.3),
+                  highlightColor: colorScheme.onBackground.withOpacity(0.1),
                   child: Container(
                     width: 60.w,
-                    height: 20.w,
-                    color: Colors.grey,
+                    height: 60.w,
+                    color: colorScheme.onBackground,
                   ),
                 );
               },
               errorBuilder: (context, object, stackTrace) =>
-              const Icon(Icons.error),
+                  Icon(Icons.error, color: colorScheme.error),
             ),
           ),
           SizedBox(width: 12.w),
@@ -206,43 +227,41 @@ class _CartScreenState extends State<CartScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp)),
-                Text(details,
-                    style: TextStyle(color: Colors.grey, fontSize: 14.sp)),
+                Text(name, style: textTheme.bodyText1?.copyWith(fontWeight: FontWeight.bold)),
+                Text(details, style: textTheme.bodyText2?.copyWith(color: colorScheme.onSurface)),
               ],
             ),
           ),
-          Text(price,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp)),
+          Text(price, style: textTheme.bodyText1?.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {bool isTotal = false}) {
+  Widget _buildPriceRow(String label, String value, TextTheme textTheme, ColorScheme colorScheme,
+      {bool isTotal = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: TextStyle(
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-                fontSize: 16.sp)),
+            style: textTheme.bodyText1?.copyWith(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            )),
         Text(value,
-            style: TextStyle(
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-                fontSize: 16.sp)),
+            style: textTheme.bodyText1?.copyWith(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: isTotal ? colorScheme.primary : null,
+            )),
       ],
     );
   }
 
-  Widget _PayButton(String text, VoidCallback onPressed) {
+  Widget _PayButton(String text, VoidCallback onPressed, ColorScheme colorScheme, TextTheme textTheme) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepOrangeAccent,
-        foregroundColor: Colors.white,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25.r),
         ),
@@ -250,7 +269,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 17.sp),
+        style: textTheme.button?.copyWith(fontSize: 17.sp),
       ),
     );
   }

@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 class OrderTrackingPage extends StatefulWidget {
   @override
@@ -15,18 +12,16 @@ class OrderTrackingPage extends StatefulWidget {
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   late GoogleMapController _mapController;
-  final LatLng _restaurantLocation = LatLng(19.1933991,72.8672557);
+  final LatLng _restaurantLocation = LatLng(19.1933991, 72.8672557);
   LatLng? _deliveryLocation;
-  double? locationn;
-  String _distance='';
-  String _estimatedTime='';
+  String _distance = '';
+  String _estimatedTime = '';
 
   final Set<Marker> _markers = {};
   final List<LatLng> _polylineCoordinates = [];
   bool _isDetailsExpanded = false;
   bool _isLoading = true;
 
-  // Constants for positioning
   final double _collapsedBottomPadding = 90.0;
   final double _expandedBottomPadding = 220.0;
 
@@ -64,9 +59,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               ),
               TextButton(
                 child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
@@ -74,6 +67,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       }
     }
   }
+
 
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
@@ -118,7 +112,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       );
 
       setState(() {
-         _deliveryLocation = LatLng(position.latitude, position.longitude);
+        _deliveryLocation = LatLng(position.latitude, position.longitude);
         _isLoading = false;
       });
 
@@ -164,9 +158,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       ]);
     }
   }
-  /// Haversine Formula to Calculate Distance
+
   double _calculateDistance(LatLng start, LatLng end) {
-    const double radiusOfEarth = 6371; // Radius of Earth in kilometers
+    const double radiusOfEarth = 6371;
     double latDistance = _degreesToRadians(end.latitude - start.latitude);
     double lonDistance = _degreesToRadians(end.longitude - start.longitude);
 
@@ -176,24 +170,26 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             sin(lonDistance / 2) * sin(lonDistance / 2);
 
     double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return radiusOfEarth * c; // Distance in kilometers
+    return radiusOfEarth * c;
   }
 
   double _degreesToRadians(double degrees) {
     return degrees * pi / 180;
   }
 
-
   void _calculateDistanceAndTime() {
-    double distance = _calculateDistance(_restaurantLocation, _restaurantLocation);
-    const double averageSpeedKmPerHour = 40.0; // Assume average speed in km/h
-    double estimatedTimeInHours = distance / averageSpeedKmPerHour;
-    double estimatedTimeInMinutes = estimatedTimeInHours * 60;
+    if (_deliveryLocation != null) {
+      double distance = _calculateDistance(_restaurantLocation, _deliveryLocation!);
+      const double averageSpeedKmPerHour = 40.0;
+      double estimatedTimeInHours = distance / averageSpeedKmPerHour;
+      double estimatedTimeInMinutes = estimatedTimeInHours * 60;
 
-    setState(() {
-      _distance = '${(distance * 1000).toStringAsFixed(0)} m'; // Distance in meters
-      _estimatedTime = '${estimatedTimeInMinutes.toStringAsFixed(0)} mins';
-    });
+      setState(() {
+        _distance = '${(distance * 1000).toStringAsFixed(0)} m';
+        _estimatedTime = '${estimatedTimeInMinutes.toStringAsFixed(0)} mins';
+
+      });
+    }
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -204,6 +200,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           "featureType": "all",
           "elementType": "geometry",
           "stylers": [{"color": "#f5f5f5"}]
+          
         },
         {
           "featureType": "road",
@@ -224,11 +221,14 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isLoading) {
       return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
           child: CircularProgressIndicator(
-            color: Colors.deepOrangeAccent,
+            color: theme.colorScheme.primary,
           ),
         ),
       );
@@ -248,7 +248,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               Polyline(
                 polylineId: PolylineId('route'),
                 points: _polylineCoordinates,
-                color: Colors.deepOrangeAccent,
+                color: theme.colorScheme.primary,
                 width: 4,
               ),
             },
@@ -261,9 +261,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             top: 40,
             left: 16,
             child: CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.surface,
               child: IconButton(
-                icon: Icon(Icons.refresh, color: Colors.black),
+                icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
                 onPressed: _getCurrentLocation,
               ),
             ),
@@ -272,9 +272,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             top: 40,
             right: 16,
             child: CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.surface,
               child: IconButton(
-                icon: Icon(Icons.close, color: Colors.black),
+                icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -287,9 +287,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             right: 16,
             bottom: _isDetailsExpanded ? _expandedBottomPadding : _collapsedBottomPadding,
             child: CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.surface,
               child: IconButton(
-                icon: Icon(Icons.my_location, color: Colors.black),
+                icon: Icon(Icons.my_location, color: theme.colorScheme.onSurface),
                 onPressed: _centerOnLocation,
               ),
             ),
@@ -308,8 +308,15 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                 duration: Duration(milliseconds: 300),
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.deepOrangeAccent,
+                  color: theme.colorScheme.primary,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
                 child: _isDetailsExpanded
                     ? Column(
@@ -318,55 +325,51 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   children: [
                     Text(
                       'On The Way',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      style: theme.textTheme.headline2?.copyWith(
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Arrives between 11:23 PM-12:01 AM',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                      style: theme.textTheme.bodyText1?.copyWith(
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                     SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.store, color: Colors.white),
+                        Icon(Icons.store, color: theme.colorScheme.onPrimary),
                         Expanded(
                           child: Divider(
-                            color: Colors.white,
+                            color: theme.colorScheme.onPrimary,
                             indent: 8,
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.delivery_dining, color: Colors.white),
+                        Icon(Icons.delivery_dining, color: theme.colorScheme.onPrimary),
                         Expanded(
                           child: Divider(
-                            color: Colors.white,
+                            color: theme.colorScheme.onPrimary,
                             indent: 8,
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.home, color: Colors.white),
+                        Icon(Icons.home, color: theme.colorScheme.onPrimary),
                       ],
                     ),
                     SizedBox(height: 12),
                     Text(
                       'Karan is preparing your order.',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                      style: theme.textTheme.bodyText1?.copyWith(
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                     SizedBox(height: 8),
                     Center(
                       child: Icon(
                         Icons.keyboard_arrow_up,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ],
@@ -375,15 +378,14 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Arrives in ${_distance.toString()}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+                      'Arrives in ${_estimatedTime}',
+                      style: theme.textTheme.bodyText1?.copyWith(
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: Colors.white,
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ],
                 ),

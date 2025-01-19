@@ -5,6 +5,10 @@ import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/firebase_options.dart';
+import 'package:batchloreskitchen/widgets/ThemeProvider.dart';
+import 'package:batchloreskitchen/widgets/restart_widget.dart';
+import 'package:batchloreskitchen/widgets/restart_widget.dart';
+import 'package:batchloreskitchen/widgets/theme_aware.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
@@ -13,7 +17,11 @@ import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:provider/provider.dart';
 import 'package:telephony/telephony.dart';
+
+
+import 'Pages/theme.dart'; // Add this import
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +29,10 @@ Future<void> main() async {
   final Telephony telephony = Telephony.instance;
   bool? permissionsGranted = await telephony.requestPhoneAndSmsPermissions;
 
-  // Set the status bar style to be visible
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor:Colors.white10,  // Set a background color for the status bar
-      statusBarIconBrightness: Brightness.dark,  // Use dark icons for light backgrounds
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
     ),
   );
 
@@ -35,7 +42,10 @@ Future<void> main() async {
     ],
   );
 
-  runApp(const MyApp());
+  runApp( RestartWidget(
+      child:MyApp()
+      ),
+      );
 }
 
 class MyApp extends StatelessWidget {
@@ -43,6 +53,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     FirebaseAuth auth = FirebaseAuth.instance;
 
     return ScreenUtilInit(
@@ -55,7 +66,11 @@ class MyApp extends StatelessWidget {
         },
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
-        home: auth.currentUser != null ? const BottomBar() : const Log(),
+        theme: AppTheme.lightTheme,
+          themeMode: ThemeMode.light,
+                // Enable system theme mode
+        home: //auth.currentUser != null ? const BottomBar() : const Log(),
+        BottomBar()
       ),
       designSize: Size(375, 812),
     );

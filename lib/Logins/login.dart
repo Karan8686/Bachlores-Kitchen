@@ -10,8 +10,8 @@ import 'dart:async';
 import 'package:vibration/vibration.dart';
 
 class Login extends StatefulWidget {
- final String  p;
- final String c;
+  final String p;
+  final String c;
 
   const Login({
     Key? key,
@@ -109,7 +109,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     }
   }
 
-  Widget _buildOTPFields() {
+  Widget _buildOTPFields(ThemeData theme) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: SlideTransition(
@@ -125,8 +125,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   boxShadow: [
                     BoxShadow(
                       color: _otpError
-                          ? Colors.red.withOpacity(0.1)
-                          : Colors.grey.withOpacity(0.1),
+                          ? theme.colorScheme.error.withOpacity(0.1)
+                          : theme.shadowColor.withOpacity(0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -138,17 +138,16 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   maxLength: 1,
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
-                  style: TextStyle(
-                    fontSize: 20.sp,
+                  style: theme.textTheme.headline6?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: _otpError ? Colors.red : Colors.black87,
+                    color: _otpError ? theme.colorScheme.error : theme.colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
                     counterText: "",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide(
-                        color: _otpError ? Colors.red : Colors.grey.shade300,
+                        color: _otpError ? theme.colorScheme.error : theme.colorScheme.outline,
                         width: _otpError ? 2.0 : 1.0,
                       ),
                     ),
@@ -156,22 +155,22 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide(
                         color: _otpError
-                            ? Colors.red
-                            : Colors.deepOrangeAccent,
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
                         width: 2.0,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide(
-                        color: _otpError ? Colors.red : Colors.grey.shade300,
+                        color: _otpError ? theme.colorScheme.error : theme.colorScheme.outline,
                         width: _otpError ? 2.0 : 1.0,
                       ),
                     ),
                     filled: true,
                     fillColor: _otpError
-                        ? Colors.red.withOpacity(0.05)
-                        : Colors.grey.shade50,
+                        ? theme.colorScheme.error.withOpacity(0.05)
+                        : theme.colorScheme.surface,
                   ),
                   onChanged: (value) => _handleOTPInput(value, index),
                 ),
@@ -182,6 +181,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       ),
     );
   }
+
 
   void _handleOTPInput(String value, int index) {
     if (value.isNotEmpty && index < 5) {
@@ -198,7 +198,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     }
   }
 
-  Widget _buildResendButton() {
+  Widget _buildResendButton(ThemeData theme) {
     return GestureDetector(
       onTap: () {
         if (!_otpResent && !_isLoading) {
@@ -206,15 +206,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 8.h,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
           color: (!_otpResent && !_isLoading)
-              ? Colors.deepOrangeAccent.withOpacity(0.1)
-              : Colors.grey.withOpacity(0.1),
+              ? theme.colorScheme.primary.withOpacity(0.1)
+              : theme.colorScheme.surface,
+          border: Border.all(
+            color: (!_otpResent && !_isLoading)
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outline,
+            width: 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -223,19 +226,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               Icons.refresh,
               size: 16.sp,
               color: (!_otpResent && !_isLoading)
-                  ? Colors.deepOrangeAccent
-                  : Colors.grey,
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outline,
             ),
             SizedBox(width: 8.w),
             Text(
               _isLoading
-                  ? "Wait $_secondsRemaining seconds"
+                  ? "$_secondsRemaining seconds"
                   : "Resend Code",
-              style: TextStyle(
+              style: theme.textTheme.button?.copyWith(
                 color: (!_otpResent && !_isLoading)
-                    ? Colors.deepOrangeAccent
-                    : Colors.grey,
-                fontWeight: FontWeight.w600,
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline,
                 fontSize: 14.sp,
               ),
             ),
@@ -247,11 +249,14 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Stack(
           children: [
+            // Top Background Container
             Container(
               height: 375.h,
               decoration: BoxDecoration(
@@ -259,8 +264,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.deepOrangeAccent,
-                    Colors.deepOrange.shade300,
+                    theme.colorScheme.primary,
+                    theme.colorScheme.primaryContainer,
                   ],
                 ),
               ),
@@ -270,18 +275,19 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 filterQuality: FilterQuality.high,
               ),
             ),
+            // Main Content Container
             Container(
               height: 530.h,
               margin: EdgeInsets.only(top: 280.h),
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(30.r),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: theme.shadowColor.withOpacity(0.1),
                     blurRadius: 10.r,
                     offset: const Offset(0, -4),
                   ),
@@ -291,43 +297,41 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 20.h),
-                  _buildHeader(),
+                  _buildHeader(theme),
                   SizedBox(height: 40.h),
                   Text(
-                    "Enter Verification Code",
-                    style: TextStyle(
-                      fontSize: 24.sp,
+                    "Verify Your Number",
+                    style: theme.textTheme.headline1?.copyWith(
+                      fontSize: 28.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
                     ),
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    "We sent a code to ${widget.p}",
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey.shade600,
+                    "Enter the code sent to ${widget.p}",
+                    style: theme.textTheme.bodyText2?.copyWith(
+                      fontSize: 16.sp,
                     ),
                   ),
                   SizedBox(height: 30.h),
-                  _buildOTPFields(),
+                  _buildOTPFields(theme),
                   SizedBox(height: 20.h),
-                  Center(child: _buildResendButton()),
+                  Center(child: _buildResendButton(theme)),
                   SizedBox(height: 40.h),
-                  _buildVerifyButton(),
+                  _buildVerifyButton(theme),
                   SizedBox(height: 45.h),
-                  _buildTermsText(),
+                  _buildTermsText(theme),
                   SizedBox(height: 40.h),
                 ],
               ),
             ),
             if (_isLoading)
               Container(
-                color: Colors.black.withOpacity(0.3),
-                child: const Center(
+                color: theme.shadowColor.withOpacity(0.3),
+                child: Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.deepOrangeAccent,
+                      theme.colorScheme.primary,
                     ),
                   ),
                 ),
@@ -338,8 +342,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ThemeData theme) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
           onTap: () => Navigator.pushReplacement(
@@ -347,28 +352,29 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) => Log(),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
                 return SlideTransition(
-                  position: animation.drive(tween),
+                  position: Tween<Offset>(
+                    begin: const Offset(-1, 0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeInOut,
+                  )),
                   child: child,
                 );
               },
             ),
           ),
           child: Container(
-            padding: EdgeInsets.all(8.r),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
-              color: Colors.deepOrangeAccent.withOpacity(0.1),
+              color: theme.colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               Icons.arrow_back_ios_new,
-              size: 24.sp,
-              color: Colors.deepOrangeAccent,
+              size: 20.sp,
+              color: theme.colorScheme.primary,
             ),
           ),
         ),
@@ -376,61 +382,57 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildVerifyButton() {
+
+
+
+  Widget _buildVerifyButton(ThemeData theme) {
     return Center(
       child: SizedBox(
         height: 50.h,
         width: 200.w,
         child: ElevatedButton(
           onPressed: _isLoading ? null : _verifyOTP,
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(
-              _isLoading ? Colors.grey : Colors.deepOrangeAccent,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isLoading
+                ? theme.colorScheme.surfaceVariant
+                : theme.colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.r),
             ),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.r),
-              ),
-            ),
-            elevation: MaterialStateProperty.all(2),
+            elevation: 2,
           ),
           child: _isLoading
               ? SizedBox(
             height: 20.h,
             width: 20.w,
-            child: const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.onSurface,
+              ),
               strokeWidth: 2,
             ),
           )
               : Text(
             "Verify",
-            style: TextStyle(
+            style: theme.textTheme.button?.copyWith(
               fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: theme.colorScheme.onPrimary,
             ),
           ),
         ),
-
       ),
-
     );
   }
 
-
-  Widget _buildTermsText() {
+  Widget _buildTermsText(ThemeData theme) {
     return Text(
       "By continuing, you agree to our Terms of Service and Privacy Policy",
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: theme.textTheme.caption?.copyWith(
         fontSize: 12.sp,
-        color: Colors.grey.shade600,
       ),
     );
   }
-
-
 
   Future<void> _verifyOTP() async {
     if (_isLoading) return;
@@ -453,22 +455,22 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
       if (mounted) {
         Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
+          context,
+          PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => View1(),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    const begin = Offset(1.0, 0.0);
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
 
-    const end = Offset.zero;
-    const curve = Curves.easeInOut;
-    var tween = Tween(begin: begin, end: end)
-        .chain(CurveTween(curve: curve));
-    return SlideTransition(
-      position: animation.drive(tween),
-      child: child,
-    );
-    },
-            ),
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+              var tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: curve));
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
+          ),
         );
         Login.h = true;
       }
@@ -597,3 +599,4 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 }
+// ... (keep existing methods for OTP handling, verification, etc.)
