@@ -117,32 +117,10 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
   final PageController controller = PageController();
   bool isLastPage = false;
 
-  @override
-  void initState() {
-    super.initState();
-    requestPermissions();
-  }
 
-  Future<void> requestPermissions() async {
-    try {
-      var locationStatus = await Permission.location.status;
-      if (!locationStatus.isGranted) {
-        await Permission.location.request();
-      }
 
-      var photosStatus = await Permission.photos.status;
-      if (!photosStatus.isGranted) {
-        await Permission.photos.request();
-      }
 
-      var videosStatus = await Permission.videos.status;
-      if (!videosStatus.isGranted) {
-        await Permission.videos.request();
-      }
-    } catch (e) {
-      print('Error requesting permissions: $e');
-    }
-  }
+
 
   @override
   void dispose() {

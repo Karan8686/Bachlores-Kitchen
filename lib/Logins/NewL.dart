@@ -24,7 +24,7 @@ class _LogState extends State<Log> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Background Image
@@ -109,8 +109,9 @@ class _LogState extends State<Log> {
                                       ),
                                       SizedBox(height: 8.h),
                                       SizedBox(
-                                        height: 70.h,
+                                        height: 80.h,
                                         child: IntlPhoneField(
+
                                           initialCountryCode: "IN",
                                           validator: (value) {
                                             if (value == null || value.number.isEmpty) {

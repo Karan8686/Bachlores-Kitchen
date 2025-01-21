@@ -1,3 +1,7 @@
+import 'package:batchloreskitchen/Pages/details.dart';
+import 'package:batchloreskitchen/Pages/favourate.dart';
+import 'package:batchloreskitchen/Pages/recentOrder.dart';
+import 'package:batchloreskitchen/Pages/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
@@ -25,9 +29,10 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
     super.initState();
     pages = [
       Home(),
-      Order(),
+      FavoritesPage(),
       CartScreen(),
-      Profile(),
+      RecentlyOrderedPage(),
+      SettingsPage()
     ];
 
     _animationController = AnimationController(

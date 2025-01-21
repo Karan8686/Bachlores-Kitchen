@@ -4,6 +4,7 @@ import 'package:batchloreskitchen/Onboard/PageView.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
+import 'package:batchloreskitchen/Pages/settings.dart';
 import 'package:batchloreskitchen/firebase_options.dart';
 import 'package:batchloreskitchen/widgets/ThemeProvider.dart';
 import 'package:batchloreskitchen/widgets/restart_widget.dart';
@@ -70,7 +71,7 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.light,
                 // Enable system theme mode
         home: auth.currentUser != null ? const BottomBar() : const Log(),
-
+        //SettingsPage()
       ),
       designSize: Size(375, 812),
     );

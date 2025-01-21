@@ -239,7 +239,7 @@ class _CartScreenState extends State<CartScreen> {
     var options = {
       'key': 'rzp_test_Oz8oer6jt57xY7',
       'amount': (subtotal * 100).toInt(),
-      'name': 'Modern Store',
+      'name': 'Batchlores Kitchen',
       'description': 'Payment for cart items',
       'prefill': {
         'contact': '7021511537',
@@ -401,7 +401,7 @@ class _CartScreenState extends State<CartScreen> {
         margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
           border: Border.all(color: theme.colorScheme.secondary),
-          color: theme.colorScheme.primary.withOpacity(0.3),
+          color: theme.colorScheme.background.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
@@ -464,6 +464,7 @@ class _CartScreenState extends State<CartScreen> {
                 fontFamily: 'Poppins',
                 fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.secondary
                 ),
               ),
       SizedBox(height: 4.h),
@@ -472,11 +473,11 @@ class _CartScreenState extends State<CartScreen> {
         style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 14.sp,
-          color: Colors.grey[600],
+          color: theme.primaryColor,
         ),
       ),
       SizedBox(height: 8.h),
-      // ... (continuing from the previous code)
+
 
       Text(
         "₹${item.price.toStringAsFixed(2)}",
@@ -523,11 +524,11 @@ class _CartScreenState extends State<CartScreen> {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         border: Border.all(color: theme.colorScheme.secondary),
-        color: theme.colorScheme.primary.withOpacity(0.3),
+        color: theme.colorScheme.background.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: theme.primaryColor.withOpacity(0.1),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),

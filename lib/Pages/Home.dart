@@ -1,5 +1,7 @@
 import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
+import 'package:batchloreskitchen/Pages/details.dart';
+import 'package:batchloreskitchen/Pages/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -82,14 +84,10 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void _showMenu(BuildContext context) {
-    // Implement menu drawer or modal
-    Scaffold.of(context).openDrawer();
-  }
 
   void _showCart(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) =>  CartScreen(),
+      builder: (context) =>  UserProfile(),
     ));
   }
 
@@ -182,8 +180,10 @@ class _HomeState extends State<Home> {
               children: [
                 _buildHeaderButton(
                   colorScheme: colorScheme,
-                  icon: Icons.menu_rounded,
-                  onPressed: () => _showMenu(context),
+                  icon: Icons.fastfood_rounded,
+                  onPressed: () {
+
+                  },
                 ),
                 Expanded(
                   child: _buildSearchField(colorScheme),
@@ -193,7 +193,7 @@ class _HomeState extends State<Home> {
                   icon: Icons.person_4_outlined,
                   showBadge: false,
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => OrderTrackingPage(),));
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => UserProfile(),) );
                   },
                 ),
               ],
