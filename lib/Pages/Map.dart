@@ -47,11 +47,11 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
         showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
-            title: Text('Location Permission Required'),
+            title: const Text('Location Permission Required'),
             content: Text('We need your location to deliver your order. Please enable location services to continue.'),
             actions: [
               TextButton(
-                child: Text('Open Settings'),
+                child: const Text('Open Settings'),
                 onPressed: () {
                   openAppSettings();
                   Navigator.pop(context);
@@ -354,7 +354,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   children: [
                     Text(
                       'On The Way',
-                      style: theme.textTheme.headline2?.copyWith(
+                      style: theme.textTheme.displayMedium?.copyWith(
                         color: theme.colorScheme.background,
                         fontFamily: "poppins"
                       ),
@@ -362,7 +362,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     SizedBox(height: 8),
                     Text(
                       'Arrives between 11:23 PM-12:01 AM',
-                      style: theme.textTheme.bodyText1?.copyWith(
+                      style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.background,
                       ),
                     ),
@@ -391,7 +391,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     SizedBox(height: 12),
                     Text(
                       'Karan is preparing your order.',
-                      style: theme.textTheme.bodyText1?.copyWith(
+                      style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.background,
                         fontFamily: "poppins"
                       ),
@@ -410,7 +410,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   children: [
                     Text(
                       'Arrives in ${_estimatedTime}',
-                      style: theme.textTheme.bodyText1?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onPrimary,
                         fontFamily: "poppins"
                       ),

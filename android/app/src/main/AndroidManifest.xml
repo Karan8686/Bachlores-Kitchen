@@ -7,12 +7,11 @@
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-
-
     <application
         android:label="batchloreskitchen"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -43,8 +42,6 @@
             <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="AIzaSyBN6PuIf3TsMy0RS2mSlp_GQF10j1lQ4IU" />
-
-
 
     </application>
 

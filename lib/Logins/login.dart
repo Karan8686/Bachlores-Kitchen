@@ -138,7 +138,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   maxLength: 1,
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
-                  style: theme.textTheme.headline6?.copyWith(
+                  style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: _otpError ? theme.colorScheme.error : theme.colorScheme.onSurface,
                   ),
@@ -234,7 +234,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               _isLoading
                   ? "$_secondsRemaining seconds"
                   : "Resend Code",
-              style: theme.textTheme.button?.copyWith(
+              style: theme.textTheme.bodySmall?.copyWith(
                 color: (!_otpResent && !_isLoading)
                     ? theme.colorScheme.primary
                     : theme.colorScheme.outline,
@@ -301,7 +301,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   SizedBox(height: 40.h),
                   Text(
                     "Verify Your Number",
-                    style: theme.textTheme.headline1?.copyWith(
+                    style: theme.textTheme.displayLarge?.copyWith(
                       fontSize: 28.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -309,7 +309,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   SizedBox(height: 8.h),
                   Text(
                     "Enter the code sent to ${widget.p}",
-                    style: theme.textTheme.bodyText2?.copyWith(
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 16.sp,
                     ),
                   ),
@@ -327,7 +327,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             ),
             if (_isLoading)
               Container(
-                color: theme.shadowColor.withOpacity(0.3),
+                color: theme.shadowColor.withValues(alpha: 0.3),
                 child: Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -350,7 +350,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           onTap: () => Navigator.pushReplacement(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => Log(),
+              pageBuilder: (context, animation, secondaryAnimation) => const Log(),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
@@ -368,7 +368,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           child: Container(
             padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.1),
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
@@ -394,7 +394,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           onPressed: _isLoading ? null : _verifyOTP,
           style: ElevatedButton.styleFrom(
             backgroundColor: _isLoading
-                ? theme.colorScheme.surfaceVariant
+                ? theme.colorScheme.surfaceContainerHighest
                 : theme.colorScheme.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25.r),
@@ -414,7 +414,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           )
               : Text(
             "Verify",
-            style: theme.textTheme.button?.copyWith(
+            style: theme.textTheme.labelLarge?.copyWith(
               fontSize: 18.sp,
               color: theme.colorScheme.onPrimary,
             ),
@@ -428,7 +428,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     return Text(
       "By continuing, you agree to our Terms of Service and Privacy Policy",
       textAlign: TextAlign.center,
-      style: theme.textTheme.caption?.copyWith(
+      style: theme.textTheme.bodySmall?.copyWith(
         fontSize: 12.sp,
       ),
     );
@@ -457,7 +457,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => View1(),
+            pageBuilder: (context, animation, secondaryAnimation) => const View1(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               const begin = Offset(1.0, 0.0);
 

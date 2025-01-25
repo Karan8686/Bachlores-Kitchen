@@ -6,6 +6,7 @@ import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/settings.dart';
 import 'package:batchloreskitchen/firebase_options.dart';
+import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/widgets/ThemeProvider.dart';
 import 'package:batchloreskitchen/widgets/restart_widget.dart';
 import 'package:batchloreskitchen/widgets/restart_widget.dart';
@@ -20,7 +21,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:provider/provider.dart';
 import 'package:telephony/telephony.dart';
-
+import 'package:batchloreskitchen/providers/address_provider.dart';
 
 import 'Pages/theme.dart'; // Add this import
 
@@ -43,10 +44,15 @@ Future<void> main() async {
     ],
   );
 
-  runApp( RestartWidget(
-      child:MyApp()
-      ),
-      );
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+        ChangeNotifierProvider(create: (context) => AddressProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

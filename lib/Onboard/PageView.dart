@@ -47,7 +47,7 @@ Widget page({
                 children: [
                   Text(
                     content1,
-                    style: theme.textTheme.headline2,
+                    style: theme.textTheme.displayMedium,
                   )
                       .animate()
                       .fadeIn(
@@ -66,7 +66,7 @@ Widget page({
                     child: Text(
                       content2,
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyText1,
+                      style: theme.textTheme.bodyLarge,
                     ),
                   )
                       .animate()
@@ -84,7 +84,7 @@ Widget page({
                   Text(
                     content3,
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyText2,
+                    style: theme.textTheme.bodyMedium,
                   )
                       .animate()
                       .fadeIn(
@@ -248,7 +248,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
               child: Center(
                 child: Text(
                   "Get Started",
-                  style: theme.textTheme.button?.copyWith(
+                  style: theme.textTheme.labelLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),

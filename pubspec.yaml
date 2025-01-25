@@ -67,6 +67,7 @@ dependencies:
   shimmer: ^3.0.0
   timelines: ^0.1.0
 
+
   percent_indicator: ^4.2.2
 
   sim_data: ^0.0.2

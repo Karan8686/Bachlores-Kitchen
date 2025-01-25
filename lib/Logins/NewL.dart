@@ -75,7 +75,7 @@ class _LogState extends State<Log> {
                                     children: [
                                       Text(
                                         "Welcome",
-                                        style: theme.textTheme.headline1?.copyWith(
+                                        style: theme.textTheme.displayLarge?.copyWith(
                                           fontSize: 32.sp,
                                           fontFamily: "poppins",
                                           color: theme.colorScheme.secondary,
@@ -84,7 +84,7 @@ class _LogState extends State<Log> {
                                       SizedBox(height: 8.h),
                                       Text(
                                         "Enter your phone number to continue",
-                                        style: theme.textTheme.bodyText2?.copyWith(
+                                        style: theme.textTheme.bodyMedium?.copyWith(
                                           fontSize: 16.sp,
                                           color: theme.colorScheme.onSurface.withOpacity(0.7),
                                           fontFamily: "poppins"
@@ -103,7 +103,7 @@ class _LogState extends State<Log> {
                                     children: [
                                       Text(
                                         "Phone Number",
-                                        style: theme.textTheme.bodyText1?.copyWith(
+                                        style: theme.textTheme.bodyLarge?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -211,7 +211,7 @@ class _LogState extends State<Log> {
                                       ),
                                       child: Text(
                                         "Get OTP",
-                                        style: theme.textTheme.button?.copyWith(
+                                        style: theme.textTheme.labelLarge?.copyWith(
                                           fontSize: 18.sp,
                                           color: theme.colorScheme.background
                                         ),
@@ -225,7 +225,7 @@ class _LogState extends State<Log> {
                                   padding: EdgeInsets.only(top: 20.h),
                                   child: Text(
                                     "By continuing, you agree to our Terms & Conditions",
-                                    style: theme.textTheme.bodyText2?.copyWith(
+                                    style: theme.textTheme.bodyMedium?.copyWith(
                                       fontSize: 14.sp,
                                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                                     ),

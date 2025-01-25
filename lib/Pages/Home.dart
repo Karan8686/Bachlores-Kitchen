@@ -70,6 +70,119 @@ class _HomeState extends State<Home> {
     },
   ];
 
+  final List<Map<String, dynamic>> _popularItems = [
+    {
+      'name': 'Spicy Thai Noodles',
+      'description': 'Authentic Thai street food style',
+      'price': 299,
+      'rating': 4.9,
+      'time': '15-20 min',
+      'calories': '380 kcal',
+      'image': 'https://images.unsplash.com/photo-1617093727343-374698b1b08d',
+      'isPopular': true,
+    },
+    {
+      'name': 'Mexican Bowl',
+      'description': 'Fresh avocado and beans',
+      'price': 349,
+      'rating': 4.7,
+      'time': '20-25 min',
+      'calories': '450 kcal',
+      'image': 'https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7',
+      'isPopular': true,
+    },
+    // Add more popular items...
+  ];
+
+  final List<Map<String, dynamic>> _recommendedItems = [
+    {
+      'name': 'Poke Bowl',
+      'description': 'Fresh tuna with rice and vegetables',
+      'price': 399,
+      'rating': 4.6,
+      'time': '20-25 min',
+      'calories': '320 kcal',
+      'image': 'https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f',
+      'isPopular': false,
+    },
+    {
+      'name': 'Buddha Bowl',
+      'description': 'Nutritious vegetarian delight',
+      'price': 289,
+      'rating': 4.8,
+      'time': '15-20 min',
+      'calories': '280 kcal',
+      'image': 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
+      'isPopular': false,
+    },
+    // Add more recommended items...
+  ];
+
+  final List<Map<String, dynamic>> _nearbyItems = [
+    {
+      'name': 'Fresh Pasta',
+      'description': 'Handmade Italian pasta',
+      'price': 329,
+      'rating': 4.5,
+      'time': '25-30 min',
+      'calories': '520 kcal',
+      'image': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141',
+      'isPopular': false,
+    },
+    {
+      'name': 'Sushi Platter',
+      'description': 'Assorted fresh sushi',
+      'price': 599,
+      'rating': 4.9,
+      'time': '20-25 min',
+      'calories': '400 kcal',
+      'image': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c',
+      'isPopular': false,
+    },
+    // Add more nearby items...
+  ];
+
+  final List<Map<String, dynamic>> _topRatedItems = [
+    {
+      'name': 'Wagyu Burger',
+      'description': 'Premium beef burger',
+      'price': 649,
+      'rating': 5.0,
+      'time': '25-30 min',
+      'calories': '680 kcal',
+      'image': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
+      'isPopular': true,
+    },
+    {
+      'name': 'Truffle Pizza',
+      'description': 'Authentic Italian with truffle',
+      'price': 799,
+      'rating': 4.9,
+      'time': '30-35 min',
+      'calories': '720 kcal',
+      'image': 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143',
+      'isPopular': true,
+    },
+    // Add more top rated items...
+  ];
+
+  List<Map<String, dynamic>> get _currentItems {
+    switch (_selectedCategoryIndex) {
+      case 0: // All
+        return _foodItems;
+      case 1: // Popular
+        return _popularItems;
+      case 2: // Recommended
+        return _recommendedItems;
+      case 3: // Near You
+        return _nearbyItems;
+      case 4: // Top Rated
+        return _topRatedItems;
+      default:
+        return _foodItems;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -151,7 +264,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildHeader(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    
 
     return Container(
       height: 56.h,
@@ -182,7 +295,7 @@ class _HomeState extends State<Home> {
                   colorScheme: colorScheme,
                   icon: Icons.fastfood_rounded,
                   onPressed: () {
-
+                    
                   },
                 ),
                 Expanded(
@@ -210,7 +323,7 @@ class _HomeState extends State<Home> {
     required VoidCallback onPressed,
     bool showBadge = false,
   }) {
-    final theme = Theme.of(context); // Fetch the current theme
+    
     return Stack(
       children: [
         IconButton(
@@ -360,7 +473,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildCategories(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    
     return SizedBox(
       height: 44.h,
       child: ListView.builder(
@@ -375,7 +488,7 @@ class _HomeState extends State<Home> {
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.secondary),
-                color: isSelected ? colorScheme.primary.withOpacity(0.3): Colors.white,
+                color: isSelected ? colorScheme.primary.withOpacity(0.1): Colors.white,
 
                 borderRadius: BorderRadius.circular(29.r),
 
@@ -609,126 +722,147 @@ class _HomeState extends State<Home> {
       ),
       delegate: SliverChildBuilderDelegate(
             (context, index) {
-          final item = _foodItems[index];
-          return _buildFoodItem(item,colorScheme);
+          final item = _currentItems[index];
+          return _buildFoodItem(item, colorScheme);
         },
-        childCount: _foodItems.length,
+        childCount: _currentItems.length,
       ),
     );
   }
 
   Widget _buildFoodItem(Map<String, dynamic> item,ColorScheme colorScheme) {
     final theme = Theme.of(context); // Fetch the current theme
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.secondary),
-        color: colorScheme.background.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.secondary.withOpacity(0.01),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Details(
+              name: item['name'],
+              description: item['description'],
+              price: item['price'].toDouble(), // Ensure price is a double
+              imageUrl: item['image'],
+              rating: item['rating'].toDouble(), // Ensure rating is a double
+              restaurant: "Savory Street Eats", // Example restaurant name
+            ),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                child: CachedNetworkImage(
-                  imageUrl: item['image'],
-                  height: 80.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: colorScheme.primary.withOpacity(0.03)!,
-                    highlightColor: colorScheme.background!,
-                    child: Container(
-                      color: colorScheme.background,
-                      height: 120.h,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8.h,
-                right: 8.w,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 4.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondary.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
-                        color: Colors.deepOrangeAccent,
-                        size: 16.w,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        item['rating'].toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.all(12.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: colorScheme.secondary),
+          color: colorScheme.background.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.secondary.withOpacity(0.01),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(
-                  item['name'],
-                  style: theme.textTheme.bodyText1?.copyWith(
-                    color: colorScheme.secondary
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  item['description'],
-                  style:theme.textTheme.bodyText2?.copyWith(
-                    color: colorScheme.primary
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '\u{20B9}${item['price']}',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: colorScheme.secondary,
-                        fontFamily: "poppins",
-                        fontSize: 19.spMax
-                      )
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+                  child: CachedNetworkImage(
+                    imageUrl: item['image'],
+                    height: 80.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: colorScheme.primary.withOpacity(0.03)!,
+                      highlightColor: colorScheme.background!,
+                      child: Container(
+                        color: colorScheme.background,
+                        height: 120.h,
+                      ),
                     ),
-                    _buildAddButton(colorScheme),
-                  ],
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.image_not_supported,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8.h,
+                  right: 8.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondary.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          color: Colors.deepOrangeAccent,
+                          size: 16.w,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          item['rating'].toString(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.all(12.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['name'],
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.secondary
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    item['description'],
+                    style:theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.primary
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '\u{20B9}${item['price']}',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: colorScheme.secondary,
+                          fontFamily: "poppins",
+                          fontSize: 19.spMax
+                        )
+                      ),
+                      _buildAddButton(colorScheme),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ).animate().fadeIn().scale();
   }
@@ -782,7 +916,7 @@ class BubblePatternPainter extends CustomPainter {
       final x = (random + i * 100) % size.width;
       final y = (random + i * 200) % size.height;
       final radius = (random + i * 50) % 20 + 5;
-      canvas.drawCircle(Offset(x, y), radius.toDouble(), paint);
+      canvas.drawCircle(Offset(x.toDouble(), y.toDouble()), radius.toDouble(), paint);
     }
   }
 

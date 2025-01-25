@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -35,15 +33,15 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: cream,
     textTheme: TextTheme(
-      headline1: TextStyle(
+      headlineLarge: TextStyle(
         fontFamily: "poppins",
           fontSize: 32, fontWeight: FontWeight.bold, color: darkGreen),
-      headline2: TextStyle(
+      headlineMedium: TextStyle(
           fontFamily: "poppins",
           fontSize: 28, fontWeight: FontWeight.w600, color: darkGreen),
-      bodyText1: TextStyle(fontFamily: "poppins",fontSize: 16, color: darkGreen),
-      bodyText2: TextStyle(fontFamily: "poppins",fontSize: 14, color: Colors.black54),
-      button: TextStyle(
+      bodyLarge: TextStyle(fontFamily: "poppins",fontSize: 16, color: darkGreen),
+      bodyMedium: TextStyle(fontFamily: "poppins",fontSize: 14, color: Colors.black54),
+      labelLarge: TextStyle(
           fontFamily: "poppins",
           fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     ),

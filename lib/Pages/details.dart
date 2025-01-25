@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:batchloreskitchen/Pages/theme.dart'; // Import your theme file
+import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart'; // Import the CartProvider
+import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart'; // Import the CartProvider
 
 class Details extends StatefulWidget {
-  const Details({Key? key}) : super(key: key);
+  final String name;
+  final String description;
+  final double price;
+  final String imageUrl;
+  final double rating;
+  final String restaurant;
+
+  const Details({
+    Key? key,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
+    required this.rating,
+    required this.restaurant,
+  }) : super(key: key);
 
   @override
   State<Details> createState() => _DetailsState();
@@ -58,8 +76,8 @@ class _DetailsState extends State<Details> {
               SizedBox(height: MediaQuery.of(context).padding.top + 16.h),
               _buildHeader(colorScheme),
               Center(
-                child: Image.asset(
-                  "images/SaladQ.png",
+                child: Image.network(
+                  widget.imageUrl,
                   width: 350.w,
                   height: 230.h,
                   fit: BoxFit.contain,
@@ -113,14 +131,14 @@ class _DetailsState extends State<Details> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Mediterranean sunshine bowl",
+                  widget.name,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     color: colorScheme.primary, // Use theme's primary color
                   ),
                 ).animate().fadeIn(delay: 200.ms).slideX(),
                 SizedBox(height: 8.h),
                 Text(
-                  "Savory Street Eats",
+                  widget.restaurant,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurface.withOpacity(0.6),
                   ),
@@ -174,7 +192,7 @@ class _DetailsState extends State<Details> {
             ),
             SizedBox(width: 4.w),
             Text(
-              "4.6",
+              widget.rating.toString(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
@@ -200,7 +218,7 @@ class _DetailsState extends State<Details> {
 
   Widget _buildDescription(ColorScheme colorScheme) {
     return Text(
-      "Harmonious blend of vibrant vegetables, fluffy couscous, and creamy hummus drizzled with a zesty lemon tahini dressing",
+      widget.description,
       style: TextStyle(
         fontSize: 14.sp,
         color: colorScheme.onSurface.withOpacity(0.6),
@@ -353,6 +371,16 @@ class _DetailsState extends State<Details> {
                 isButtonClicked = !isButtonClicked;
               });
             });
+
+            // Add item to cart
+            Provider.of<CartProvider>(context, listen: false).addItem(
+              CartItemData(
+                imageUrl: widget.imageUrl,
+                name: widget.name,
+                details: widget.description,
+                price: widget.price.toDouble(), // Ensure price is a double
+              ),
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,

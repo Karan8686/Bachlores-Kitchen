@@ -14,11 +14,19 @@ class FavoritesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: AppBar(
-        title: Text('Favorites', style: TextStyle(color: colorScheme.onPrimary,fontFamily: "poppins")),
-        backgroundColor: colorScheme.primary,
+        title: Text('Favorites', style: TextStyle(color: colorScheme.onPrimary, fontFamily: "poppins")),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colorScheme.primary, colorScheme.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(20.w),
         children: [
           _buildFavoriteItem(
             context,
@@ -27,7 +35,7 @@ class FavoritesPage extends StatelessWidget {
             '4.6',
             'images/SaladQ.png',
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 20.h),
           _buildFavoriteItem(
             context,
             'Spicy Chicken Wrap',
@@ -35,7 +43,7 @@ class FavoritesPage extends StatelessWidget {
             '4.8',
             'images/SaladQ2.png',
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 20.h),
           _buildFavoriteItem(
             context,
             'Veggie Supreme Pizza',
@@ -60,8 +68,8 @@ class FavoritesPage extends StatelessWidget {
           BoxShadow(
             color: colorScheme.onSurface.withOpacity(0.1),
             spreadRadius: 1,
-            blurRadius: 3,
-            offset: Offset(0, 2),
+            blurRadius: 5,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -81,7 +89,7 @@ class FavoritesPage extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -93,14 +101,14 @@ class FavoritesPage extends StatelessWidget {
                         fontFamily: "poppins"
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 8.h),
                   Text(
                     restaurant,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 12.h),
                   Row(
                     children: [
                       Icon(Icons.star, color: colorScheme.primary, size: 18.w),

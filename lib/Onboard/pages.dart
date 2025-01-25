@@ -79,7 +79,7 @@ class _BottomBarState extends State<BottomBar> {
               SizedBox(width: 8.w),
               Text(
                 label,
-                style: theme.textTheme.button?.copyWith(
+                style: theme.textTheme.labelLarge?.copyWith(
                   fontSize: 14.sp,
                   color: theme.colorScheme.onSecondary,
                 ),
