@@ -17,9 +17,16 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  late Razorpay _razorpay;
   bool isLoading = true;
   bool isProcessingPayment = false;
+
+  late Razorpay _razorpay;
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -36,12 +43,6 @@ class _CartScreenState extends State<CartScreen> {
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _razorpay.clear();
-    super.dispose();
   }
 
   double get subtotal {
@@ -114,17 +115,6 @@ class _CartScreenState extends State<CartScreen> {
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor:theme.colorScheme.background ,
-      appBar: _buildAppBar(),
-      body: isLoading ? _buildLoadingScreen() : _buildContent(),
-      bottomNavigationBar: isLoading ? null : _buildBottomBar(),
     );
   }
 
@@ -463,12 +453,12 @@ class _CartScreenState extends State<CartScreen> {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
-        color: theme.colorScheme.background,
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha:0.1),
             blurRadius: 10,
-            offset: Offset(0, -4),
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -508,7 +498,18 @@ class _CartScreenState extends State<CartScreen> {
           ],
         ),
       ),
-    ).animate().fadeIn(delay: Duration(milliseconds: 500))
-        .slideY(begin: 1, duration: Duration(milliseconds: 400));
+    ).animate().fadeIn(delay: const Duration(milliseconds: 500))
+        .slideY(begin: 1, duration:const  Duration(milliseconds: 400));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor:theme.colorScheme.background ,
+      appBar: _buildAppBar(),
+      body: isLoading ? _buildLoadingScreen() : _buildContent(),
+      bottomNavigationBar: isLoading ? null : _buildBottomBar(),
+    );
   }
 }

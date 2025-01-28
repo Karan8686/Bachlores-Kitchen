@@ -10,9 +10,6 @@ import 'dart:async';
 import 'package:vibration/vibration.dart';
 
 class Login extends StatefulWidget {
-  final String p;
-  final String c;
-
   const Login({
     Key? key,
     required this.p,
@@ -21,30 +18,69 @@ class Login extends StatefulWidget {
 
   static bool h = false;
 
+  final String c;
+  final String p;
+
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   final String sms = '';
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  Timer? _timer;
-  int _secondsRemaining = 30;
-  bool _otpResent = false;
-  bool _isLoading = false;
-  AnimationController? _animationController;
+
   Animation<Offset>? _animation;
-  bool _otpError = false;
-  final List<TextEditingController> _otpControllers =
-  List.generate(6, (_) => TextEditingController());
+  AnimationController? _animationController;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final List<FocusNode> _focusNodes =
   List.generate(6, (_) => FocusNode());
+
+  bool _isLoading = false;
+  final List<TextEditingController> _otpControllers =
+  List.generate(6, (_) => TextEditingController());
+
+  bool _otpError = false;
+  bool _otpResent = false;
+  int _secondsRemaining = 30;
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _animationController?.dispose();
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _setupFocusNodes();
+  }
+
+  void startCountdown(BuildContext context) {
+    if (_isLoading) return;
+
+    setState(() {
+      _secondsRemaining = 30;
+      _isLoading = true;
+    });
+
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0) {
+        setState(() => _secondsRemaining--);
+      } else {
+        timer.cancel();
+        setState(() => _isLoading = false);
+        _resendOTP();
+      }
+    });
   }
 
   void _setupAnimations() {
@@ -67,39 +103,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         }
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _animationController?.dispose();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
-    super.dispose();
-  }
-
-  void startCountdown(BuildContext context) {
-    if (_isLoading) return;
-
-    setState(() {
-      _secondsRemaining = 30;
-      _isLoading = true;
-    });
-
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_secondsRemaining > 0) {
-        setState(() => _secondsRemaining--);
-      } else {
-        timer.cancel();
-        setState(() => _isLoading = false);
-        _resendOTP();
-      }
-    });
   }
 
   Future<void> _resendOTP() async {
@@ -182,7 +185,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-
   void _handleOTPInput(String value, int index) {
     if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
@@ -247,101 +249,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Stack(
-          children: [
-            // Top Background Container
-            Container(
-              height: 375.h,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.primaryContainer,
-                  ],
-                ),
-              ),
-              child: Image.asset(
-                "images/log3.jpg",
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-              ),
-            ),
-            // Main Content Container
-            Container(
-              height: 530.h,
-              margin: EdgeInsets.only(top: 280.h),
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30.r),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.shadowColor.withOpacity(0.1),
-                    blurRadius: 10.r,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  _buildHeader(theme),
-                  SizedBox(height: 40.h),
-                  Text(
-                    "Verify Your Number",
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    "Enter the code sent to ${widget.p}",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                  SizedBox(height: 30.h),
-                  _buildOTPFields(theme),
-                  SizedBox(height: 20.h),
-                  Center(child: _buildResendButton(theme)),
-                  SizedBox(height: 40.h),
-                  _buildVerifyButton(theme),
-                  SizedBox(height: 45.h),
-                  _buildTermsText(theme),
-                  SizedBox(height: 40.h),
-                ],
-              ),
-            ),
-            if (_isLoading)
-              Container(
-                color: theme.shadowColor.withValues(alpha: 0.3),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeader(ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -381,9 +288,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       ],
     );
   }
-
-
-
 
   Widget _buildVerifyButton(ThemeData theme) {
     return Center(
@@ -595,6 +499,101 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           borderRadius: BorderRadius.circular(12.r),
         ),
         duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Stack(
+          children: [
+            // Top Background Container
+            Container(
+              height: 375.h,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.primaryContainer,
+                  ],
+                ),
+              ),
+              child: Image.asset(
+                "images/log3.jpg",
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
+            // Main Content Container
+            Container(
+              height: 530.h,
+              margin: EdgeInsets.only(top: 280.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(30.r),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.shadowColor.withOpacity(0.1),
+                    blurRadius: 10.r,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20.h),
+                  _buildHeader(theme),
+                  SizedBox(height: 40.h),
+                  Text(
+                    "Verify Your Number",
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      fontSize: 28.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    "Enter the code sent to ${widget.p}",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  SizedBox(height: 30.h),
+                  _buildOTPFields(theme),
+                  SizedBox(height: 20.h),
+                  Center(child: _buildResendButton(theme)),
+                  SizedBox(height: 40.h),
+                  _buildVerifyButton(theme),
+                  SizedBox(height: 45.h),
+                  _buildTermsText(theme),
+                  SizedBox(height: 40.h),
+                ],
+              ),
+            ),
+            if (_isLoading)
+              Container(
+                color: theme.shadowColor.withValues(alpha: 0.3),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

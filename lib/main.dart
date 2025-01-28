@@ -1,24 +1,15 @@
 import 'package:batchloreskitchen/Logins/NewL.dart';
-import 'package:batchloreskitchen/Logins/login.dart';
-import 'package:batchloreskitchen/Onboard/PageView.dart';
-import 'package:batchloreskitchen/Pages/Home.dart';
-import 'package:batchloreskitchen/Pages/cart.dart';
-import 'package:batchloreskitchen/Pages/details.dart';
-import 'package:batchloreskitchen/Pages/settings.dart';
-import 'package:batchloreskitchen/firebase_options.dart';
+
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
-import 'package:batchloreskitchen/widgets/ThemeProvider.dart';
-import 'package:batchloreskitchen/widgets/restart_widget.dart';
-import 'package:batchloreskitchen/widgets/restart_widget.dart';
-import 'package:batchloreskitchen/widgets/theme_aware.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/services.dart';
-import 'package:batchloreskitchen/Pages/Map.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_displaymode/flutter_displaymode.dart';
+
 import 'package:provider/provider.dart';
 import 'package:telephony/telephony.dart';
 import 'package:batchloreskitchen/providers/address_provider.dart';
@@ -50,7 +41,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => AddressProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -67,7 +58,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => MaterialApp(
         builder: (context, child) {
           return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
             child: child!,
           );
         },
@@ -79,7 +70,7 @@ class MyApp extends StatelessWidget {
         home: auth.currentUser != null ? const BottomBar() : const Log(),
         //SettingsPage()
       ),
-      designSize: Size(375, 812),
+      designSize: const Size(375, 812),
     );
   }
 }

@@ -9,48 +9,6 @@ class BottomBar extends StatefulWidget {
 class _BottomBarState extends State<BottomBar> {
   int _selectedIndex = 0;
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      body: _buildPage(_selectedIndex),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.background,
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.1),
-              blurRadius: 20,
-              offset: Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(12),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildNavItem(0, Icons.home_rounded, "Home"),
-                  _buildNavItem(1, Icons.search_rounded, "Search"),
-                  _buildNavItem(2, Icons.shopping_cart_rounded, "Cart"),
-                  _buildNavItem(3, Icons.person_rounded, "Profile"),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildNavItem(int index, IconData icon, String label) {
     final theme = Theme.of(context);
     final isSelected = _selectedIndex == index;
@@ -101,5 +59,47 @@ class _BottomBarState extends State<BottomBar> {
     ];
 
     return pages[index];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: _buildPage(_selectedIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.background,
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNavItem(0, Icons.home_rounded, "Home"),
+                  _buildNavItem(1, Icons.search_rounded, "Search"),
+                  _buildNavItem(2, Icons.shopping_cart_rounded, "Cart"),
+                  _buildNavItem(3, Icons.person_rounded, "Profile"),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

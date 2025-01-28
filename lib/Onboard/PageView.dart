@@ -117,11 +117,6 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
   final PageController controller = PageController();
   bool isLastPage = false;
 
-
-
-
-
-
   @override
   void dispose() {
     controller.dispose();

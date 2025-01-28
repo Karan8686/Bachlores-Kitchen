@@ -6,56 +6,6 @@ import 'package:batchloreskitchen/Pages/theme.dart';
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        title: Text('Favorites', style: TextStyle(color: colorScheme.onPrimary, fontFamily: "poppins")),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [colorScheme.primary, colorScheme.secondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(20.w),
-        children: [
-          _buildFavoriteItem(
-            context,
-            'Mediterranean sunshine bowl',
-            'Savory Street Eats',
-            '4.6',
-            'images/SaladQ.png',
-          ),
-          SizedBox(height: 20.h),
-          _buildFavoriteItem(
-            context,
-            'Spicy Chicken Wrap',
-            'Wrap & Roll',
-            '4.8',
-            'images/SaladQ2.png',
-          ),
-          SizedBox(height: 20.h),
-          _buildFavoriteItem(
-            context,
-            'Veggie Supreme Pizza',
-            'Pizza Paradise',
-            '4.5',
-            'images/SaladQ3.png',
-          ),
-        ].animate(interval: 200.ms).fadeIn().slideX(),
-      ),
-    );
-  }
-
   Widget _buildFavoriteItem(BuildContext context, String name, String restaurant, String rating, String imagePath) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -66,7 +16,7 @@ class FavoritesPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onSurface.withOpacity(0.1),
+            color: colorScheme.onSurface.withValues(alpha: .1),
             spreadRadius: 1,
             blurRadius: 5,
             offset: Offset(0, 3),
@@ -133,6 +83,56 @@ class FavoritesPage extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        title: Text('Favorites', style: TextStyle(color: colorScheme.onPrimary, fontFamily: "poppins")),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colorScheme.primary, colorScheme.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(20.w),
+        children: [
+          _buildFavoriteItem(
+            context,
+            'Mediterranean sunshine bowl',
+            'Savory Street Eats',
+            '4.6',
+            'images/SaladQ.png',
+          ),
+          SizedBox(height: 20.h),
+          _buildFavoriteItem(
+            context,
+            'Spicy Chicken Wrap',
+            'Wrap & Roll',
+            '4.8',
+            'images/SaladQ2.png',
+          ),
+          SizedBox(height: 20.h),
+          _buildFavoriteItem(
+            context,
+            'Veggie Supreme Pizza',
+            'Pizza Paradise',
+            '4.5',
+            'images/SaladQ3.png',
+          ),
+        ].animate(interval: 200.ms).fadeIn().slideX(),
       ),
     );
   }

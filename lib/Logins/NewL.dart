@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Log extends StatefulWidget {
   const Log({super.key});
+
   static String verify = '';
 
   @override
@@ -15,8 +16,9 @@ class Log extends StatefulWidget {
 }
 
 class _LogState extends State<Log> {
-  late String number;
   late String code;
+  late String number;
+
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -213,7 +215,7 @@ class _LogState extends State<Log> {
                                         "Get OTP",
                                         style: theme.textTheme.labelLarge?.copyWith(
                                           fontSize: 18.sp,
-                                          color: theme.colorScheme.background
+                                          color: theme.colorScheme.surface
                                         ),
                                       ),
                                     ),
@@ -227,7 +229,7 @@ class _LogState extends State<Log> {
                                     "By continuing, you agree to our Terms & Conditions",
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       fontSize: 14.sp,
-                                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                      color: theme.colorScheme.onSurface.withValues(alpha: .6),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),

@@ -1,11 +1,12 @@
-import 'package:batchloreskitchen/Pages/Map.dart';
-import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/profile.dart';
+import 'package:batchloreskitchen/Pages/theme.dart';
+import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
+import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -198,11 +199,7 @@ class _HomeState extends State<Home> {
   }
 
 
-  void _showCart(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) =>  UserProfile(),
-    ));
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -210,21 +207,7 @@ class _HomeState extends State<Home> {
     final colorScheme = theme.colorScheme; // Access the color scheme
     return Scaffold(
       backgroundColor: ColorEffect.neutralValue,
-      floatingActionButton: AnimatedOpacity(
-        opacity: _showFloatingButton ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 300),
-        child: FloatingActionButton(
-          onPressed: () {
-            _scrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutCubic,
-            );
-          },
-          backgroundColor: colorScheme.background,
-          child: const Icon(Icons.arrow_upward_rounded),
-        ),
-      ),
+      
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
@@ -358,6 +341,7 @@ class _HomeState extends State<Home> {
           hintStyle: TextStyle(
 
             fontSize: 14.sp,
+            fontFamily: "poppins",
             color: colorScheme.secondary,
           ),
           prefixIcon: Icon(
@@ -383,15 +367,16 @@ class _HomeState extends State<Home> {
       children: [
         Text(
           'Delicious',
-          style: theme.textTheme.displayLarge?.copyWith(
-            color: colorScheme.primary, // Use theme's primary color
+          style: theme.textTheme.displaySmall?.copyWith(
+            color: colorScheme.primary,// Use theme's primary color
           ),
         ),
         Text(
           'food for you',
-          style: theme.textTheme.displayLarge?.copyWith(
-            color: colorScheme.onBackground,
-            fontSize: 32.sp
+          
+          style: theme.textTheme.displaySmall?.copyWith(
+            color: colorScheme.onSurface,
+            fontSize: 30.sp
           )
         ),
       ],
@@ -488,7 +473,7 @@ class _HomeState extends State<Home> {
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.secondary),
-                color: isSelected ? colorScheme.primary.withOpacity(0.1): Colors.white,
+                color: isSelected ? colorScheme.primary.withOpacity(0.3): Colors.white,
 
                 borderRadius: BorderRadius.circular(29.r),
 
@@ -576,7 +561,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildPopularItem(Map<String, dynamic> item,ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    
     return Container(
       width: 200.w,
       margin: EdgeInsets.only(right: 16.w),
@@ -712,7 +697,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildFoodGrid(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -743,7 +728,7 @@ class _HomeState extends State<Home> {
               price: item['price'].toDouble(), // Ensure price is a double
               imageUrl: item['image'],
               rating: item['rating'].toDouble(), // Ensure rating is a double
-              restaurant: "Savory Street Eats", // Example restaurant name
+              restaurant: "Karan's Dhaba", // Example restaurant name
             ),
           ),
         );
@@ -774,8 +759,8 @@ class _HomeState extends State<Home> {
                     width: double.infinity,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: colorScheme.primary.withOpacity(0.03)!,
-                      highlightColor: colorScheme.background!,
+                      baseColor: colorScheme.primary.withOpacity(0.03),
+                      highlightColor: colorScheme.background,
                       child: Container(
                         color: colorScheme.background,
                         height: 120.h,
@@ -878,7 +863,9 @@ class _HomeState extends State<Home> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Add to cart logic
+
+            // Add item to cart
+           
           },
           borderRadius: BorderRadius.circular(8.r),
           child: Padding(
