@@ -1,5 +1,6 @@
 import 'package:batchloreskitchen/Logins/NewL.dart';
 
+
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.light,
                 // Enable system theme mode
         home: auth.currentUser != null ? const BottomBar() : const Log(),
+       // OrderTrackingPage(),
         //SettingsPage()
       ),
       designSize: const Size(375, 812),

@@ -8,13 +8,25 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   int _selectedIndex = 0;
+  final PageController _pageController = PageController();
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final theme = Theme.of(context);
     final isSelected = _selectedIndex == index;
 
     return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
+      onTap: () => _onItemTapped(index),
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -49,24 +61,25 @@ class _BottomBarState extends State<BottomBar> {
     );
   }
 
-  Widget _buildPage(int index) {
-    // Replace these with your actual page widgets
-    final pages = [
-      Center(child: Text('Home Page')),
-      Center(child: Text('Search Page')),
-      Center(child: Text('Cart Page')),
-      Center(child: Text('Profile Page')),
-    ];
-
-    return pages[index];
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: _buildPage(_selectedIndex),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: [
+          Center(child: Text('Home Page', style: TextStyle(fontSize: 24.sp))),
+          Center(child: Text('Search Page', style: TextStyle(fontSize: 24.sp))),
+          Center(child: Text('Cart Page', style: TextStyle(fontSize: 24.sp))),
+          Center(child: Text('Profile Page', style: TextStyle(fontSize: 24.sp))),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.background,

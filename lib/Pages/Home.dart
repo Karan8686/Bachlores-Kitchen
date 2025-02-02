@@ -211,6 +211,7 @@ class _HomeState extends State<Home> {
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
+          physics: BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
@@ -759,10 +760,10 @@ class _HomeState extends State<Home> {
                     width: double.infinity,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: colorScheme.primary.withOpacity(0.03),
-                      highlightColor: colorScheme.background,
+                      baseColor: colorScheme.primary.withValues(alpha:0.03),
+                      highlightColor: colorScheme.surface,
                       child: Container(
-                        color: colorScheme.background,
+                        color: colorScheme.surface,
                         height: 120.h,
                       ),
                     ),
@@ -863,7 +864,7 @@ class _HomeState extends State<Home> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-
+            
             // Add item to cart
            
           },

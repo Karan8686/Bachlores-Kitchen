@@ -1,32 +1,67 @@
-import 'package:batchloreskitchen/widgets/widget_support.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:batchloreskitchen/Logins/login.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Log extends StatefulWidget {
   const Log({super.key});
-
   static String verify = '';
 
   @override
   State<Log> createState() => _LogState();
 }
 
-class _LogState extends State<Log> {
+class _LogState extends State<Log> with WidgetsBindingObserver {
   late String code;
   late String number;
-
   final _formKey = GlobalKey<FormState>();
+
+  // Variables to track keyboard state
+  bool _isKeyboardVisible = false;
+  double _containerHeight = 400.h;
+
+
+
+  // Replace the existing _requestPermissions method with this improved version
+  
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Use Future.delayed to ensure the widget is mounted
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+      
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Detect keyboard visibility
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    if (mounted) {
+      setState(() {
+        _isKeyboardVisible = bottomInset > 0;
+        _containerHeight = _isKeyboardVisible ? 500.h : 400.h; // Adjust height dynamically
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false, // Disable automatic resizing
       body: Stack(
         children: [
           // Background Image
@@ -46,11 +81,13 @@ class _LogState extends State<Log> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Spacer(),
-                        // Form Container
-                        Container(
+                        const Spacer(),
+                        // Form Container with AnimatedContainer
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
                           width: 400.w,
-                          height: 400.h, // Increased height
+                          height: _containerHeight, // Dynamically adjusted height
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surface,
                             borderRadius: BorderRadius.only(
@@ -61,7 +98,7 @@ class _LogState extends State<Log> {
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.1),
                                 blurRadius: 10,
-                                offset: Offset(0, -5),
+                                offset: const Offset(0, -5),
                               ),
                             ],
                           ),
@@ -71,7 +108,7 @@ class _LogState extends State<Log> {
                               children: [
                                 // Welcome Text
                                 Padding(
-                                  padding: EdgeInsets.only(top: 25.h, left:3.w),
+                                  padding: EdgeInsets.only(top: 25.h, left: 3.w),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -82,21 +119,23 @@ class _LogState extends State<Log> {
                                           fontFamily: "poppins",
                                           color: theme.colorScheme.secondary,
                                         ),
-                                      ),
+                                      )
+                                          .animate()
+                                          .fade(duration: 700.ms, delay: 200.ms)
+                                          .scale(duration: 700.ms, curve: Curves.easeOut),
                                       SizedBox(height: 8.h),
                                       Text(
                                         "Enter your phone number to continue",
                                         style: theme.textTheme.bodyMedium?.copyWith(
                                           fontSize: 16.sp,
                                           color: theme.colorScheme.onSurface.withOpacity(0.7),
-                                          fontFamily: "poppins"
+                                          fontFamily: "poppins",
                                         ),
-                                      ),
+                                      ).animate().fade(duration: 700.ms, delay: 400.ms),
                                     ],
                                   ),
                                 ),
                                 SizedBox(height: 30.h),
-
                                 // Phone Number Input
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 25.w),
@@ -108,12 +147,11 @@ class _LogState extends State<Log> {
                                         style: theme.textTheme.bodyLarge?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
-                                      ),
+                                      ).animate().fade(duration: 500.ms, delay: 600.ms),
                                       SizedBox(height: 8.h),
                                       SizedBox(
                                         height: 80.h,
                                         child: IntlPhoneField(
-
                                           initialCountryCode: "IN",
                                           validator: (value) {
                                             if (value == null || value.number.isEmpty) {
@@ -152,13 +190,11 @@ class _LogState extends State<Log> {
                                             fillColor: theme.colorScheme.surface,
                                           ),
                                         ),
-                                      ),
+                                      ).animate().slideY(duration: 500.ms, begin: 1, end: 0),
                                     ],
                                   ),
                                 ),
-
                                 SizedBox(height: 30.h),
-
                                 // Get OTP Button
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 25.w),
@@ -215,13 +251,12 @@ class _LogState extends State<Log> {
                                         "Get OTP",
                                         style: theme.textTheme.labelLarge?.copyWith(
                                           fontSize: 18.sp,
-                                          color: theme.colorScheme.surface
+                                          color: theme.colorScheme.surface,
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-
+                                ).animate().fade(duration: 500.ms, delay: 800.ms),
                                 // Terms and Conditions
                                 Padding(
                                   padding: EdgeInsets.only(top: 20.h),
@@ -229,15 +264,15 @@ class _LogState extends State<Log> {
                                     "By continuing, you agree to our Terms & Conditions",
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       fontSize: 14.sp,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: .6),
+                                      color: theme.colorScheme.onSurface.withAlpha(150),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
+                                ).animate().fade(duration: 500.ms, delay: 1000.ms),
                               ],
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

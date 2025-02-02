@@ -6,6 +6,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:batchloreskitchen/Pages/theme.dart'; // Import your theme file
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart'; // Import the CartProvider
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart'; // Import the CartProvider
+import '../../prrovider/Cart/Cart_item.dart';
 
 class Details extends StatefulWidget {
   final String name;
@@ -51,6 +52,27 @@ class _DetailsState extends State<Details> {
         itemCount--;
       });
     }
+  }
+
+  void _addToCart(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    
+    final item = CartItemData(
+      imageUrl: widget.imageUrl,
+      name: widget.name,
+      details: widget.description,
+      price: widget.price,
+      quantity: itemCount,
+    );
+
+    cartProvider.addItem(item);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added ${widget.name} to cart'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -363,6 +385,7 @@ class _DetailsState extends State<Details> {
         ),
         ElevatedButton(
           onPressed: () {
+            _addToCart(context);
             setState(() {
               isButtonClicked = !isButtonClicked;
             });
@@ -371,16 +394,6 @@ class _DetailsState extends State<Details> {
                 isButtonClicked = !isButtonClicked;
               });
             });
-
-            // Add item to cart
-            Provider.of<CartProvider>(context, listen: false).addItem(
-              CartItemData(
-                imageUrl: widget.imageUrl,
-                name: widget.name,
-                details: widget.description,
-                price: widget.price.toDouble(), // Ensure price is a double
-              ),
-            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,
