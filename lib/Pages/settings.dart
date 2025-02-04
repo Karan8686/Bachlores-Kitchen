@@ -24,9 +24,9 @@ class _SettingsPageState extends State<SettingsPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: colorScheme.background,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: Icon(FluentIcons.arrow_left_24_regular, color: colorScheme.primary),
@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
-            color: colorScheme.onBackground,
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           colorScheme,
                         ),
 
-                        Spacer(),
+                        const Spacer(),
                         _buildLogoutButton(colorScheme),
                         SizedBox(height: 24.h),
                       ].animate(interval: 70.ms).fadeIn().slideX(),
@@ -126,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
           BoxShadow(
             color: colorScheme.onSurface.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -166,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
           BoxShadow(
             color: colorScheme.onSurface.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -205,7 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
           BoxShadow(
             color: colorScheme.onSurface.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -229,7 +229,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: DropdownButton<String>(
           value: selectedLanguage,
           icon: Icon(FluentIcons.chevron_down_24_regular, color: colorScheme.primary),
-          underline: SizedBox(),
+          underline: const SizedBox(),
           onChanged: (String? newValue) {
             if (newValue != null) {
               setState(() => selectedLanguage = newValue);
@@ -250,30 +250,30 @@ class _SettingsPageState extends State<SettingsPage> {
 
 
   Widget _buildLogoutButton(ColorScheme colorScheme) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('Logout'),
-              content: Text('Are you sure you want to logout?'),
+              title: const Text('Logout'),
+              content: const Text('Are you sure you want to logout?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
                     try {
                       await FirebaseAuth.instance.signOut();
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Log(),));
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Log(),));
                     } catch (e) {
                       print('Error during logout: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to logout. Please try again.')),
+                        const SnackBar(content: Text('Failed to logout. Please try again.')),
                       );
                     }
                   },
@@ -295,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              color: colorScheme.background
+              color: colorScheme.surface
           ),
         ),
       ),

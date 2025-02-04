@@ -28,6 +28,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
 
   // Replace the existing _requestPermissions method with this improved version
   
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -219,7 +220,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
                                               Log.verify = verificationId;
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
-                                                  content: Text('OTP sent successfully'),
+                                                  content: const Text('OTP sent successfully'),
                                                   backgroundColor: theme.colorScheme.primary,
                                                 ),
                                               );

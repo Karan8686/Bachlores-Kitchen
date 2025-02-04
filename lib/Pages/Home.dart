@@ -1,19 +1,19 @@
+import 'dart:ui';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/profile.dart';
-import 'package:batchloreskitchen/Pages/theme.dart';
+
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
-
   @override
   State<Home> createState() => _HomeState();
 }
@@ -24,163 +24,26 @@ class _HomeState extends State<Home> {
   int _selectedCategoryIndex = 0;
   bool _showFloatingButton = false;
 
+  // Category titles remain the same.
   final List<String> _categories = [
     'All', 'Popular', 'Recommended', 'Near You', 'Top Rated'
   ];
 
-  final List<Map<String, dynamic>> _foodItems = [
-    {
-      'name': 'Veggie Mediterranean Bowl',
-      'description': 'Fresh vegetables with quinoa and hummus',
-      'price': 280,
-      'rating': 4.8,
-      'time': '20-25 min',
-      'calories': '420 kcal',
-      'image': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-      'isPopular': true,
-    },
-    {
-      'name': 'Crispy Chicken Burger',
-      'description': 'Premium chicken with special sauce',
-      'price': 459,
-      'rating': 4.9,
-      'time': '25-30 min',
-      'calories': '580 kcal',
-      'image': 'https://images.unsplash.com/photo-1562967914-608f82629710',
-      'isPopular': true,
-    },
-    {
-      'name': 'Fresh Garden Salad',
-      'description': 'Seasonal vegetables with vinaigrette',
-      'price': 660,
-      'rating': 4.5,
-      'time': '15-20 min',
-      'calories': '320 kcal',
-      'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd',
-      'isPopular': false,
-    },
-    {
-      'name': 'Grilled Salmon Bowl',
-      'description': 'Norwegian salmon with rice and vegetables',
-      'price': 340,
-      'rating': 4.7,
-      'time': '25-30 min',
-      'calories': '460 kcal',
-      'image': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288',
-      'isPopular': true,
-    },
-  ];
+  // Lists to store food items extracted from Firestore.
+  List<Map<String, dynamic>> _allFoodItems = [];
+  List<Map<String, dynamic>> _popularFoodItems = [];
+  List<Map<String, dynamic>> _moreFoodItems = [];
+  bool _isLoading = true;
 
-  final List<Map<String, dynamic>> _popularItems = [
-    {
-      'name': 'Spicy Thai Noodles',
-      'description': 'Authentic Thai street food style',
-      'price': 299,
-      'rating': 4.9,
-      'time': '15-20 min',
-      'calories': '380 kcal',
-      'image': 'https://images.unsplash.com/photo-1617093727343-374698b1b08d',
-      'isPopular': true,
-    },
-    {
-      'name': 'Mexican Bowl',
-      'description': 'Fresh avocado and beans',
-      'price': 349,
-      'rating': 4.7,
-      'time': '20-25 min',
-      'calories': '450 kcal',
-      'image': 'https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7',
-      'isPopular': true,
-    },
-    // Add more popular items...
-  ];
-
-  final List<Map<String, dynamic>> _recommendedItems = [
-    {
-      'name': 'Poke Bowl',
-      'description': 'Fresh tuna with rice and vegetables',
-      'price': 399,
-      'rating': 4.6,
-      'time': '20-25 min',
-      'calories': '320 kcal',
-      'image': 'https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f',
-      'isPopular': false,
-    },
-    {
-      'name': 'Buddha Bowl',
-      'description': 'Nutritious vegetarian delight',
-      'price': 289,
-      'rating': 4.8,
-      'time': '15-20 min',
-      'calories': '280 kcal',
-      'image': 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-      'isPopular': false,
-    },
-    // Add more recommended items...
-  ];
-
-  final List<Map<String, dynamic>> _nearbyItems = [
-    {
-      'name': 'Fresh Pasta',
-      'description': 'Handmade Italian pasta',
-      'price': 329,
-      'rating': 4.5,
-      'time': '25-30 min',
-      'calories': '520 kcal',
-      'image': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141',
-      'isPopular': false,
-    },
-    {
-      'name': 'Sushi Platter',
-      'description': 'Assorted fresh sushi',
-      'price': 599,
-      'rating': 4.9,
-      'time': '20-25 min',
-      'calories': '400 kcal',
-      'image': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c',
-      'isPopular': false,
-    },
-    // Add more nearby items...
-  ];
-
-  final List<Map<String, dynamic>> _topRatedItems = [
-    {
-      'name': 'Wagyu Burger',
-      'description': 'Premium beef burger',
-      'price': 649,
-      'rating': 5.0,
-      'time': '25-30 min',
-      'calories': '680 kcal',
-      'image': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
-      'isPopular': true,
-    },
-    {
-      'name': 'Truffle Pizza',
-      'description': 'Authentic Italian with truffle',
-      'price': 799,
-      'rating': 4.9,
-      'time': '30-35 min',
-      'calories': '720 kcal',
-      'image': 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143',
-      'isPopular': true,
-    },
-    // Add more top rated items...
-  ];
-
+  // Returns the list to display based on the selected category.
   List<Map<String, dynamic>> get _currentItems {
     switch (_selectedCategoryIndex) {
       case 0: // All
-        return _foodItems;
+        return _allFoodItems;
       case 1: // Popular
-        return _popularItems;
-      case 2: // Recommended
-        return _recommendedItems;
-      case 3: // Near You
-        return _nearbyItems;
-      case 4: // Top Rated
-        return _topRatedItems;
+        return _popularFoodItems;
       default:
-        return _foodItems;
+        return _moreFoodItems;
     }
   }
 
@@ -188,6 +51,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    fetchFoodItems();
   }
 
   void _onScroll() {
@@ -198,20 +62,62 @@ class _HomeState extends State<Home> {
     }
   }
 
+  // Fetch food items by iterating over each restaurant document and extracting menu_items.
+  Future<void> fetchFoodItems() async {
+    try {
+      QuerySnapshot restaurantSnapshot =
+          await FirebaseFirestore.instance.collection('restaurants').get();
 
-  
+      List<Map<String, dynamic>> mergedItems = [];
+      for (var doc in restaurantSnapshot.docs) {
+        Map<String, dynamic> restaurantData = doc.data() as Map<String, dynamic>;
+        if (restaurantData.containsKey('menu_items')) {
+          List<dynamic> items = restaurantData['menu_items'];
+          for (var item in items) {
+            // Create a copy of the item map and attach restaurant name if needed.
+            Map<String, dynamic> foodItem = Map<String, dynamic>.from(item);
+            foodItem['restaurant_name'] = restaurantData['restaurant_name'];
+            mergedItems.add(foodItem);
+          }
+        }
+      }
+
+      setState(() {
+        _allFoodItems = mergedItems;
+        // Filter popular items: here we assume an item is popular if its 'tags' array contains "Popular"
+        _popularFoodItems = mergedItems.where((item) {
+          if (item.containsKey('tags') && item['tags'] is List) {
+            return (item['tags'] as List).contains("Popular");
+          }
+          return false;
+        }).toList();
+        // 'More' items: items that are not popular.
+        _moreFoodItems = mergedItems.where((item) {
+          if (item.containsKey('tags') && item['tags'] is List) {
+            return !(item['tags'] as List).contains("Popular");
+          }
+          return true;
+        }).toList();
+        _isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error fetching food items: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Fetch the current theme
-    final colorScheme = theme.colorScheme; // Access the color scheme
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Scaffold(
       backgroundColor: ColorEffect.neutralValue,
-      
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
@@ -228,16 +134,24 @@ class _HomeState extends State<Home> {
                     SizedBox(height: 24.h),
                     _buildCategories(colorScheme),
                     SizedBox(height: 24.h),
-
-
                   ],
                 ),
               ),
             ),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              sliver: _buildFoodGrid(colorScheme),
-            ),
+            // While loading, show a progress indicator.
+            _isLoading
+                ? SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50.h),
+                        child:const  CircularProgressIndicator(),
+                      ),
+                    ),
+                  )
+                : SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    sliver: _buildFoodGrid(colorScheme),
+                  ),
             SliverToBoxAdapter(
               child: SizedBox(height: 24.h),
             ),
@@ -248,16 +162,11 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildHeader(ColorScheme colorScheme) {
-    
-
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
-        border: Border.all(
-          color: colorScheme.secondary
-        ),
-        color:Colors.white30 ,
-
+        border: Border.all(color: colorScheme.secondary),
+        color: Colors.white30,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
@@ -278,19 +187,20 @@ class _HomeState extends State<Home> {
                 _buildHeaderButton(
                   colorScheme: colorScheme,
                   icon: Icons.fastfood_rounded,
-                  onPressed: () {
-                    
-                  },
+                  onPressed: () {},
                 ),
-                Expanded(
-                  child: _buildSearchField(colorScheme),
-                ),
+                Expanded(child: _buildSearchField(colorScheme)),
                 _buildHeaderButton(
                   colorScheme: colorScheme,
                   icon: Icons.person_4_outlined,
                   showBadge: false,
                   onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => UserProfile(),) );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserProfile(),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -307,40 +217,34 @@ class _HomeState extends State<Home> {
     required VoidCallback onPressed,
     bool showBadge = false,
   }) {
-    
     return Stack(
       children: [
         IconButton(
           icon: Icon(icon, size: 24.w),
           onPressed: onPressed,
-          color: colorScheme.secondary ,
+          color: colorScheme.secondary,
         ),
-
-
       ],
     );
   }
 
   Widget _buildSearchField(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
-
+    final theme = Theme.of(context);
     return Container(
       height: 40.h,
       margin: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-
         color: colorScheme.primary,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: TextField(
         controller: _searchController,
         style: theme.textTheme.bodySmall?.copyWith(
-          color: colorScheme.secondary
+          color: colorScheme.secondary,
         ),
         decoration: InputDecoration(
           hintText: 'Search for food...',
           hintStyle: TextStyle(
-
             fontSize: 14.sp,
             fontFamily: "poppins",
             color: colorScheme.secondary,
@@ -351,41 +255,37 @@ class _HomeState extends State<Home> {
             color: colorScheme.secondary,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            vertical: 8.h,
-            horizontal: 12.w,
-          ),
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
         ),
       ),
     );
   }
 
   Widget _buildTitle(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
-
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Delicious',
           style: theme.textTheme.displaySmall?.copyWith(
-            color: colorScheme.primary,// Use theme's primary color
+            color: colorScheme.primary,
           ),
         ),
         Text(
           'food for you',
-          
           style: theme.textTheme.displaySmall?.copyWith(
             color: colorScheme.onSurface,
-            fontSize: 30.sp
-          )
+            fontSize: 30.sp,
+          ),
         ),
       ],
     ).animate().fadeIn(delay: 200.ms).slideX();
   }
 
   Widget _buildSpecialOffer(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    final theme = Theme.of(context);
     return Container(
       height: 163.h,
       decoration: BoxDecoration(
@@ -419,9 +319,7 @@ class _HomeState extends State<Home> {
               children: [
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
-                  ),
+                      horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8.r),
@@ -429,8 +327,8 @@ class _HomeState extends State<Home> {
                   child: Text(
                     'Special Offer',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white
-                    )
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -459,7 +357,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildCategories(ColorScheme colorScheme) {
-    
     return SizedBox(
       height: 44.h,
       child: ListView.builder(
@@ -468,43 +365,51 @@ class _HomeState extends State<Home> {
         itemBuilder: (context, index) {
           final isSelected = _selectedCategoryIndex == index;
           return GestureDetector(
-            onTap: () => setState(() => _selectedCategoryIndex = index),
+            onTap: () {
+              setState(() {
+                _selectedCategoryIndex = index;
+              });
+            },
             child: Container(
               margin: EdgeInsets.only(right: 12.w),
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.secondary),
-                color: isSelected ? colorScheme.primary.withOpacity(0.3): Colors.white,
-
+                color: isSelected
+                    ? colorScheme.primary.withOpacity(0.3)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(29.r),
-
-
               ),
               child: Center(
                 child: Text(
                   _categories[index],
                   style: TextStyle(
-                    color: isSelected ? colorScheme.primary : Colors.black87,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : Colors.black87,
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
-                    fontFamily: "poppins"
+                    fontFamily: "poppins",
                   ),
                 ),
               ),
-            ),
-          ).animate().fadeIn(delay: Duration(milliseconds: 100 * index));
+            ).animate().fadeIn(
+                delay: Duration(milliseconds: 100 * index)),
+          );
         },
       ),
     );
   }
 
+  // Popular section – horizontal list of popular food items.
   Widget _buildPopularSection(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
@@ -550,19 +455,19 @@ class _HomeState extends State<Home> {
           height: 200.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _foodItems.where((item) => item['isPopular']).length,
+            itemCount: _popularFoodItems.length,
             itemBuilder: (context, index) {
-              final popularItems = _foodItems.where((item) => item['isPopular']).toList();
-              final item = popularItems[index];
-              return _buildPopularItem(item,colorScheme);
+              final item = _popularFoodItems[index];
+              return _buildPopularItem(item, colorScheme);
             },
           ),
-        ),],
+        ),
+      ],
     );
   }
 
-  Widget _buildPopularItem(Map<String, dynamic> item,ColorScheme colorScheme) {
-    
+  // Build a popular food item card (showing only image, name, and price).
+  Widget _buildPopularItem(Map<String, dynamic> item, ColorScheme colorScheme) {
     return Container(
       width: 200.w,
       margin: EdgeInsets.only(right: 16.w),
@@ -577,117 +482,51 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                child: CachedNetworkImage(
-                  imageUrl: item['image'],
-                  height: 90.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      color: Colors.white,
-                      height: 120.h,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8.h,
-                right: 8.w,
+          ClipRRect(
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(16.r)),
+            child: CachedNetworkImage(
+              imageUrl: item['image_url'],
+              height: 100.h,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 4.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
-                        color: const Color(0xFFFF7F50),
-                        size: 16.w,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        item['rating'].toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                  color: Colors.white,
+                  height: 100.h,
                 ),
               ),
-            ],
+            ),
           ),
           Padding(
             padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Display the food item's name.
                 Text(
                   item['name'],
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 4.h),
+                // Display the price.
                 Text(
-                  item['description'],
+                  '\u{20B9}${item['price']}',
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
+                    fontSize: 14.sp,
+                    color: colorScheme.secondary,
+                    fontWeight: FontWeight.w600,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 14.w,
-                      color: Colors.grey[600],
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      item['time'],
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Icon(
-                      Icons.local_fire_department_outlined,
-                      size: 14.w,
-                      color: Colors.grey[600],
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      item['calories'],
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -697,8 +536,8 @@ class _HomeState extends State<Home> {
     ).animate().fadeIn().scale();
   }
 
+  // Build the grid view for food items based on the selected category.
   Widget _buildFoodGrid(ColorScheme colorScheme) {
-    
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -707,7 +546,7 @@ class _HomeState extends State<Home> {
         mainAxisSpacing: 16.h,
       ),
       delegate: SliverChildBuilderDelegate(
-            (context, index) {
+        (context, index) {
           final item = _currentItems[index];
           return _buildFoodItem(item, colorScheme);
         },
@@ -716,8 +555,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildFoodItem(Map<String, dynamic> item,ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+  // Build a food item card (grid item) showing only image, name, and price.
+  Widget _buildFoodItem(Map<String, dynamic> item, ColorScheme colorScheme) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -725,19 +565,22 @@ class _HomeState extends State<Home> {
           MaterialPageRoute(
             builder: (context) => Details(
               name: item['name'],
-              description: item['description'],
-              price: item['price'].toDouble(), // Ensure price is a double
-              imageUrl: item['image'],
-              rating: item['rating'].toDouble(), // Ensure rating is a double
-              restaurant: "Karan's Dhaba", // Example restaurant name
+              description: item['description'] ?? '',
+              price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
+              imageUrl: item['image_url'], // Using image_url from Firestore.
+              rating: (item['rating'] is num)
+                  ? item['rating'].toDouble()
+                  : 0.0,
+              restaurant: item['restaurant_name'] ?? "Restaurant Name",
             ),
           ),
         );
       },
       child: Container(
+        
         decoration: BoxDecoration(
           border: Border.all(color: colorScheme.secondary),
-          color: colorScheme.background.withOpacity(0.05),
+          color: colorScheme.surface.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
@@ -750,111 +593,82 @@ class _HomeState extends State<Home> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                  child: CachedNetworkImage(
-                    imageUrl: item['image'],
-                    height: 80.h,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: colorScheme.primary.withValues(alpha:0.03),
-                      highlightColor: colorScheme.surface,
-                      child: Container(
-                        color: colorScheme.surface,
-                        height: 120.h,
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.image_not_supported,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8.h,
-                  right: 8.w,
+            // Food image
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(16.r)),
+              child: CachedNetworkImage(
+                imageUrl: item['image_url'],
+                height: 100.h,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: colorScheme.primary.withValues(alpha: 0.03),
+                  highlightColor: colorScheme.surface,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondary.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.star_rounded,
-                          color: Colors.deepOrangeAccent,
-                          size: 16.w,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          item['rating'].toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                    color: colorScheme.surface,
+                    height: 120.h,
                   ),
                 ),
-              ],
+                errorWidget: (context, url, error) => Icon(
+                  Icons.image_not_supported,
+                  color: colorScheme.primary,
+                ),
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(12.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Food item name
                   Text(
                     item['name'],
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.secondary
-                    ),
+                        color: colorScheme.secondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    item['description'],
-                    style:theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.primary
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                   SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\u{20B9}${item['price']}',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: colorScheme.secondary,
-                          fontFamily: "poppins",
-                          fontSize: 19.spMax
-                        )
-                      ),
-                      _buildAddButton(colorScheme),
-                    ],
+                  Text(
+                    maxLines: 2,
+                    item['description'] ,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 12.0,
+                right: 12.0,
+                
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                children: [
+                  Text(
+                      '\u{20B9}${item['price']}',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: colorScheme.secondary,
+                        fontFamily: "poppins",
+                        fontSize: 19.spMax,
+                      ),
+                    ),
+                  _buildAddButton(item, colorScheme),
+                ],
+              ),
+            ),
+            
           ],
         ),
       ),
     ).animate().fadeIn().scale();
   }
 
-  Widget _buildAddButton(ColorScheme colorScheme) {
-    final theme = Theme.of(context); // Fetch the current theme
+  Widget _buildAddButton(Map<String, dynamic> item, ColorScheme colorScheme) {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.secondary.withOpacity(0.2),
@@ -864,9 +678,28 @@ class _HomeState extends State<Home> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            
-            // Add item to cart
-           
+            final cartProvider =
+                Provider.of<CartProvider>(context, listen: false);
+            final cartItem = CartItemData(
+              name: item['name'],
+              details: item['description'] ?? '',
+              price: (item['price'] is num)
+                  ? item['price'].toDouble()
+                  : 0.0,
+              quantity: 1,
+              imageUrl: item['image_url'],
+            );
+            cartProvider.addItem(cartItem);
+            ScaffoldMessenger.of(context).removeCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${item['name']} added to cart'),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
           },
           borderRadius: BorderRadius.circular(8.r),
           child: Padding(
@@ -874,15 +707,13 @@ class _HomeState extends State<Home> {
             child: Icon(
               Icons.add_rounded,
               color: colorScheme.secondary,
-              size: 20.w,
+              size: 12.w,
             ),
           ),
         ),
       ),
     );
   }
-
-
 
   @override
   void dispose() {

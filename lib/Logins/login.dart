@@ -390,7 +390,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   void _handleVerificationError() {
     setState(() {
       _otpError = true;
-      _otpControllers.forEach((controller) => controller.clear());
+      for (var controller in _otpControllers) {
+        controller.clear();
+      }
       _focusNodes[0].requestFocus();
     });
 

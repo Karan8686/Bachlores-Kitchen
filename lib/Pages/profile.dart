@@ -17,7 +17,7 @@ class _UserProfileState extends State<UserProfile> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -40,7 +40,7 @@ class _UserProfileState extends State<UserProfile> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(FluentIcons.ios_arrow_24_filled),
+            icon: const Icon(FluentIcons.ios_arrow_24_filled),
             onPressed: () => Navigator.pop(context),
             color: colorScheme.primary,
           ),
@@ -49,12 +49,12 @@ class _UserProfileState extends State<UserProfile> {
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
           ),
           IconButton(onPressed:() {
 
-          }, icon:Icon(FluentIcons.emoji_smile_slight_20_regular)
+          }, icon:const Icon(FluentIcons.emoji_smile_slight_20_regular)
           )
 
         ],
@@ -77,7 +77,7 @@ class _UserProfileState extends State<UserProfile> {
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 8.h),
@@ -85,7 +85,7 @@ class _UserProfileState extends State<UserProfile> {
             '+91 7021511537',
             style: TextStyle(
               fontSize: 16.sp,
-              color: colorScheme.onBackground.withOpacity(0.6),
+              color: colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
           SizedBox(height: 16.h),
@@ -99,7 +99,7 @@ class _UserProfileState extends State<UserProfile> {
               ),
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
             ),
-            child: Text('Edit Profile'),
+            child: const Text('Edit Profile'),
           ),
         ],
       ),
@@ -118,7 +118,7 @@ class _UserProfileState extends State<UserProfile> {
             BoxShadow(
               color: colorScheme.onSurface.withOpacity(0.05),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -212,12 +212,12 @@ class _UserProfileState extends State<UserProfile> {
         style: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w500,
-          color: colorScheme.onBackground,
+          color: colorScheme.onSurface,
         ),
       ),
       trailing: Icon(
         FluentIcons.chevron_right_24_regular,
-        color: colorScheme.onBackground.withOpacity(0.6),
+        color: colorScheme.onSurface.withOpacity(0.6),
       ),
       onTap: () {
 

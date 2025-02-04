@@ -6,13 +6,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class OrderTrackingPage extends StatefulWidget {
+  const OrderTrackingPage({super.key});
+
   @override
   _OrderTrackingPageState createState() => _OrderTrackingPageState();
 }
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
   late GoogleMapController _mapController;
-  final LatLng _restaurantLocation = LatLng(19.1933991, 72.8672557);
+  final LatLng _restaurantLocation = const LatLng(19.1933991, 72.8672557);
   LatLng? _deliveryLocation;
   String _distance = '';
   String _estimatedTime = '';
@@ -48,7 +50,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
           context: context,
           builder: (BuildContext context) => AlertDialog(
             title: const Text('Location Permission Required'),
-            content: Text('We need your location to deliver your order. Please enable location services to continue.'),
+            content: const Text('We need your location to deliver your order. Please enable location services to continue.'),
             actions: [
               TextButton(
                 child: const Text('Open Settings'),
@@ -58,7 +60,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                 },
               ),
               TextButton(
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -72,8 +74,8 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       context: context,
       barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
       builder: (context) => AlertDialog(
-        title: Text('Enable Location Services'),
-        content: Text('Location services are required to use this feature. Please enable them in your device settings.'),
+        title: const Text('Enable Location Services'),
+        content: const Text('Location services are required to use this feature. Please enable them in your device settings.'),
         actions: [
           TextButton(
             onPressed: () async {
@@ -82,13 +84,13 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
               Navigator.pop(context); // Close dialog
               _requestLocationPermission(); // Recheck location services
             },
-            child: Text('Open Settings'),
+            child: const Text('Open Settings'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
             },
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),
@@ -103,7 +105,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location services are disabled. Please enable the services')),
+        const SnackBar(content: Text('Location services are disabled. Please enable the services')),
       );
       return false;
     }
@@ -113,7 +115,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Location permissions are denied')),
+          const SnackBar(content: Text('Location permissions are denied')),
         );
         return false;
       }
@@ -121,7 +123,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
 
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location permissions are permanently denied')),
+        const SnackBar(content: Text('Location permissions are permanently denied')),
       );
       return false;
     }
@@ -163,13 +165,13 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     _markers.clear();
     _markers.addAll([
       Marker(
-        markerId: MarkerId('restaurant'),
+        markerId: const MarkerId('restaurant'),
         position: _restaurantLocation,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       ),
       if (_deliveryLocation != null)
         Marker(
-          markerId: MarkerId('delivery'),
+          markerId: const MarkerId('delivery'),
           position: _deliveryLocation!,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
         ),
@@ -275,7 +277,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             markers: _markers,
             polylines: {
               Polyline(
-                polylineId: PolylineId('route'),
+                polylineId: const PolylineId('route'),
                 points: _polylineCoordinates,
                 color: theme.colorScheme.primary,
                 width: 4,
@@ -311,7 +313,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
             ),
           ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             right: 16,
             bottom: _isDetailsExpanded ? _expandedBottomPadding : _collapsedBottomPadding,
@@ -334,8 +336,8 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                 });
               },
               child: AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                padding: EdgeInsets.all(16),
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
                   borderRadius: BorderRadius.circular(12),
@@ -343,7 +345,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 10,
-                      offset: Offset(0, 5),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -355,21 +357,21 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     Text(
                       'On The Way',
                       style: theme.textTheme.displayMedium?.copyWith(
-                        color: theme.colorScheme.background,
+                        color: theme.colorScheme.surface,
                         fontFamily: "poppins"
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Arrives between 11:23 PM-12:01 AM',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.background,
+                        color: theme.colorScheme.surface,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.store, color: theme.colorScheme.background),
+                        Icon(Icons.store, color: theme.colorScheme.surface),
                         Expanded(
                           child: Divider(
                             color: theme.colorScheme.onPrimary,
@@ -377,7 +379,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.delivery_dining, color: theme.colorScheme.background),
+                        Icon(Icons.delivery_dining, color: theme.colorScheme.surface),
                         Expanded(
                           child: Divider(
                             color: theme.colorScheme.secondary,
@@ -385,18 +387,18 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                             endIndent: 8,
                           ),
                         ),
-                        Icon(Icons.home, color: theme.colorScheme.background),
+                        Icon(Icons.home, color: theme.colorScheme.surface),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       'Karan is preparing your order.',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.background,
+                        color: theme.colorScheme.surface,
                         fontFamily: "poppins"
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Center(
                       child: Icon(
                         Icons.keyboard_arrow_up,
@@ -409,7 +411,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Arrives in ${_estimatedTime}',
+                      'Arrives in $_estimatedTime',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onPrimary,
                         fontFamily: "poppins"

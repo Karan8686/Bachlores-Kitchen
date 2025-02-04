@@ -28,11 +28,11 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     pages = [
-      Home(),
-      FavoritesPage(),
+      const Home(),
+      const FavoritesPage(),
       CartScreen(),
-      RecentlyOrderedPage(),
-      SettingsPage()
+      const RecentlyOrderedPage(),
+      const SettingsPage()
     ];
 
     _animationController = AnimationController(
@@ -75,7 +75,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
               BoxShadow(
                 color: colorScheme.primary.withOpacity(0.3),
                 blurRadius: 10,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -101,7 +101,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
           ),
@@ -109,19 +109,19 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
-              offset: Offset(0, -5),
+              offset: const Offset(0, -5),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
           ),
           child: BottomAppBar(
             height: 71.h,
             notchMargin: 12,
-            shape: AutomaticNotchedShape(
+            shape: const AutomaticNotchedShape(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
@@ -162,7 +162,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
     final colorScheme = theme.colorScheme;
 
     return AnimatedContainer(
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: isSelected ? colorScheme.primary.withOpacity(0.1) : Colors.transparent,
@@ -177,7 +177,7 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
             });
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -187,10 +187,10 @@ class _BottomBarState extends State<BottomBar> with SingleTickerProviderStateMix
                   size: 25,
                 ),
                 AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 200),
                   height: isSelected ? 4 : 0,
                   width: isSelected ? 4 : 0,
-                  margin: EdgeInsets.only(top: 4),
+                  margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
                     color: colorScheme.primary,
                     borderRadius: BorderRadius.circular(2),

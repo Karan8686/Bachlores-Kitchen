@@ -34,11 +34,13 @@ class _RestartWidgetState extends State<RestartWidget> {
 
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('App with Restart'),
+        title: const Text('App with Restart'),
       ),
       body: Center(
         child: Column(

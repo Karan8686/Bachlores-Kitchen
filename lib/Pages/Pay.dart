@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class RazorpayExample extends StatefulWidget {
+  const RazorpayExample({super.key});
+
   @override
   _RazorpayExampleState createState() => _RazorpayExampleState();
 }
@@ -17,7 +19,7 @@ class _RazorpayExampleState extends State<RazorpayExample> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _openCheckout());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openCheckout());
   }
 
   @override
@@ -82,15 +84,15 @@ class _RazorpayExampleState extends State<RazorpayExample> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Razorpay Payment'),
+          title: const Text('Razorpay Payment'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context); // Go back to the cart page
             },
           ),
         ),
-        body: Center(
+        body: const Center(
           child: CircularProgressIndicator(),
         ),
       ),

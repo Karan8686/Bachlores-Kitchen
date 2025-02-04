@@ -12,7 +12,7 @@ class RecentlyOrderedPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text('Recently Ordered', style: TextStyle(color: colorScheme.onPrimary,fontFamily: "poppins")),
         backgroundColor: colorScheme.primary,
@@ -61,7 +61,7 @@ class RecentlyOrderedPage extends StatelessWidget {
             color: colorScheme.onSurface.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 3,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),

@@ -81,7 +81,7 @@ class _DetailsState extends State<Details> {
     final colorScheme = theme.colorScheme; // Access the color scheme
 
     return Scaffold(
-      backgroundColor: colorScheme.background, // Use theme's background color
+      backgroundColor: colorScheme.surface, // Use theme's background color
       body: SlidingUpPanel(
         maxHeight: _panelHeightOpen,
         minHeight: _panelHeightClosed,

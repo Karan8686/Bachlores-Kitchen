@@ -19,7 +19,7 @@ class FavoritesPage extends StatelessWidget {
             color: colorScheme.onSurface.withValues(alpha: .1),
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),

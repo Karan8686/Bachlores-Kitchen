@@ -131,7 +131,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
     String s3 = "images/Animation3.json";
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       body: Stack(
         children: [
           Container(
@@ -140,7 +140,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  theme.colorScheme.background,
+                  theme.colorScheme.surface,
                   theme.colorScheme.tertiary.withOpacity(0.1),
                 ],
               ),
@@ -197,7 +197,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              theme.colorScheme.background.withOpacity(0),
+              theme.colorScheme.surface.withOpacity(0),
               theme.colorScheme.tertiary.withOpacity(0.1),
             ],
           ),
@@ -355,7 +355,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                   child: Text(
                     "Next",
                     style: TextStyle(
-                      color: theme.colorScheme.background,
+                      color: theme.colorScheme.surface,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),

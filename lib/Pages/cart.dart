@@ -12,6 +12,8 @@ import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 
 // Main Cart Screen
 class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
+
   @override
   _CartScreenState createState() => _CartScreenState();
 }
@@ -36,7 +38,7 @@ class _CartScreenState extends State<CartScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -187,7 +189,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildContent() {
     final theme = Theme.of(context);
     return CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
@@ -206,7 +208,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ],
-    ).animate().fadeIn(duration: Duration(milliseconds: 300));
+    ).animate().fadeIn(duration: const Duration(milliseconds: 300));
   }
 
   Widget _buildCartItems() {
@@ -225,13 +227,13 @@ class _CartScreenState extends State<CartScreen> {
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         border: Border.all(color: theme.colorScheme.secondary),
-        color: theme.colorScheme.background.withOpacity(0.3),
+        color: theme.colorScheme.surface.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.primary.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -244,7 +246,7 @@ class _CartScreenState extends State<CartScreen> {
             color: Colors.red.shade400,
             borderRadius: BorderRadius.circular(16.r),
           ),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Icon(Icons.delete_outline, color: Colors.white),
@@ -341,25 +343,25 @@ class _CartScreenState extends State<CartScreen> {
       ),
     ).animate(delay: Duration(milliseconds: 100 * index))
         .fadeIn()
-        .slideX(begin: 0.2, duration: Duration(milliseconds: 400));
+        .slideX(begin: 0.2, duration: const Duration(milliseconds: 400));
   }
 
   Widget _buildOrderSummary() {
     final theme = Theme.of(context);
-    final shipping = 50.0;
+    const shipping = 50.0;
     final total = subtotal + shipping;
 
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         border: Border.all(color: theme.colorScheme.secondary),
-        color: theme.colorScheme.background.withOpacity(0.3),
+        color: theme.colorScheme.surface.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: theme.primaryColor.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -382,7 +384,7 @@ class _CartScreenState extends State<CartScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.background.withOpacity(0.3),
+                    color: theme.colorScheme.surface.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Text(
@@ -411,8 +413,8 @@ class _CartScreenState extends State<CartScreen> {
           _buildPriceRow("Total Amount", total + (subtotal * 0.18), isTotal: true),
         ],
       ),
-    ).animate().fadeIn(delay: Duration(milliseconds: 300))
-        .slideY(begin: 0.2, duration: Duration(milliseconds: 400));
+    ).animate().fadeIn(delay: const Duration(milliseconds: 300))
+        .slideY(begin: 0.2, duration: const Duration(milliseconds: 400));
   }
 
   Widget _buildPriceRow(String label, double amount, {bool isTotal = false}) {
@@ -506,7 +508,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor:theme.colorScheme.background ,
+      backgroundColor:theme.colorScheme.surface ,
       appBar: _buildAppBar(),
       body: isLoading ? _buildLoadingScreen() : _buildContent(),
       bottomNavigationBar: isLoading ? null : _buildBottomBar(),
