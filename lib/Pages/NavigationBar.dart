@@ -1,13 +1,9 @@
-import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/favourate.dart';
 import 'package:batchloreskitchen/Pages/recentOrder.dart';
 import 'package:batchloreskitchen/Pages/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/cart.dart';
 import 'package:batchloreskitchen/Pages/Home.dart';
-import 'package:batchloreskitchen/Pages/wallet.dart';
-import 'package:batchloreskitchen/Pages/order.dart';
-import 'package:batchloreskitchen/Pages/profile.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

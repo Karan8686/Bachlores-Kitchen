@@ -23,6 +23,7 @@ class _HomeState extends State<Home> {
   final ScrollController _scrollController = ScrollController();
   int _selectedCategoryIndex = 0;
   bool _showFloatingButton = false;
+ 
 
   // Category titles remain the same.
   final List<String> _categories = [
@@ -51,6 +52,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+   
     fetchFoodItems();
   }
 
@@ -617,7 +619,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(10.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -641,9 +643,9 @@ class _HomeState extends State<Home> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(
-                left: 12.0,
-                right: 12.0,
+              padding:  EdgeInsets.only(
+                left: 12.0.w,
+                right: 12.0.w,
                 
               ),
               child: Row(
@@ -657,7 +659,8 @@ class _HomeState extends State<Home> {
                         fontSize: 19.spMax,
                       ),
                     ),
-                  _buildAddButton(item, colorScheme),
+                  _buildAddButton(item, colorScheme)
+                  
                 ],
               ),
             ),
@@ -701,13 +704,13 @@ class _HomeState extends State<Home> {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(10.r),
           child: Padding(
-            padding: EdgeInsets.all(8.w),
+            padding: EdgeInsets.all(1.w),
             child: Icon(
               Icons.add_rounded,
               color: colorScheme.secondary,
-              size: 12.w,
+              size: 22.w,
             ),
           ),
         ),
