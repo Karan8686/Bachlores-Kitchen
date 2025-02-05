@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class BottomBar extends StatefulWidget {
-  const BottomBar({super.key});
+class BottomBar1 extends StatefulWidget {
+  const BottomBar1({super.key});
 
   @override
-  State<BottomBar> createState() => _BottomBarState();
+  State<BottomBar1> createState() => _BottomBarState();
 }
 
-class _BottomBarState extends State<BottomBar> {
+class _BottomBarState extends State<BottomBar1> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
 

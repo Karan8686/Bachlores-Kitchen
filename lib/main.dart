@@ -1,4 +1,8 @@
 import 'package:batchloreskitchen/Logins/NewL.dart';
+import 'package:batchloreskitchen/Logins/login.dart';
+import 'package:batchloreskitchen/Onboard/PageView.dart';
+import 'package:batchloreskitchen/Onboard/pages.dart';
+import 'package:batchloreskitchen/Pages/Home.dart';
 
 
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
@@ -68,11 +72,16 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
           themeMode: ThemeMode.light,
                 // Enable system theme mode
-        home: auth.currentUser != null ? const BottomBar() : const Log(),
+        home: auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
+        //Home(),
+        //View1(),
+        //Login(p:"8655547603",c:"123456"),
        // OrderTrackingPage(),
         //SettingsPage()
       ),
-      designSize: const Size(375, 812),
+      designSize: const Size(360, 690),
+      splitScreenMode: true,
+      minTextAdapt: true,
     );
   }
 }

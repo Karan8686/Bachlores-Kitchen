@@ -22,7 +22,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
 
   // Variables to track keyboard state
   bool _isKeyboardVisible = false;
-  double _containerHeight = 400.h;
+  double _containerHeight = 375.h;
 
 
 
@@ -151,8 +151,9 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
                                       ).animate().fade(duration: 500.ms, delay: 600.ms),
                                       SizedBox(height: 8.h),
                                       SizedBox(
-                                        height: 80.h,
+                                        height: 50.h, // Increased height
                                         child: IntlPhoneField(
+                                          
                                           initialCountryCode: "IN",
                                           validator: (value) {
                                             if (value == null || value.number.isEmpty) {
@@ -169,6 +170,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
                                             fontWeight: FontWeight.bold,
                                           ),
                                           decoration: InputDecoration(
+                                            
                                             hintText: "Enter your number",
                                             hintStyle: TextStyle(
                                               color: theme.colorScheme.primary.withOpacity(0.6),
@@ -201,7 +203,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
                                   padding: EdgeInsets.symmetric(horizontal: 25.w),
                                   child: SizedBox(
                                     width: double.infinity,
-                                    height: 55.h,
+                                    height: 48.h,
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         if (_formKey.currentState!.validate()) {
@@ -259,6 +261,7 @@ class _LogState extends State<Log> with WidgetsBindingObserver {
                                   ),
                                 ).animate().fade(duration: 500.ms, delay: 800.ms),
                                 // Terms and Conditions
+                                SizedBox(height: 27.h),
                                 Padding(
                                   padding: EdgeInsets.only(top: 20.h),
                                   child: Text(

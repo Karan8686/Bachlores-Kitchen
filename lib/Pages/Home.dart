@@ -127,15 +127,16 @@ class _HomeState extends State<Home> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 12.h),
                     _buildHeader(colorScheme),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
                     _buildTitle(colorScheme),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
                     _buildSpecialOffer(colorScheme),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
                     _buildCategories(colorScheme),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
+                    
                   ],
                 ),
               ),
@@ -165,48 +166,38 @@ class _HomeState extends State<Home> {
 
   Widget _buildHeader(ColorScheme colorScheme) {
     return Container(
-      height: 56.h,
+      height: 48.h,
       decoration: BoxDecoration(
         border: Border.all(color: colorScheme.secondary),
-        color: Colors.white30,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.primary.withOpacity(0.3),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
+    
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            color: Colors.white10,
-            child: Row(
-              children: [
-                _buildHeaderButton(
-                  colorScheme: colorScheme,
-                  icon: Icons.fastfood_rounded,
-                  onPressed: () {},
-                ),
-                Expanded(child: _buildSearchField(colorScheme)),
-                _buildHeaderButton(
-                  colorScheme: colorScheme,
-                  icon: Icons.person_4_outlined,
-                  showBadge: false,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const UserProfile(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+        child: Container(
+         
+          child: Row(
+            children: [
+              _buildHeaderButton(
+                colorScheme: colorScheme,
+                icon: Icons.fastfood_rounded,
+                onPressed: () {},
+              ),
+              Expanded(child: _buildSearchField(colorScheme)),
+              _buildHeaderButton(
+                colorScheme: colorScheme,
+                icon: Icons.person_4_outlined,
+                showBadge: false,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserProfile(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -233,16 +224,18 @@ class _HomeState extends State<Home> {
   Widget _buildSearchField(ColorScheme colorScheme) {
     final theme = Theme.of(context);
     return Container(
-      height: 40.h,
+      height: 30.h,
       margin: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
-        color: colorScheme.primary,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: TextField(
         controller: _searchController,
         style: theme.textTheme.bodySmall?.copyWith(
           color: colorScheme.secondary,
+          fontSize: 16.sp,
+          
         ),
         decoration: InputDecoration(
           hintText: 'Search for food...',
@@ -289,7 +282,7 @@ class _HomeState extends State<Home> {
   Widget _buildSpecialOffer(ColorScheme colorScheme) {
     final theme = Theme.of(context);
     return Container(
-      height: 163.h,
+      height: 160.h,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -360,7 +353,7 @@ class _HomeState extends State<Home> {
 
   Widget _buildCategories(ColorScheme colorScheme) {
     return SizedBox(
-      height: 44.h,
+      height: 40.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
@@ -373,13 +366,14 @@ class _HomeState extends State<Home> {
               });
             },
             child: Container(
+              
               margin: EdgeInsets.only(right: 12.w),
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.secondary),
                 color: isSelected
                     ? colorScheme.primary.withOpacity(0.3)
-                    : Colors.white,
+                    : colorScheme.surface,
                 borderRadius: BorderRadius.circular(29.r),
               ),
               child: Center(
@@ -601,7 +595,7 @@ class _HomeState extends State<Home> {
                   top: Radius.circular(16.r)),
               child: CachedNetworkImage(
                 imageUrl: item['image_url'],
-                height: 100.h,
+                height: 80.h,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Shimmer.fromColors(

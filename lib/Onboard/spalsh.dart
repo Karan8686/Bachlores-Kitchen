@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:batchloreskitchen/Onboard/pages.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(
         const Duration(seconds: 3),
             () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => const BottomBar())));
+            builder: (BuildContext context) => const BottomBar1())));
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:batchloreskitchen/Onboard/pages.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,7 +48,9 @@ Widget page({
                 children: [
                   Text(
                     content1,
-                    style: theme.textTheme.displayMedium,
+                    style: theme.textTheme.displayMedium?.copyWith(
+                      fontSize: 35.sp
+                    ),
                   )
                       .animate()
                       .fadeIn(
@@ -66,7 +69,9 @@ Widget page({
                     child: Text(
                       content2,
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 18.sp
+                      ),
                     ),
                   )
                       .animate()
@@ -191,7 +196,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
         ],
       ),
       bottomSheet: Container(
-        height: 100.h,
+        height: 90.h,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -210,7 +215,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                  const BottomBar(),
+                  const BottomBar1(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     return FadeTransition(
@@ -231,7 +236,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                     theme.colorScheme.secondary,
                   ],
                 ),
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(30.r),
                 boxShadow: [
                   BoxShadow(
                     color: theme.colorScheme.primary.withOpacity(0.2),
@@ -246,29 +251,12 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
                   ),
                 ),
               ),
             )
-                .animate(
-              onPlay: (controller) => controller.repeat(reverse: true),
-            )
-                .scaleXY(
-              begin: 1,
-              end: 0.95,
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeInOut,
-            ),
-          ),
-        )
-            .animate()
-            .fadeIn(duration: const Duration(milliseconds: 600))
-            .slideY(
-          begin: 0.2,
-          end: 0,
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeOutCubic,
-        )
+          ))
             : Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Row(
@@ -278,8 +266,8 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                 onTap: () {
                   controller.animateToPage(
                     2,
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeInOut,
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeInCirc,
                   );
                 },
                 child: Container(
@@ -365,24 +353,12 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                   .animate(
                 onPlay: (controller) => controller.repeat(reverse: true),
               )
-                  .scaleXY(
-                begin: 1,
-                end: 0.95,
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeInOut,
-              ),
-            ],
-          ),
-        )
-            .animate()
-            .fadeIn(duration: const Duration(milliseconds: 600))
-            .slideY(
-          begin: 0.2,
-          end: 0,
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeOutCubic,
-        ),
+                  .shimmer(
+                duration: const Duration(milliseconds: 1500),
+                delay: const Duration(milliseconds: 200),
+              ),]
       ),
+            ))
     );
   }
 }

@@ -143,6 +143,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   keyboardType: TextInputType.number,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 18.sp,
                     color: _otpError ? theme.colorScheme.error : theme.colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
@@ -275,7 +276,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           child: Container(
             padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              color: theme.colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
@@ -292,7 +293,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget _buildVerifyButton(ThemeData theme) {
     return Center(
       child: SizedBox(
-        height: 50.h,
+        height: 48.h,
         width: 200.w,
         child: ElevatedButton(
           onPressed: _isLoading ? null : _verifyOTP,
@@ -301,7 +302,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 ? theme.colorScheme.surfaceContainerHighest
                 : theme.colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25.r),
+              borderRadius: BorderRadius.circular(30.r),
             ),
             elevation: 2,
           ),
@@ -320,20 +321,11 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             "Verify",
             style: theme.textTheme.labelLarge?.copyWith(
               fontSize: 18.sp,
+              fontFamily: 'poppins',
               color: theme.colorScheme.onPrimary,
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTermsText(ThemeData theme) {
-    return Text(
-      "By continuing, you agree to our Terms of Service and Privacy Policy",
-      textAlign: TextAlign.center,
-      style: theme.textTheme.bodySmall?.copyWith(
-        fontSize: 12.sp,
       ),
     );
   }
@@ -364,7 +356,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             pageBuilder: (context, animation, secondaryAnimation) => const View1(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               const begin = Offset(1.0, 0.0);
-
               const end = Offset.zero;
               const curve = Curves.easeInOut;
               var tween = Tween(begin: begin, end: end)
@@ -510,92 +501,88 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Stack(
-          children: [
-            // Top Background Container
+      body: Stack(
+        children: [
+          // Top Background Container
+          Container(
+            height: 375.h,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.primaryContainer,
+                ],
+              ),
+            ),
+            child: Image.asset(
+              "images/log3.jpg",
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+          // Main Content Container
+          Container(
+            height: 530.h,
+            margin: EdgeInsets.only(top: 280.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(30.r),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadowColor.withOpacity(0.1),
+                  blurRadius: 10.r,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 20.h),
+                _buildHeader(theme),
+                SizedBox(height: 20.h),
+                Text(
+                  "Verify Your Number",
+                  style: theme.textTheme.displayLarge?.copyWith(
+                    fontSize: 30.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  "Enter the code sent to ${widget.p}",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 16.sp,
+                  ),
+                ),
+                SizedBox(height: 30.h),
+                _buildOTPFields(theme),
+                SizedBox(height: 20.h),
+                Center(child: _buildResendButton(theme)),
+                SizedBox(height: 40.h),
+                _buildVerifyButton(theme),
+                SizedBox(height: 25.h),
+                
+              ],
+            ),
+          ),
+          if (_isLoading)
             Container(
-              height: 375.h,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
+              color: theme.shadowColor.withOpacity(0.3),
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
                     theme.colorScheme.primary,
-                    theme.colorScheme.primaryContainer,
-                  ],
+                  ),
                 ),
-              ),
-              child: Image.asset(
-                "images/log3.jpg",
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
               ),
             ),
-            // Main Content Container
-            Container(
-              height: 530.h,
-              margin: EdgeInsets.only(top: 280.h),
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30.r),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.shadowColor.withOpacity(0.1),
-                    blurRadius: 10.r,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  _buildHeader(theme),
-                  SizedBox(height: 40.h),
-                  Text(
-                    "Verify Your Number",
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    "Enter the code sent to ${widget.p}",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                  SizedBox(height: 30.h),
-                  _buildOTPFields(theme),
-                  SizedBox(height: 20.h),
-                  Center(child: _buildResendButton(theme)),
-                  SizedBox(height: 40.h),
-                  _buildVerifyButton(theme),
-                  SizedBox(height: 45.h),
-                  _buildTermsText(theme),
-                  SizedBox(height: 40.h),
-                ],
-              ),
-            ),
-            if (_isLoading)
-              Container(
-                color: theme.shadowColor.withValues(alpha: 0.3),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
