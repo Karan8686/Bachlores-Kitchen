@@ -3,10 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:batchloreskitchen/Pages/theme.dart'; // Import your theme file
-import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart'; // Import the CartProvider
-import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart'; // Import the CartProvider
-import '../../prrovider/Cart/Cart_item.dart';
+import 'package:batchloreskitchen/Pages/theme.dart';
+import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
+import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 
 class Details extends StatefulWidget {
   final String name;
@@ -32,11 +31,8 @@ class Details extends StatefulWidget {
 
 class _DetailsState extends State<Details> {
   int itemCount = 1;
-  bool isButtonClicked = false;
   bool isFavorite = false;
-  String dropdownValue = 'per 100g';
-  final double _panelHeightOpen = 575.0;
-  final double _panelHeightClosed = 480.0;
+  final ScrollController _scrollController = ScrollController();
 
   void incrementItemCount() {
     if (itemCount < 9) {
@@ -77,105 +73,131 @@ class _DetailsState extends State<Details> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Fetch the current theme
-    final colorScheme = theme.colorScheme; // Access the color scheme
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface, // Use theme's background color
-      body: SlidingUpPanel(
-        maxHeight: _panelHeightOpen,
-        minHeight: _panelHeightClosed,
-        parallaxEnabled: true,
-        parallaxOffset: .5,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24.r),
-          topRight: Radius.circular(24.r),
-        ),
-        body: Container(
-          color: colorScheme.surface, // Use theme's surface color
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).padding.top + 16.h),
-              _buildHeader(colorScheme),
-              Center(
-                child: Image.network(
-                  widget.imageUrl,
-                  width: 350.w,
-                  height: 230.h,
-                  fit: BoxFit.contain,
-                ).animate().fadeIn(duration: 600.ms).scale(),
-              ),
-            ],
-          ),
-        ),
-        panel: _buildPanel(colorScheme),
-      ),
-    );
-  }
-
-  Widget _buildPanel(ColorScheme colorScheme) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface, // Use theme's surface color
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24.r),
-          topRight: Radius.circular(24.r),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.onSurface.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: colorScheme.surface,
+      body: Stack(
         children: [
-          Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 12.h),
-              child: Container(
-                width: 40.w,
-                height: 5.h,
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
+          // Full-width image at the top
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Image.network(
+              widget.imageUrl,
+              width: double.infinity,
+              height: 350.h,
+              fit: BoxFit.cover,
+            ).animate().fadeIn(duration: 600.ms).scale(),
+          ),
+
+          // Back and Favorite buttons
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            left: 16.w,
+            right: 16.w,
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: colorScheme.surface.withOpacity(0.7),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () => Navigator.pop(context),
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: colorScheme.surface.withOpacity(0.7),
+                    child: IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: colorScheme.primary,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isFavorite = !isFavorite;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.name,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.primary, // Use theme's primary color
+
+          // Scrollable content
+          DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.6,
+            maxChildSize: 0.95,
+            builder: (context, controller) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(32.r),
+                    topRight: Radius.circular(32.r),
                   ),
-                ).animate().fadeIn(delay: 200.ms).slideX(),
-                SizedBox(height: 8.h),
-                Text(
-                  widget.restaurant,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.6),
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 5,
+                    ),
+                  ],
                 ),
-                SizedBox(height: 24.h),
-                _buildInfoRow(colorScheme),
-                SizedBox(height: 16.h),
-                _buildIngredients(colorScheme),
-                SizedBox(height: 24.h),
-                _buildDescription(colorScheme),
-                SizedBox(height: 24.h),
-                _buildNutritionalInfo(colorScheme),
-                SizedBox(height: 32.h),
-                _buildBottomBar(colorScheme),
-              ],
+                child: ListView(
+                  controller: controller,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40.w,
+                        height: 5.h,
+                        margin: EdgeInsets.symmetric(vertical: 8.h),
+                        decoration: BoxDecoration(
+                          color: colorScheme.onSurface.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    _buildProductDetails(theme, colorScheme),
+                    SizedBox(height: 16.h),
+                    _buildIngredients(colorScheme),
+                    SizedBox(height: 16.h),
+                    _buildDescription(colorScheme),
+                    SizedBox(height: 16.h),
+                    _buildNutritionalInfo(colorScheme),
+                    SizedBox(height: 100.h), // Extra space for bottom
+                  ],
+                ),
+              );
+            },
+          ),
+
+          // Sticky Bottom Bar
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: _buildBottomBar(colorScheme),
             ),
           ),
         ],
@@ -183,97 +205,99 @@ class _DetailsState extends State<Details> {
     );
   }
 
-  Widget _buildInfoRow(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildProductDetails(ThemeData theme, ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.restaurant_menu,
-              color: colorScheme.primary, // Use theme's primary color
-              size: 24.w,
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              "Ingredients",
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
+        Text(
+          widget.name,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        SizedBox(height: 8.h),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(
-              Icons.star_rounded,
-              color: colorScheme.primary,
-              size: 24.w,
-            ),
-            SizedBox(width: 4.w),
             Text(
-              widget.rating.toString(),
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
+              widget.restaurant,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.6),
               ),
+            ),
+            Row(
+              children: [
+                Icon(
+                  Icons.star_rounded,
+                  color: colorScheme.primary,
+                  size: 24.w,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  widget.rating.toString(),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ],
-    ).animate().fadeIn(delay: 400.ms);
+    );
   }
 
   Widget _buildIngredients(ColorScheme colorScheme) {
-    return Wrap(
-      spacing: 8.w,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildIngredientChip("Rice", colorScheme),
-        _buildIngredientChip("Carrot", colorScheme),
-        _buildIngredientChip("Broccoli", colorScheme),
+        Text(
+          "Ingredients",
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Wrap(
+          spacing: 8.w,
+          children: [
+            _buildIngredientChip("Rice", colorScheme),
+            _buildIngredientChip("Carrot", colorScheme),
+            _buildIngredientChip("Broccoli", colorScheme),
+          ],
+        ),
       ],
-    ).animate().fadeIn(delay: 600.ms);
-  }
-
-  Widget _buildDescription(ColorScheme colorScheme) {
-    return Text(
-      widget.description,
-      style: TextStyle(
-        fontSize: 14.sp,
-        color: colorScheme.onSurface.withOpacity(0.6),
-        height: 1.5,
-      ),
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => Navigator.pop(context),
-            color: colorScheme.primary,
+  Widget _buildDescription(ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Description",
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
           ),
-          IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: colorScheme.primary,
-            ),
-            onPressed: () {
-              setState(() {
-                isFavorite = !isFavorite;
-              });
-            },
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          widget.description,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: colorScheme.onSurface.withOpacity(0.6),
+            height: 1.5,
           ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2);
+        ),
+      ],
+    );
   }
 
   Widget _buildIngredientChip(String label, ColorScheme colorScheme) {
@@ -303,42 +327,13 @@ class _DetailsState extends State<Details> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Nutritional value",
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              DropdownButton<String>(
-                value: dropdownValue,
-                icon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontSize: 14.sp,
-                ),
-                underline: Container(
-                  height: 1,
-                  color: colorScheme.primary,
-                ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: ['per 100g', 'per serving']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ],
+          Text(
+            "Nutritional Value",
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
           SizedBox(height: 8.h),
           Text(
@@ -351,7 +346,7 @@ class _DetailsState extends State<Details> {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 800.ms);
+    );
   }
 
   Widget _buildBottomBar(ColorScheme colorScheme) {
@@ -384,17 +379,7 @@ class _DetailsState extends State<Details> {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
-            _addToCart(context);
-            setState(() {
-              isButtonClicked = !isButtonClicked;
-            });
-            Future.delayed(const Duration(milliseconds: 200), () {
-              setState(() {
-                isButtonClicked = !isButtonClicked;
-              });
-            });
-          },
+          onPressed: () => _addToCart(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
