@@ -72,7 +72,7 @@ dependencies:
   flutter_animate: ^4.5.0
   sliding_up_panel: ^2.0.0+1
   shimmer: ^3.0.0
-  
+  geocoding: ^2.0.5
   shared_preferences: ^2.0.6
 
   

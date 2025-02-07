@@ -1,8 +1,4 @@
 import 'package:batchloreskitchen/Logins/NewL.dart';
-import 'package:batchloreskitchen/Logins/login.dart';
-import 'package:batchloreskitchen/Onboard/PageView.dart';
-import 'package:batchloreskitchen/Onboard/pages.dart';
-import 'package:batchloreskitchen/Pages/Home.dart';
 
 
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';

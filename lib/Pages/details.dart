@@ -2,27 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:batchloreskitchen/Pages/theme.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 
 class Details extends StatefulWidget {
+  final String itemId;
   final String name;
   final String description;
   final double price;
   final String imageUrl;
   final double rating;
   final String restaurant;
+  final String category;
+  final bool isVegetarian;
+  final String deliveryTime; // New: Delivery time from restaurant's delivery_info
+  final Map<String, dynamic> nutritionalInfo; // New: Nutritional info of the item
 
   const Details({
     Key? key,
+    required this.itemId,
     required this.name,
     required this.description,
     required this.price,
     required this.imageUrl,
     required this.rating,
     required this.restaurant,
+    required this.category,
+    required this.isVegetarian,
+    required this.deliveryTime,
+    required this.nutritionalInfo,
   }) : super(key: key);
 
   @override
@@ -52,7 +60,6 @@ class _DetailsState extends State<Details> {
 
   void _addToCart(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    
     final item = CartItemData(
       imageUrl: widget.imageUrl,
       name: widget.name,
@@ -60,9 +67,7 @@ class _DetailsState extends State<Details> {
       price: widget.price,
       quantity: itemCount,
     );
-
     cartProvider.addItem(item);
-    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Added ${widget.name} to cart'),
@@ -167,13 +172,15 @@ class _DetailsState extends State<Details> {
                     ),
                     SizedBox(height: 16.h),
                     _buildProductDetails(theme, colorScheme),
+                    SizedBox(height: 8.h),
+                    _buildAdditionalInfo(colorScheme),
                     SizedBox(height: 16.h),
                     _buildIngredients(colorScheme),
                     SizedBox(height: 16.h),
                     _buildDescription(colorScheme),
                     SizedBox(height: 16.h),
-                    _buildNutritionalInfo(colorScheme),
-                    SizedBox(height: 100.h), // Extra space for bottom
+                    _buildNutritionalDetails(colorScheme),
+                    SizedBox(height: 100.h), // Extra space for bottom bar
                   ],
                 ),
               );
@@ -209,6 +216,7 @@ class _DetailsState extends State<Details> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Display dish name.
         Text(
           widget.name,
           style: theme.textTheme.headlineSmall?.copyWith(
@@ -217,6 +225,7 @@ class _DetailsState extends State<Details> {
           ),
         ),
         SizedBox(height: 8.h),
+        // Display restaurant name and rating.
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -247,6 +256,52 @@ class _DetailsState extends State<Details> {
           ],
         ),
       ],
+    );
+  }
+
+  // New widget: Displays additional info including category, veg flag and delivery time.
+  Widget _buildAdditionalInfo(ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Chip(
+            label: Text(
+              widget.category,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: colorScheme.primary,
+              ),
+            ),
+            backgroundColor: colorScheme.primary.withOpacity(0.1),
+          ),
+          SizedBox(width: 8.w),
+          Chip(
+            label: Text(
+              widget.isVegetarian ? "Vegetarian" : "Non-Vegetarian",
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: widget.isVegetarian ? Colors.green : Colors.red,
+              ),
+            ),
+            backgroundColor: widget.isVegetarian
+                ? Colors.green.withOpacity(0.1)
+                : Colors.red.withOpacity(0.1),
+          ),
+          SizedBox(width: 8.w),
+          // Display delivery time from the restaurant.
+          Chip(
+            label: Text(
+              "Delivery: ${widget.deliveryTime} mins",
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: colorScheme.primary,
+              ),
+            ),
+            backgroundColor: colorScheme.primary.withOpacity(0.1),
+          ),
+        ],
+      ),
     );
   }
 
@@ -316,7 +371,9 @@ class _DetailsState extends State<Details> {
     );
   }
 
-  Widget _buildNutritionalInfo(ColorScheme colorScheme) {
+  // New widget: Nicely display nutritional information.
+  Widget _buildNutritionalDetails(ColorScheme colorScheme) {
+    if (widget.nutritionalInfo.isEmpty) return SizedBox.shrink();
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -328,7 +385,7 @@ class _DetailsState extends State<Details> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Nutritional Value",
+            "Nutritional Information",
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
@@ -336,12 +393,36 @@ class _DetailsState extends State<Details> {
             ),
           ),
           SizedBox(height: 8.h),
+          _buildNutritionRow("Calories", widget.nutritionalInfo["calories"]),
+          _buildNutritionRow("Carbs", widget.nutritionalInfo["carbs"]),
+          _buildNutritionRow("Protein", widget.nutritionalInfo["protein"]),
+          _buildNutritionRow("Prep Time", widget.nutritionalInfo["preparation_time"]),
+          _buildNutritionRow("Spice Level", widget.nutritionalInfo["spice_level"]),
+        ],
+      ),
+    );
+  }
+
+  // Helper widget to build each nutritional info row.
+  Widget _buildNutritionRow(String label, dynamic value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
           Text(
-            "198 kal",
+            "$label:",
             style: TextStyle(
-              fontSize: 16.sp,
-              color: colorScheme.primary,
+              fontSize: 14.sp,
+              color: Colors.grey[700],
+            ),
+          ),
+          Text(
+            value != null ? value.toString() : '-',
+            style: TextStyle(
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
         ],

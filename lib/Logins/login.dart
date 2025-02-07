@@ -1,9 +1,6 @@
 import 'package:batchloreskitchen/Onboard/PageView.dart';
-import 'package:batchloreskitchen/widgets/widget_support.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:batchloreskitchen/Logins/NewL.dart';
 import 'dart:async';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:batchloreskitchen/Pages/theme.dart';
 
 class RecentlyOrderedPage extends StatelessWidget {
   const RecentlyOrderedPage({Key? key}) : super(key: key);

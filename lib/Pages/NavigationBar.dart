@@ -50,7 +50,7 @@ class _AestheticBottomNavigationState extends State<AestheticBottomNavigation> {
       body: _navItems[_currentIndex].page ?? const Placeholder(),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r)),
           border: Border.all(
             color: colorScheme.primary,
             width: 1.1.w,

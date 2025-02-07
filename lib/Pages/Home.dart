@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/profile.dart';
-
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,11 +21,14 @@ class _HomeState extends State<Home> {
   final ScrollController _scrollController = ScrollController();
   int _selectedCategoryIndex = 0;
   bool _showFloatingButton = false;
- 
 
   // Category titles remain the same.
   final List<String> _categories = [
-    'All', 'Popular', 'Recommended', 'Near You', 'Top Rated'
+    'All',
+    'Popular',
+    'Recommended',
+    'Near You',
+    'Top Rated'
   ];
 
   // Lists to store food items extracted from Firestore.
@@ -52,7 +53,6 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-   
     fetchFoodItems();
   }
 
@@ -72,13 +72,28 @@ class _HomeState extends State<Home> {
 
       List<Map<String, dynamic>> mergedItems = [];
       for (var doc in restaurantSnapshot.docs) {
-        Map<String, dynamic> restaurantData = doc.data() as Map<String, dynamic>;
+        Map<String, dynamic> restaurantData =
+            doc.data() as Map<String, dynamic>;
+        // Extract common restaurant fields.
+        String restaurantName = restaurantData['restaurant_name'] ?? '';
+        double restaurantRating = (restaurantData['rating'] is num)
+            ? (restaurantData['rating'] as num).toDouble()
+            : 0.0;
+        // Get delivery_time from delivery_info if available.
+        String deliveryTime = '';
+        if (restaurantData.containsKey('delivery_info') &&
+            restaurantData['delivery_info'] is Map) {
+          deliveryTime =
+              restaurantData['delivery_info']['delivery_time'].toString();
+        }
         if (restaurantData.containsKey('menu_items')) {
           List<dynamic> items = restaurantData['menu_items'];
           for (var item in items) {
-            // Create a copy of the item map and attach restaurant name if needed.
+            // Create a copy of the item map and attach restaurant details.
             Map<String, dynamic> foodItem = Map<String, dynamic>.from(item);
-            foodItem['restaurant_name'] = restaurantData['restaurant_name'];
+            foodItem['restaurant_name'] = restaurantName;
+            foodItem['restaurant_rating'] = restaurantRating;
+            foodItem['delivery_time'] = deliveryTime;
             mergedItems.add(foodItem);
           }
         }
@@ -86,7 +101,7 @@ class _HomeState extends State<Home> {
 
       setState(() {
         _allFoodItems = mergedItems;
-        // Filter popular items: here we assume an item is popular if its 'tags' array contains "Popular"
+        // Filter popular items: assuming an item is popular if its 'tags' contains "Popular".
         _popularFoodItems = mergedItems.where((item) {
           if (item.containsKey('tags') && item['tags'] is List) {
             return (item['tags'] as List).contains("Popular");
@@ -115,7 +130,7 @@ class _HomeState extends State<Home> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Scaffold(
-      backgroundColor: ColorEffect.neutralValue,
+      backgroundColor: colorScheme.surface.withValues(alpha: 0.2),
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
@@ -136,7 +151,6 @@ class _HomeState extends State<Home> {
                     SizedBox(height: 20.h),
                     _buildCategories(colorScheme),
                     SizedBox(height: 20.h),
-                    
                   ],
                 ),
               ),
@@ -147,7 +161,7 @@ class _HomeState extends State<Home> {
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 50.h),
-                        child:const  CircularProgressIndicator(),
+                        child: const CircularProgressIndicator(),
                       ),
                     ),
                   )
@@ -171,34 +185,30 @@ class _HomeState extends State<Home> {
         border: Border.all(color: colorScheme.secondary),
         borderRadius: BorderRadius.circular(16.r),
       ),
-    
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
-        child: Container(
-         
-          child: Row(
-            children: [
-              _buildHeaderButton(
-                colorScheme: colorScheme,
-                icon: Icons.fastfood_rounded,
-                onPressed: () {},
-              ),
-              Expanded(child: _buildSearchField(colorScheme)),
-              _buildHeaderButton(
-                colorScheme: colorScheme,
-                icon: Icons.person_4_outlined,
-                showBadge: false,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UserProfile(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+        child: Row(
+          children: [
+            _buildHeaderButton(
+              colorScheme: colorScheme,
+              icon: Icons.fastfood_rounded,
+              onPressed: () {},
+            ),
+            Expanded(child: _buildSearchField(colorScheme)),
+            _buildHeaderButton(
+              colorScheme: colorScheme,
+              icon: Icons.person_4_outlined,
+              showBadge: false,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserProfile(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2);
@@ -210,14 +220,10 @@ class _HomeState extends State<Home> {
     required VoidCallback onPressed,
     bool showBadge = false,
   }) {
-    return Stack(
-      children: [
-        IconButton(
-          icon: Icon(icon, size: 24.w),
-          onPressed: onPressed,
-          color: colorScheme.secondary,
-        ),
-      ],
+    return IconButton(
+      icon: Icon(icon, size: 24.w),
+      onPressed: onPressed,
+      color: colorScheme.secondary,
     );
   }
 
@@ -235,7 +241,6 @@ class _HomeState extends State<Home> {
         style: theme.textTheme.bodySmall?.copyWith(
           color: colorScheme.secondary,
           fontSize: 16.sp,
-          
         ),
         decoration: InputDecoration(
           hintText: 'Search for food...',
@@ -250,8 +255,7 @@ class _HomeState extends State<Home> {
             color: colorScheme.secondary,
           ),
           border: InputBorder.none,
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+          contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
         ),
       ),
     );
@@ -313,8 +317,8 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 12.w, vertical: 6.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8.r),
@@ -366,7 +370,6 @@ class _HomeState extends State<Home> {
               });
             },
             child: Container(
-              
               margin: EdgeInsets.only(right: 12.w),
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               decoration: BoxDecoration(
@@ -380,156 +383,18 @@ class _HomeState extends State<Home> {
                 child: Text(
                   _categories[index],
                   style: TextStyle(
-                    color: isSelected
-                        ? colorScheme.primary
-                        : Colors.black87,
+                    color: isSelected ? colorScheme.primary : Colors.black87,
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
                     fontFamily: "poppins",
                   ),
                 ),
               ),
-            ).animate().fadeIn(
-                delay: Duration(milliseconds: 100 * index)),
+            ).animate().fadeIn(delay: Duration(milliseconds: 100 * index)),
           );
         },
       ),
     );
-  }
-
-  // Popular section – horizontal list of popular food items.
-  Widget _buildPopularSection(ColorScheme colorScheme) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.local_fire_department_rounded,
-                  color: const Color(0xFFFF7F50),
-                  size: 24.w,
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  'Popular Now',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFFF7F50),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'See All',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(width: 4.w),
-                  Icon(Icons.arrow_forward_rounded, size: 16.w),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.h),
-        SizedBox(
-          height: 200.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _popularFoodItems.length,
-            itemBuilder: (context, index) {
-              final item = _popularFoodItems[index];
-              return _buildPopularItem(item, colorScheme);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Build a popular food item card (showing only image, name, and price).
-  Widget _buildPopularItem(Map<String, dynamic> item, ColorScheme colorScheme) {
-    return Container(
-      width: 200.w,
-      margin: EdgeInsets.only(right: 16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius:
-                BorderRadius.vertical(top: Radius.circular(16.r)),
-            child: CachedNetworkImage(
-              imageUrl: item['image_url'],
-              height: 100.h,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  color: Colors.white,
-                  height: 100.h,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(12.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Display the food item's name.
-                Text(
-                  item['name'],
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4.h),
-                // Display the price.
-                Text(
-                  '\u{20B9}${item['price']}',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: colorScheme.secondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn().scale();
   }
 
   // Build the grid view for food items based on the selected category.
@@ -551,29 +416,34 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Build a food item card (grid item) showing only image, name, and price.
+  // Build a food item card (grid item) showing image, name, description, price and an add button.
   Widget _buildFoodItem(Map<String, dynamic> item, ColorScheme colorScheme) {
     final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
+        // Navigate to Details page with extra fields.
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Details(
+              itemId: item['item_id'] ?? '',
               name: item['name'],
               description: item['description'] ?? '',
               price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
-              imageUrl: item['image_url'], // Using image_url from Firestore.
-              rating: (item['rating'] is num)
-                  ? item['rating'].toDouble()
+              imageUrl: item['image_url'],
+              rating: (item['restaurant_rating'] is num)
+                  ? item['restaurant_rating'].toDouble()
                   : 0.0,
               restaurant: item['restaurant_name'] ?? "Restaurant Name",
+              category: item['category'] ?? '',
+              isVegetarian: item['is_vegetarian'] ?? false,
+              deliveryTime: item['delivery_time'] ?? '',
+              nutritionalInfo: item['nutritional_info'] ?? {},
             ),
           ),
         );
       },
       child: Container(
-        
         decoration: BoxDecoration(
           border: Border.all(color: colorScheme.secondary),
           color: colorScheme.surface.withOpacity(0.05),
@@ -591,15 +461,14 @@ class _HomeState extends State<Home> {
           children: [
             // Food image
             ClipRRect(
-              borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(16.r)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
               child: CachedNetworkImage(
                 imageUrl: item['image_url'],
                 height: 80.h,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: colorScheme.primary.withValues(alpha: 0.03),
+                  baseColor: colorScheme.primary.withOpacity(0.03),
                   highlightColor: colorScheme.surface,
                   child: Container(
                     color: colorScheme.surface,
@@ -620,45 +489,40 @@ class _HomeState extends State<Home> {
                   // Food item name
                   Text(
                     item['name'],
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.secondary),
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: colorScheme.secondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    maxLines: 2,
-                    item['description'] ,
+                    item['description'],
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurface,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
             Padding(
-              padding:  EdgeInsets.only(
-                left: 12.0.w,
-                right: 12.0.w,
-                
-              ),
+              padding: EdgeInsets.only(left: 12.w, right: 12.w),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                      '\u{20B9}${item['price']}',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: colorScheme.secondary,
-                        fontFamily: "poppins",
-                        fontSize: 19.spMax,
-                      ),
+                    '\u{20B9}${item['price']}',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: colorScheme.secondary,
+                      fontFamily: "poppins",
+                      fontSize: 19.spMax,
                     ),
+                  ),
                   _buildAddButton(item, colorScheme)
-                  
                 ],
               ),
             ),
-            
           ],
         ),
       ),
@@ -680,9 +544,7 @@ class _HomeState extends State<Home> {
             final cartItem = CartItemData(
               name: item['name'],
               details: item['description'] ?? '',
-              price: (item['price'] is num)
-                  ? item['price'].toDouble()
-                  : 0.0,
+              price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
               quantity: 1,
               imageUrl: item['image_url'],
             );
@@ -732,7 +594,8 @@ class BubblePatternPainter extends CustomPainter {
       final x = (random + i * 100) % size.width;
       final y = (random + i * 200) % size.height;
       final radius = (random + i * 50) % 20 + 5;
-      canvas.drawCircle(Offset(x.toDouble(), y.toDouble()), radius.toDouble(), paint);
+      canvas.drawCircle(
+          Offset(x.toDouble(), y.toDouble()), radius.toDouble(), paint);
     }
   }
 

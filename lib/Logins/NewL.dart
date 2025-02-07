@@ -1,11 +1,9 @@
 import 'package:batchloreskitchen/Logins/login.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class Log extends StatefulWidget {
   const Log({super.key});

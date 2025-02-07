@@ -3,7 +3,6 @@ import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -215,7 +214,7 @@ class _View1State extends State<View1> with TickerProviderStateMixin {
                 context,
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                  const BottomBar1(),
+                  const AestheticBottomNavigation(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     return FadeTransition(
