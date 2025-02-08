@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:batchloreskitchen/Pages/details.dart';
 import 'package:batchloreskitchen/Pages/profile.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
@@ -21,8 +22,10 @@ class _HomeState extends State<Home> {
   final ScrollController _scrollController = ScrollController();
   int _selectedCategoryIndex = 0;
   bool _showFloatingButton = false;
-
-  // Category titles remain the same.
+  bool _showSearchOverlay = false;
+  Timer? _debounce;
+  
+  // Category titles
   final List<String> _categories = [
     'All',
     'Popular',
@@ -31,29 +34,57 @@ class _HomeState extends State<Home> {
     'Top Rated'
   ];
 
-  // Lists to store food items extracted from Firestore.
+  // Lists to store food items
   List<Map<String, dynamic>> _allFoodItems = [];
   List<Map<String, dynamic>> _popularFoodItems = [];
   List<Map<String, dynamic>> _moreFoodItems = [];
+  List<Map<String, dynamic>> _filteredItems = [];
   bool _isLoading = true;
-
-  // Returns the list to display based on the selected category.
-  List<Map<String, dynamic>> get _currentItems {
-    switch (_selectedCategoryIndex) {
-      case 0: // All
-        return _allFoodItems;
-      case 1: // Popular
-        return _popularFoodItems;
-      default:
-        return _moreFoodItems;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _searchController.addListener(_onSearchChanged);
+    _filteredItems = _allFoodItems;
     fetchFoodItems();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (_searchController.text.isEmpty) {
+        setState(() {
+          _filteredItems = _allFoodItems;
+        });
+        return;
+      }
+
+      final query = _searchController.text.toLowerCase();
+      setState(() {
+        _filteredItems = _allFoodItems.where((item) {
+          final name = item['name'].toString().toLowerCase();
+          final restaurant = item['restaurant_name'].toString().toLowerCase();
+          return name.contains(query) || restaurant.contains(query);
+        }).toList();
+      });
+    });
+  }
+
+  List<Map<String, dynamic>> get _currentItems {
+    if (_searchController.text.isNotEmpty) {
+      return _filteredItems;
+    }
+    
+    switch (_selectedCategoryIndex) {
+      case 0:
+        return _allFoodItems;
+      case 1:
+        return _popularFoodItems;
+      default:
+        return _moreFoodItems;
+    }
   }
 
   void _onScroll() {
@@ -64,7 +95,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-  // Fetch food items by iterating over each restaurant document and extracting menu_items.
   Future<void> fetchFoodItems() async {
     try {
       QuerySnapshot restaurantSnapshot =
@@ -72,14 +102,11 @@ class _HomeState extends State<Home> {
 
       List<Map<String, dynamic>> mergedItems = [];
       for (var doc in restaurantSnapshot.docs) {
-        Map<String, dynamic> restaurantData =
-            doc.data() as Map<String, dynamic>;
-        // Extract common restaurant fields.
+        Map<String, dynamic> restaurantData = doc.data() as Map<String, dynamic>;
         String restaurantName = restaurantData['restaurant_name'] ?? '';
         double restaurantRating = (restaurantData['rating'] is num)
             ? (restaurantData['rating'] as num).toDouble()
             : 0.0;
-        // Get delivery_time from delivery_info if available.
         String deliveryTime = '';
         if (restaurantData.containsKey('delivery_info') &&
             restaurantData['delivery_info'] is Map) {
@@ -89,7 +116,6 @@ class _HomeState extends State<Home> {
         if (restaurantData.containsKey('menu_items')) {
           List<dynamic> items = restaurantData['menu_items'];
           for (var item in items) {
-            // Create a copy of the item map and attach restaurant details.
             Map<String, dynamic> foodItem = Map<String, dynamic>.from(item);
             foodItem['restaurant_name'] = restaurantName;
             foodItem['restaurant_rating'] = restaurantRating;
@@ -101,14 +127,13 @@ class _HomeState extends State<Home> {
 
       setState(() {
         _allFoodItems = mergedItems;
-        // Filter popular items: assuming an item is popular if its 'tags' contains "Popular".
+        _filteredItems = mergedItems;
         _popularFoodItems = mergedItems.where((item) {
           if (item.containsKey('tags') && item['tags'] is List) {
             return (item['tags'] as List).contains("Popular");
           }
           return false;
         }).toList();
-        // 'More' items: items that are not popular.
         _moreFoodItems = mergedItems.where((item) {
           if (item.containsKey('tags') && item['tags'] is List) {
             return !(item['tags'] as List).contains("Popular");
@@ -129,51 +154,67 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    
     return Scaffold(
       backgroundColor: colorScheme.surface.withValues(alpha: 0.2),
-      body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 12.h),
-                    _buildHeader(colorScheme),
-                    SizedBox(height: 20.h),
-                    _buildTitle(colorScheme),
-                    SizedBox(height: 20.h),
-                    _buildSpecialOffer(colorScheme),
-                    SizedBox(height: 20.h),
-                    _buildCategories(colorScheme),
-                    SizedBox(height: 20.h),
-                  ],
-                ),
-              ),
-            ),
-            // While loading, show a progress indicator.
-            _isLoading
-                ? SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 50.h),
-                        child: const CircularProgressIndicator(),
-                      ),
-                    ),
-                  )
-                : SliverPadding(
+      body: Stack(
+        children: [
+          SafeArea(
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    sliver: _buildFoodGrid(colorScheme),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 12.h),
+                        _buildHeader(colorScheme),
+                        SizedBox(height: 20.h),
+                        _buildTitle(colorScheme),
+                        SizedBox(height: 20.h),
+                        _buildSpecialOffer(colorScheme),
+                        SizedBox(height: 20.h),
+                        _buildCategories(colorScheme),
+                        SizedBox(height: 20.h),
+                      ],
+                    ),
                   ),
-            SliverToBoxAdapter(
-              child: SizedBox(height: 24.h),
+                ),
+                _isLoading
+                    ? SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 50.h),
+                            child: const CircularProgressIndicator(),
+                          ),
+                        ),
+                      )
+                    : SliverPadding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        sliver: _buildFoodGrid(colorScheme),
+                      ),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 24.h),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (_showSearchOverlay)
+            SearchOverlay(
+              searchResults: _filteredItems,
+              searchController: _searchController,
+              onClose: () {
+                setState(() {
+                  _showSearchOverlay = false;
+                  _searchController.clear();
+                });
+              },
+              colorScheme: colorScheme,
+            ),
+        ],
       ),
     );
   }
@@ -194,7 +235,7 @@ class _HomeState extends State<Home> {
               icon: Icons.fastfood_rounded,
               onPressed: () {},
             ),
-            Expanded(child: _buildSearchField(colorScheme)),
+            _buildSearchField(colorScheme),
             _buildHeaderButton(
               colorScheme: colorScheme,
               icon: Icons.person_4_outlined,
@@ -228,34 +269,40 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSearchField(ColorScheme colorScheme) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 30.h,
-      margin: EdgeInsets.symmetric(horizontal: 8.w),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: TextField(
-        controller: _searchController,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: colorScheme.secondary,
-          fontSize: 16.sp,
-        ),
-        decoration: InputDecoration(
-          hintText: 'Search for food...',
-          hintStyle: TextStyle(
-            fontSize: 14.sp,
-            fontFamily: "poppins",
-            color: colorScheme.secondary,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _showSearchOverlay = true;
+          });
+        },
+        child: Container(
+          height: 30.h,
+          margin: EdgeInsets.symmetric(horizontal: 8.w),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(20.r),
           ),
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            size: 20.w,
-            color: colorScheme.secondary,
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Icon(
+                  Icons.search_rounded,
+                  size: 20.w,
+                  color: colorScheme.secondary,
+                ),
+              ),
+              Text(
+                'Search for food...',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontFamily: "poppins",
+                  color: colorScheme.secondary.withOpacity(0.5),
+                ),
+              ),
+            ],
           ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
         ),
       ),
     );
@@ -576,9 +623,251 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+}
+
+//  SearchOverlay widget class
+class SearchOverlay extends StatelessWidget {
+  final List<Map<String, dynamic>> searchResults;
+  final TextEditingController searchController;
+  final VoidCallback onClose;
+  final ColorScheme colorScheme;
+
+  const SearchOverlay({
+    Key? key,
+    required this.searchResults,
+    required this.searchController,
+    required this.onClose,
+    required this.colorScheme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color:colorScheme.surface,
+      child: Column(
+        children: [
+          // Search header
+          SafeArea(
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                border: Border(
+                  bottom: BorderSide(
+                    color: colorScheme.secondary,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: onClose,
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: colorScheme.secondary),
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          hintText: 'Search for food or restaurants...',
+                          hintStyle: TextStyle(
+                            fontSize: 14.sp,
+                            color: colorScheme.secondary.withOpacity(0.5),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: colorScheme.secondary,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Search results
+          Expanded(
+            child: searchController.text.isEmpty
+                ? _buildInitialContent()
+                : _buildSearchResults(context).animate().shimmer(
+                    duration: 800.ms,
+                    color: colorScheme.secondary.withOpacity(0.1),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInitialContent() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search,
+            size: 64.w,
+            color: colorScheme.secondary.withOpacity(0.3),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Search for your favorite food\nor restaurant',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: colorScheme.secondary.withOpacity(0.5),
+              fontSize: 16.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    if (searchResults.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64.w,
+              color: colorScheme.secondary.withOpacity(0.3),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No results found',
+              style: TextStyle(
+                color: colorScheme.secondary.withOpacity(0.5),
+                fontSize: 16.sp,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      itemCount: searchResults.length,
+      itemBuilder: (context, index) {
+        final item = searchResults[index];
+        return _buildSearchResultItem(context, item);
+      },
+    );
+  }
+
+  Widget _buildSearchResultItem(BuildContext context, Map<String, dynamic> item) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Details(
+              itemId: item['item_id'] ?? '',
+              name: item['name'],
+              description: item['description'] ?? '',
+              price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
+              imageUrl: item['image_url'],
+              rating: (item['restaurant_rating'] is num)
+                  ? item['restaurant_rating'].toDouble()
+                  : 0.0,
+              restaurant: item['restaurant_name'] ?? "Restaurant Name",
+              category: item['category'] ?? '',
+              isVegetarian: item['is_vegetarian'] ?? false,
+              deliveryTime: item['delivery_time'] ?? '',
+              nutritionalInfo: item['nutritional_info'] ?? {},
+            ),
+          ),
+        );
+      },
+      child: Container(
+        
+        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          border: Border(
+            bottom: BorderSide(
+              color: colorScheme.secondary.withOpacity(0.1),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            // Food image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: CachedNetworkImage(
+                imageUrl: item['image_url'],
+                height: 60.h,
+                width: 60.w,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: colorScheme.secondary.withOpacity(0.1),
+                ),
+                errorWidget: (context, url, error) => Icon(
+                  Icons.image_not_supported,
+                  color: colorScheme.secondary,
+                ),
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['name'],
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.secondary,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    item['restaurant_name'] ?? '',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: colorScheme.secondary.withOpacity(0.7),
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    '₹${item['price']}',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ].animate().fadeIn().slideX(),
+        ),
+      ),
+    );
   }
 }
 
