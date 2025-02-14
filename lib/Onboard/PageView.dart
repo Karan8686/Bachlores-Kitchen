@@ -1,4 +1,3 @@
-import 'package:batchloreskitchen/Onboard/pages.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

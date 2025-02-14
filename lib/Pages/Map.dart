@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart' as geo;
+import 'package:permission_handler/permission_handler.dart' as perm;
+import 'package:http/http.dart' as http;
 
 class OrderTrackingPage extends StatefulWidget {
   const OrderTrackingPage({super.key});
@@ -12,7 +14,7 @@ class OrderTrackingPage extends StatefulWidget {
   _OrderTrackingPageState createState() => _OrderTrackingPageState();
 }
 
-class _OrderTrackingPageState extends State<OrderTrackingPage> {
+class _OrderTrackingPageState extends State<OrderTrackingPage> with WidgetsBindingObserver {
   late GoogleMapController _mapController;
   final LatLng _restaurantLocation = const LatLng(19.1933991, 72.8672557);
   LatLng? _deliveryLocation;
@@ -30,115 +32,92 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
   @override
   void initState() {
     super.initState();
-    _requestLocationPermission();
+    WidgetsBinding.instance.addObserver(this);
+    _checkLocationPermission();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _mapController.dispose();
     super.dispose();
   }
 
-  Future<void> _requestLocationPermission() async {
-    final status = await Permission.location.request();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkLocationPermission();
+    }
+  }
 
-    if (status.isGranted) {
+  Future<void> _checkLocationPermission() async {
+    try {
+      bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await _requestLocationService();
+        if (!serviceEnabled) {
+          return;
+        }
+      }
+
+      var permission = await geo.Geolocator.checkPermission();
+      if (permission == geo.LocationPermission.denied) {
+        permission = await geo.Geolocator.requestPermission();
+        if (permission == geo.LocationPermission.denied) {
+          return;
+        }
+      }
+
+      if (permission == geo.LocationPermission.deniedForever) {
+        return;
+      }
+
       await _getCurrentLocation();
-    } else {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('Location Permission Required'),
-            content: const Text('We need your location to deliver your order. Please enable location services to continue.'),
-            actions: [
-              TextButton(
-                child: const Text('Open Settings'),
-                onPressed: () {
-                  openAppSettings();
-                  Navigator.pop(context);
-                },
-              ),
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        );
-      }
+    } catch (e) {
+      debugPrint('Error checking location permission: $e');
     }
   }
-  void _showEnableLocationDialog(BuildContext context) {
-    showDialog(
+
+  Future<bool> _requestLocationService() async {
+    if (!mounted) return false;
+    
+    bool result = false;
+    await showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
-      builder: (context) => AlertDialog(
-        title: const Text('Enable Location Services'),
-        content: const Text('Location services are required to use this feature. Please enable them in your device settings.'),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              // Open location settings
-              await Geolocator.openLocationSettings();
-              Navigator.pop(context); // Close dialog
-              _requestLocationPermission(); // Recheck location services
-            },
-            child: const Text('Open Settings'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-            },
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location services are disabled. Please enable the services')),
-      );
-      return false;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are denied')),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Location Services Required'),
+          content: const Text('Please enable location services to use this feature.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Settings'),
+              onPressed: () async {
+                await geo.Geolocator.openLocationSettings();
+                if (mounted) Navigator.of(context).pop();
+                result = await geo.Geolocator.isLocationServiceEnabled();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                result = false;
+              },
+            ),
+          ],
         );
-        return false;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permissions are permanently denied')),
-      );
-      return false;
-    }
-
-    return true;
+      },
+    );
+    return result;
   }
 
   Future<void> _getCurrentLocation() async {
-    final hasPermission = await _handleLocationPermission();
-    if (!hasPermission) return;
-
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high
+      geo.Position position = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high
       );
+
+      if (!mounted) return;
 
       setState(() {
         _deliveryLocation = LatLng(position.latitude, position.longitude);
@@ -148,6 +127,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
       _initializeMap();
     } catch (e) {
       debugPrint('Error getting location: $e');
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -178,14 +158,64 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
     ]);
   }
 
-  void _setPolylineCoordinates() {
+  void _setPolylineCoordinates() async {
     _polylineCoordinates.clear();
     if (_deliveryLocation != null) {
-      _polylineCoordinates.addAll([
-        _restaurantLocation,
-        _deliveryLocation!,
-      ]);
+      List<LatLng> route = await _getRouteWithDrivingMode(_restaurantLocation, _deliveryLocation!);
+      _polylineCoordinates.addAll(route);
+      debugPrint('Polyline coordinates: $_polylineCoordinates');
+      setState(() {});
     }
+  }
+
+  Future<List<LatLng>> _getRouteWithDrivingMode(LatLng start, LatLng end) async {
+    final String apiKey = 'AIzaSyBN6PuIf3TsMy0RS2mSlp_GQF10j1lQ4IU';
+    final String url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&mode=driving&key=$apiKey';
+
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<LatLng> route = [];
+      if (data['routes'].isNotEmpty) {
+        final points = data['routes'][0]['overview_polyline']['points'];
+        route.addAll(_decodePolyline(points));
+      }
+      return route;
+    } else {
+      throw Exception('Failed to load directions');
+    }
+  }
+
+  List<LatLng> _decodePolyline(String polyline) {
+    List<LatLng> points = [];
+    int index = 0, len = polyline.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = polyline.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = polyline.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      points.add(LatLng(lat / 1E5, lng / 1E5));
+    }
+
+    return points;
   }
 
   double _calculateDistance(LatLng start, LatLng end) {

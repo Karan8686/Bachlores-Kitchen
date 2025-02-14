@@ -54,4 +54,25 @@ class CartProvider extends ChangeNotifier {
     _saveCartItems();
     notifyListeners();
   }
+
+  void setCartItems(List<CartItemData> items) {
+    _cartItems.clear();
+    _cartItems.addAll(items);
+    notifyListeners();
+  }
+
+  void updateQuantity(CartItemData item, int quantity) {
+    final index = _cartItems.indexOf(item);
+    if (index != -1) {
+      _cartItems[index] = CartItemData(
+        name: item.name,
+        details: item.details,
+        price: item.price,
+        quantity: quantity,
+        imageUrl: item.imageUrl,
+      );
+      _saveCartItems(); // Save cart after quantity update
+      notifyListeners();
+    }
+  }
 }

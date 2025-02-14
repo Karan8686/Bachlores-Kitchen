@@ -41,6 +41,17 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> _filteredItems = [];
   bool _isLoading = true;
 
+  late ThemeData _theme;
+  late ColorScheme _colorScheme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Cache theme data
+    _theme = Theme.of(context);
+    _colorScheme = _theme.colorScheme;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -152,11 +163,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     return Scaffold(
-      backgroundColor: colorScheme.surface.withValues(alpha: 0.2),
+      backgroundColor: _colorScheme.background,
       body: Stack(
         children: [
           SafeArea(
@@ -171,13 +179,13 @@ class _HomeState extends State<Home> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 12.h),
-                        _buildHeader(colorScheme),
+                        _buildHeader(_colorScheme),
                         SizedBox(height: 20.h),
-                        _buildTitle(colorScheme),
+                        _buildTitle(_theme),
                         SizedBox(height: 20.h),
-                        _buildSpecialOffer(colorScheme),
+                        _buildSpecialOffer(_colorScheme),
                         SizedBox(height: 20.h),
-                        _buildCategories(colorScheme),
+                        _buildCategories(_colorScheme),
                         SizedBox(height: 20.h),
                       ],
                     ),
@@ -194,7 +202,7 @@ class _HomeState extends State<Home> {
                       )
                     : SliverPadding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        sliver: _buildFoodGrid(colorScheme),
+                        sliver: _buildFoodGrid(_colorScheme),
                       ),
                 SliverToBoxAdapter(
                   child: SizedBox(height: 24.h),
@@ -212,7 +220,7 @@ class _HomeState extends State<Home> {
                   _searchController.clear();
                 });
               },
-              colorScheme: colorScheme,
+              colorScheme: _colorScheme,
             ),
         ],
       ),
@@ -308,21 +316,20 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildTitle(ColorScheme colorScheme) {
-    final theme = Theme.of(context);
+  Widget _buildTitle(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Delicious',
           style: theme.textTheme.displaySmall?.copyWith(
-            color: colorScheme.primary,
+            color: _colorScheme.primary,
           ),
         ),
         Text(
           'food for you',
           style: theme.textTheme.displaySmall?.copyWith(
-            color: colorScheme.onSurface,
+            color: _colorScheme.onSurface,
             fontSize: 30.sp,
           ),
         ),
@@ -331,7 +338,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSpecialOffer(ColorScheme colorScheme) {
-    final theme = Theme.of(context);
     return Container(
       height: 160.h,
       decoration: BoxDecoration(
@@ -372,7 +378,7 @@ class _HomeState extends State<Home> {
                   ),
                   child: Text(
                     'Special Offer',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: _theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white,
                     ),
                   ),
@@ -465,7 +471,6 @@ class _HomeState extends State<Home> {
 
   // Build a food item card (grid item) showing image, name, description, price and an add button.
   Widget _buildFoodItem(Map<String, dynamic> item, ColorScheme colorScheme) {
-    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
         // Navigate to Details page with extra fields.
@@ -536,7 +541,7 @@ class _HomeState extends State<Home> {
                   // Food item name
                   Text(
                     item['name'],
-                    style: theme.textTheme.bodyLarge
+                    style: _theme.textTheme.bodyLarge
                         ?.copyWith(color: colorScheme.secondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -544,7 +549,7 @@ class _HomeState extends State<Home> {
                   SizedBox(height: 8.h),
                   Text(
                     item['description'],
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: _theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurface,
                     ),
                     maxLines: 2,
@@ -560,7 +565,7 @@ class _HomeState extends State<Home> {
                 children: [
                   Text(
                     '\u{20B9}${item['price']}',
-                    style: theme.textTheme.titleLarge?.copyWith(
+                    style: _theme.textTheme.titleLarge?.copyWith(
                       color: colorScheme.secondary,
                       fontFamily: "poppins",
                       fontSize: 19.spMax,
@@ -891,3 +896,6 @@ class BubblePatternPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+
+

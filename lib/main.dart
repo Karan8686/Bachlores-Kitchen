@@ -1,8 +1,6 @@
 import 'package:batchloreskitchen/Logins/NewL.dart';
-
-
+import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
@@ -10,30 +8,31 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:provider/provider.dart';
-import 'package:telephony/telephony.dart';
 import 'package:batchloreskitchen/providers/address_provider.dart';
-
-import 'Pages/theme.dart'; // Add this import
+import 'Pages/theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
   await Firebase.initializeApp();
-  final Telephony telephony = Telephony.instance;
-  bool? permissionsGranted = await telephony.requestPhoneAndSmsPermissions;
+
+  // Enable maximum refresh rate
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  // Set preferred refresh rate to highest
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness:Brightness.dark,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
     ),
-  );
-
-  SystemChrome.setPreferredOrientations(
-    [
-      DeviceOrientation.portraitUp,
-    ],
   );
 
   runApp(
@@ -52,28 +51,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     FirebaseAuth auth = FirebaseAuth.instance;
 
     return ScreenUtilInit(
       builder: (context, child) => MaterialApp(
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: child!,
-          );
-        },
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-          themeMode: ThemeMode.light,
-                // Enable system theme mode
-        home: auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
-        //Home(),
-        //View1(),
-        //Login(p:"8655547603",c:"123456"),
-       // OrderTrackingPage(),
-        //SettingsPage()
+        home: //auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
+        OrderTrackingPage()
       ),
       designSize: const Size(360, 690),
       splitScreenMode: true,

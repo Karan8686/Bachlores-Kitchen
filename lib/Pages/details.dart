@@ -373,7 +373,7 @@ class _DetailsState extends State<Details> {
 
   // New widget: Nicely display nutritional information.
   Widget _buildNutritionalDetails(ColorScheme colorScheme) {
-    if (widget.nutritionalInfo.isEmpty) return SizedBox.shrink();
+    if (widget.nutritionalInfo.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(

@@ -23,27 +23,36 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
-  final String sms = '';
-
-  Animation<Offset>? _animation;
-  AnimationController? _animationController;
+  // Consolidate constants
+  static const int _otpLength = 6;
+  static const int _countdownDuration = 30;
+  static const Duration _animationDuration = Duration(milliseconds: 700);
+  static const Duration _otpTimeout = Duration(seconds: 60);
+  
+  // Group related variables
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final List<FocusNode> _focusNodes =
-  List.generate(6, (_) => FocusNode());
+  
+  late final AnimationController _animationController;
+  late final Animation<Offset> _animation;
+  
+  final List<FocusNode> _focusNodes = List.generate(_otpLength, (_) => FocusNode());
+  final List<TextEditingController> _otpControllers = 
+      List.generate(_otpLength, (_) => TextEditingController());
 
   bool _isLoading = false;
-  final List<TextEditingController> _otpControllers =
-  List.generate(6, (_) => TextEditingController());
-
   bool _otpError = false;
   bool _otpResent = false;
-  int _secondsRemaining = 30;
+  int _secondsRemaining = _countdownDuration;
   Timer? _timer;
+
+  // Change from late final to nullable
+  StreamSubscription<User?>? _authStateSubscription;
 
   @override
   void dispose() {
     _timer?.cancel();
-    _animationController?.dispose();
+    _authStateSubscription?.cancel();
+    _animationController.dispose();
     for (var controller in _otpControllers) {
       controller.dispose();
     }
@@ -56,15 +65,48 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _setupAnimations();
-    _setupFocusNodes();
+    _initializeAnimations();
+    _initializeFocusNodes();
+    // Initialize Firebase Auth state listener with proper error handling
+    _authStateSubscription = _auth.authStateChanges().listen(
+      (User? user) {
+        // Handle auth state changes if needed
+      },
+      onError: (error) {
+        if (mounted) {
+          _showError("Authentication error occurred");
+        }
+      },
+    );
+  }
+
+  void _initializeAnimations() {
+    _animationController = AnimationController(
+      duration: _animationDuration,
+      vsync: this,
+    );
+
+    _animation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0.1, 0),
+    ).chain(CurveTween(curve: Curves.elasticIn)).animate(_animationController);
+  }
+
+  void _initializeFocusNodes() {
+    for (int i = 0; i < _otpLength; i++) {
+      _focusNodes[i].addListener(() {
+        if (_focusNodes[i].hasFocus) {
+          setState(() => _otpError = false);
+        }
+      });
+    }
   }
 
   void startCountdown(BuildContext context) {
     if (_isLoading) return;
 
     setState(() {
-      _secondsRemaining = 30;
+      _secondsRemaining = _countdownDuration;
       _isLoading = true;
     });
 
@@ -80,28 +122,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 700),
-      vsync: this,
-    );
-
-    _animation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.1, 0),
-    ).chain(CurveTween(curve: Curves.elasticIn)).animate(_animationController!);
-  }
-
-  void _setupFocusNodes() {
-    for (int i = 0; i < 6; i++) {
-      _focusNodes[i].addListener(() {
-        if (_focusNodes[i].hasFocus) {
-          setState(() => _otpError = false);
-        }
-      });
-    }
-  }
-
   Future<void> _resendOTP() async {
     if (!_otpResent && !_isLoading) {
       await _sendNewOTP();
@@ -113,10 +133,10 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: SlideTransition(
-        position: _animation!,
+        position: _animation,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(6, (index) {
+          children: List.generate(_otpLength, (index) {
             return SizedBox(
               width: 45.w,
               child: Container(
@@ -184,7 +204,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   void _handleOTPInput(String value, int index) {
-    if (value.isNotEmpty && index < 5) {
+    if (value.isNotEmpty && index < _otpLength - 1) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
@@ -331,48 +351,53 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     if (_isLoading) return;
 
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length != 6) {
+    if (otp.length != _otpLength) {
       _showError("Please enter complete OTP");
       return;
     }
 
-    setState(() => _isLoading = true);
-
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+      
+      final credential = PhoneAuthProvider.credential(
         verificationId: Log.verify,
         smsCode: otp,
       );
 
       await _auth.signInWithCredential(credential);
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const View1(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOut;
-              var tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: curve));
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: child,
-              );
-            },
-          ),
-        );
-        Login.h = true;
-      }
+      if (!mounted) return;
+      
+      await _navigateToNextScreen();
+      Login.h = true;
+      
     } catch (e) {
+      if (!mounted) return;
       _handleVerificationError();
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<void> _navigateToNextScreen() {
+    return Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, animation, __) => const View1(),
+        transitionsBuilder: (_, animation, __, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).chain(CurveTween(curve: Curves.easeInOut)).animate(animation),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   void _handleVerificationError() {
@@ -393,104 +418,88 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       Vibration.vibrate(pattern: [0, 100, 100, 100]);
     }
 
-    _animationController?.reset();
-    _animationController?.forward().then((_) {
-      _animationController?.reverse();
+    _animationController.reset();
+    _animationController.forward().then((_) {
+      _animationController.reverse();
     });
   }
 
-  void _showError(String message) {
+  void _showMessage({
+    required String message,
+    required bool isError,
+  }) {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.white, size: 18.sp),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(fontSize: 14.sp),
-              ),
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: Colors.white,
+              size: 18.sp
             ),
+            SizedBox(width: 8.w),
+            Expanded(child: Text(message, style: TextStyle(fontSize: 14.sp))),
           ],
         ),
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.all(8.w),
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 12.h,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
-        duration: const Duration(seconds: 3),
       ),
     );
   }
 
+  void _showError(String message) => _showMessage(message: message, isError: true);
+  void _showSuccess(String message) => _showMessage(message: message, isError: false);
+
   Future<void> _sendNewOTP() async {
     if (_isLoading) return;
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: widget.p,
-        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationCompleted: (PhoneAuthCredential credential) {
+          if (mounted) {
+            // Handle auto verification if needed
+          }
+        },
         verificationFailed: (FirebaseAuthException e) {
-          _showError("Verification failed. Please try again.");
+          if (mounted) {
+            _showError("Verification failed: ${e.message}");
+          }
         },
         codeSent: (String verificationId, int? resendToken) {
-          setState(() {
-            Log.verify = verificationId;
-          });
-          _showSuccess("New OTP has been sent!");
+          if (mounted) {
+            setState(() {
+              Log.verify = verificationId;
+            });
+            _showSuccess("New OTP has been sent!");
+          }
         },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-        timeout: const Duration(seconds: 60),
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (mounted) {
+            // Handle timeout if needed
+          }
+        },
+        timeout: _otpTimeout,
       );
     } catch (e) {
-      _showError("Failed to send OTP. Please try again.");
+      if (mounted) {
+        _showError("Failed to send OTP. Please try again.");
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  void _showSuccess(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle_outline, color: Colors.white, size: 18.sp),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(fontSize: 14.sp),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(8.w),
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 12.h,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
   @override
