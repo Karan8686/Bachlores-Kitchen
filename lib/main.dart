@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: //auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
-        OrderTrackingPage()
+        home: auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
+        //OrderTrackingPage()
       ),
       designSize: const Size(360, 690),
       splitScreenMode: true,
