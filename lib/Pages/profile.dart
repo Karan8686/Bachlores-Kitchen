@@ -1,4 +1,6 @@
+import 'package:batchloreskitchen/Pages/recent_order.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -166,62 +168,70 @@ class _UserProfileState extends State<UserProfile> {
             FluentIcons.history_24_regular,
             'Order History',
             colorScheme,
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const RecentOrder()),
+            ),
           ),
           _buildMenuItem(
             FluentIcons.payment_24_regular,
             'Payment Methods',
             colorScheme,
+            () {},
           ),
           _buildMenuItem(
             FluentIcons.location_24_regular,
             'Delivery Addresses',
             colorScheme,
+            () {},
           ),
           _buildMenuItem(
             FluentIcons.heart_24_regular,
             'Favorites',
             colorScheme,
+            () {},
           ),
           _buildMenuItem(
             FluentIcons.person_support_24_regular,
             'Help & Support',
             colorScheme,
+            () {},
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, ColorScheme colorScheme,) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 8.h),
-      leading: Container(
-        padding: EdgeInsets.all(8.w),
-        decoration: BoxDecoration(
-          color: colorScheme.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12.r),
+  Widget _buildMenuItem(IconData icon, String title, ColorScheme colorScheme, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+        leading: Container(
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(
+            icon,
+            color: colorScheme.primary,
+            size: 24.w,
+          ),
         ),
-        child: Icon(
-          icon,
-          color: colorScheme.primary,
-          size: 24.w,
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        trailing: Icon(
+          FluentIcons.chevron_right_24_regular,
+          color: colorScheme.onSurface.withOpacity(0.6),
         ),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-      ),
-      trailing: Icon(
-        FluentIcons.chevron_right_24_regular,
-        color: colorScheme.onSurface.withOpacity(0.6),
-      ),
-      onTap: () {
-
-      },
     );
   }
 }

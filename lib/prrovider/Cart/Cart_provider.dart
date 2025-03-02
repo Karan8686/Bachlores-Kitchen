@@ -5,16 +5,27 @@ import 'Cart_item.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<CartItemData> _cartItems = [];
+  String? _userLoginId;
 
   CartProvider() {
-    _loadCartItems();
+    _loadUserLoginId();
   }
 
   List<CartItemData> get cartItems => _cartItems;
 
-  Future<void> _loadCartItems() async {
+  Future<void> _loadUserLoginId() async {
     final prefs = await SharedPreferences.getInstance();
-    final cartData = prefs.getString('cart_items');
+    _userLoginId = prefs.getString('user_login_id');
+    if (_userLoginId != null) {
+      _loadCartItems();
+    }
+  }
+
+  Future<void> _loadCartItems() async {
+    if (_userLoginId == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final cartData = prefs.getString('cart_items_$_userLoginId');
     if (cartData != null) {
       final List<dynamic> decodedData = jsonDecode(cartData);
       _cartItems.addAll(decodedData.map((item) => CartItemData.fromJson(item)).toList());
@@ -23,13 +34,14 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> _saveCartItems() async {
+    if (_userLoginId == null) return;
+
     final prefs = await SharedPreferences.getInstance();
     final String encodedData = jsonEncode(_cartItems.map((item) => item.toJson()).toList());
-    await prefs.setString('cart_items', encodedData);
+    await prefs.setString('cart_items_$_userLoginId', encodedData);
   }
 
   void addItem(CartItemData item) {
-    // Check if item already exists to prevent duplicates
     final existingItemIndex = _cartItems.indexWhere((cartItem) => cartItem.name == item.name);
     if (existingItemIndex != -1) {
       _cartItems[existingItemIndex].quantity += item.quantity;
@@ -71,7 +83,7 @@ class CartProvider extends ChangeNotifier {
         quantity: quantity,
         imageUrl: item.imageUrl,
       );
-      _saveCartItems(); // Save cart after quantity update
+      _saveCartItems();
       notifyListeners();
     }
   }

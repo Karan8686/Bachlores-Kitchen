@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart'; // Import the CartProvider
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
+import "package:batchloreskitchen/Pages/order.dart";
 
 // Models
 
@@ -21,22 +22,17 @@ class _CartScreenState extends State<CartScreen> {
   bool isLoading = true;
   bool isProcessingPayment = false;
 
-  late Razorpay _razorpay;
-
+ 
   @override
   void dispose() {
-    _razorpay.clear();
+    
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-
+   
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
@@ -60,52 +56,23 @@ class _CartScreenState extends State<CartScreen> {
     if (cartItems.isEmpty) return;
 
     final totalAmount = (subtotal + 50.0 + (subtotal * 0.18));
-    setState(() => isProcessingPayment = true);
 
-    var options = {
-      'key': 'rzp_test_Oz8oer6jt57xY7',
-      'amount': (totalAmount * 100).round(), // Convert to paise and ensure it's an integer
-      'name': 'Batchlores Kitchen',
-      'description': 'Payment for ${cartItems.length} items',
-      'currency': 'INR', // Add currency
-      'timeout': 300,
-      'prefill': {
-        'contact': '7021511537',
-        'email': 'test@example.com',
-      },
-      'external': {
-        'wallets': ['paytm', 'gpay', 'phonepe']
-      },
-      'theme': {
-        'color': '#FF4081',
-      }
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      debugPrint('Error: ${e.toString()}');
-      setState(() => isProcessingPayment = false);
-      _showSnackBar('Error: Unable to open payment gateway');
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderProcessingScreen(
+          totalAmount: totalAmount,
+          items: cartItems.map((item) => {
+            'name': item.name,
+            'quantity': item.quantity,
+            'price': item.price,
+          }).toList(),
+        ),
+      ),
+    );
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    setState(() => isProcessingPayment = false);
-    cartProvider.clearCart();
-    _showSnackBar('Payment Successful!');
-    Navigator.pop(context);
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    setState(() => isProcessingPayment = false);
-    _showSnackBar('Payment Failed: ${response.message ?? "Error occurred"}');
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    _showSnackBar('External Wallet: ${response.walletName!}');
-  }
+  
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
