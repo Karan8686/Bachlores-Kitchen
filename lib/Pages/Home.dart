@@ -111,9 +111,17 @@ class _HomeState extends State<Home> {
       QuerySnapshot restaurantSnapshot =
           await FirebaseFirestore.instance.collection('restaurants').get();
 
+      if (restaurantSnapshot.docs.isEmpty) {
+        debugPrint('No restaurants found in Firestore.');
+      } else {
+        debugPrint('Fetched ${restaurantSnapshot.docs.length} restaurants.');
+      }
+
       List<Map<String, dynamic>> mergedItems = [];
       for (var doc in restaurantSnapshot.docs) {
         Map<String, dynamic> restaurantData = doc.data() as Map<String, dynamic>;
+        debugPrint('Fetched restaurant: $restaurantData'); // Debug print
+
         String restaurantName = restaurantData['restaurant_name'] ?? '';
         double restaurantRating = (restaurantData['rating'] is num)
             ? (restaurantData['rating'] as num).toDouble()
@@ -153,11 +161,12 @@ class _HomeState extends State<Home> {
         }).toList();
         _isLoading = false;
       });
+      debugPrint('Fetched food items: $_allFoodItems'); // Debug print
     } catch (error) {
       setState(() {
         _isLoading = false;
       });
-      print("Error fetching food items: $error");
+      debugPrint("Error fetching food items: $error"); // Debug print
     }
   }
 

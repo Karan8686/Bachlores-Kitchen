@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:batchloreskitchen/Pages/Map.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/providers/address_provider.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -14,6 +13,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:batchloreskitchen/Pages/location_picker.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:batchloreskitchen/Pages/recent_order.dart';
+
 
 class OrderProcessingScreen extends StatefulWidget {
   final double totalAmount;
@@ -38,8 +38,8 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
   String _selectedAddressType = 'Home';
   LatLng? _selectedLocation;
 
-
   late Razorpay _razorpay;
+  
 
   @override
   void dispose() {
@@ -49,7 +49,6 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
     super.dispose();
   }
 
-  
   @override
   void initState() {
     super.initState();
@@ -58,6 +57,7 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    
 
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
@@ -67,7 +67,8 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
       }
     });
   }
-  
+
+ 
 
   Future<void> _loadSavedAddress() async {
     final addressProvider = Provider.of<AddressProvider>(context, listen: false);
@@ -258,22 +259,68 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
     );
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    setState(() => _isLoading = false);
-    _placeOrder();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RecentOrder(),
-      ),
-      (route) => false,
-    );
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    setState(() => _isLoading = true);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      // Create order in Firestore
+      final orderDoc = await FirebaseFirestore.instance.collection('orders').add({
+        'userId': user.uid,
+        'items': widget.items,
+        'totalAmount': widget.totalAmount,
+        'status': 'preparing',
+        'createdAt': FieldValue.serverTimestamp(),
+        'deliveryAddress': {
+          'address': _addressController.text,
+          'landmark': _landmarkController.text,
+          'type': _selectedAddressType,
+        },
+        'estimatedDeliveryTime': DateTime.now().add(const Duration(minutes: 45)),
+      });
+
+      debugPrint('Order created with ID: ${orderDoc.id}');
+
+      // Save address and clear cart
+      if (!mounted) return;
+      
+      final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+      await addressProvider.saveAddress({
+        'address': _addressController.text,
+        'landmark': _landmarkController.text,
+        'type': _selectedAddressType,
+      });
+
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      cartProvider.clearCart();
+
+      // Show success dialog then navigate to recent orders
+      
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RecentOrder()),
+        
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error placing order: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
     setState(() => _isLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment Failed: ${response.message ?? "Error occurred"}')),
+      SnackBar(
+        content: Text('Payment Failed: ${response.message ?? "Error occurred"}'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
     Navigator.pushAndRemoveUntil(
       context,
@@ -317,135 +364,6 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
-    }
-  }
-
-  Future<void> _placeOrder() async {
-    if (_addressController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter delivery address')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      // Create order in Firestore
-      final orderRef = await FirebaseFirestore.instance.collection('orders').add({
-        'userId': user.uid,
-        'items': widget.items,
-        'totalAmount': widget.totalAmount,
-        'status': 'preparing',
-        'createdAt': FieldValue.serverTimestamp(),
-        'deliveryAddress': {
-          'address': _addressController.text,
-          'landmark': _landmarkController.text,
-          'type': _selectedAddressType,
-        },
-        'estimatedDeliveryTime': DateTime.now().add(const Duration(minutes: 45)),
-      });
-
-      // Save address for future use
-      final addressProvider = Provider.of<AddressProvider>(context, listen: false);
-      await addressProvider.saveAddress({
-        'address': _addressController.text,
-        'landmark': _landmarkController.text,
-        'type': _selectedAddressType,
-      });
-
-      // Clear cart
-      if (mounted) {
-        final cartProvider = Provider.of<CartProvider>(context, listen: false);
-        cartProvider.clearCart();
-      }
-
-      // Show success animation and navigate to recent orders
-      if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              child: Container(
-                padding: EdgeInsets.all(20.w),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TweenAnimationBuilder(
-                      duration: const Duration(milliseconds: 500),
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      builder: (context, double value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: const Icon(
-                            Icons.check_circle_outline,
-                            color: Colors.green,
-                            size: 80,
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 20.h),
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: 1.0,
-                      child: Text(
-                        'Order Placed Successfully!',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: 1.0,
-                      child: Text(
-                        'Your order has been confirmed',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-
-        // Wait for animation to complete
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Navigate to recent orders page
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const RecentOrder(),
-            ),
-            (route) => false,
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error placing order: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
     }
   }
 

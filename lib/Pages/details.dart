@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Details extends StatefulWidget {
   final String itemId;
@@ -40,7 +42,6 @@ class Details extends StatefulWidget {
 class _DetailsState extends State<Details> {
   int itemCount = 1;
   bool isFavorite = false;
-  final ScrollController _scrollController = ScrollController();
 
   void incrementItemCount() {
     if (itemCount < 9) {
@@ -74,6 +75,52 @@ class _DetailsState extends State<Details> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _toggleFavorite() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favorites = prefs.getStringList('favorites') ?? [];
+
+    final itemData = {
+      'id': widget.itemId,
+      'name': widget.name,
+      'description': widget.description,
+      'price': widget.price,
+      'imageUrl': widget.imageUrl,
+      'rating': widget.rating.toString(),
+      'restaurant': widget.restaurant,
+      'category': widget.category,
+      'isVegetarian': widget.isVegetarian,
+      'deliveryTime': widget.deliveryTime,
+      'nutritionalInfo': widget.nutritionalInfo,
+    };
+
+    if (isFavorite) {
+      favorites.removeWhere((item) => jsonDecode(item)['id'] == widget.itemId);
+    } else {
+      favorites.add(jsonEncode(itemData));
+    }
+
+    await prefs.setStringList('favorites', favorites);
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  Future<void> _checkIfFavorite() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favorites = prefs.getStringList('favorites') ?? [];
+    
+    setState(() {
+      isFavorite = favorites.any((item) => jsonDecode(item)['id'] == widget.itemId);
+    });
   }
 
   @override
@@ -122,11 +169,7 @@ class _DetailsState extends State<Details> {
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: colorScheme.primary,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          isFavorite = !isFavorite;
-                        });
-                      },
+                      onPressed: _toggleFavorite,
                     ),
                   ),
                 ],

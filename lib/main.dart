@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:batchloreskitchen/Pages/NavigationBar.dart';
 import 'package:flutter/services.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:batchloreskitchen/Pages/no_network.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -58,12 +60,58 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
-        //OrderTrackingPage()
+        home: NetworkAwareWidget(
+          child: auth.currentUser != null ? const AestheticBottomNavigation() : const Log(),
+        ),
       ),
       designSize: const Size(360, 690),
       splitScreenMode: true,
       minTextAdapt: true,
     );
+  }
+}
+
+class NetworkAwareWidget extends StatefulWidget {
+  final Widget child;
+
+  const NetworkAwareWidget({Key? key, required this.child}) : super(key: key);
+
+  @override
+  _NetworkAwareWidgetState createState() => _NetworkAwareWidgetState();
+}
+
+class _NetworkAwareWidgetState extends State<NetworkAwareWidget> {
+  late Stream<ConnectivityResult> _connectivityStream;
+  bool _isOffline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivityStream = Connectivity().onConnectivityChanged;
+
+    // Check the initial connectivity status
+    _checkInitialConnectivity();
+
+    // Listen for connectivity changes
+    _connectivityStream.listen((ConnectivityResult result) {
+      setState(() {
+        _isOffline = result == ConnectivityResult.none;
+      });
+    });
+  }
+
+  Future<void> _checkInitialConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      _isOffline = connectivityResult == ConnectivityResult.none;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isOffline) {
+      return const NoNetworkScreen();
+    }
+    return widget.child;
   }
 }
