@@ -646,7 +646,7 @@ class _HomeState extends State<Home> {
 }
 
 //  SearchOverlay widget class
-class SearchOverlay extends StatelessWidget {
+class SearchOverlay extends StatefulWidget {
   final List<Map<String, dynamic>> searchResults;
   final TextEditingController searchController;
   final VoidCallback onClose;
@@ -661,76 +661,425 @@ class SearchOverlay extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<SearchOverlay> createState() => _SearchOverlayState();
+}
+
+class _SearchOverlayState extends State<SearchOverlay> {
+  RangeValues _priceRange = const RangeValues(0, 2000);
+  double _minRating = 0.0;
+  bool _isVegOnly = false;
+  String _sortBy = 'relevance';
+  bool _showFilters = false;
+  List<String> _selectedCategories = [];
+  List<String> _dietaryPreferences = [];
+
+  final List<String> _categories = [
+    'Pizza', 'Burger', 'Salad', 'Drinks', 'Desserts', 'Indian', 'Chinese'
+  ];
+
+  final List<String> _dietary = [
+    'Gluten Free', 'Low Carb', 'High Protein', 'Keto Friendly'
+  ];
+
+  List<Map<String, dynamic>> get filteredResults {
+    return widget.searchResults.where((item) {
+      final price = (item['price'] as num).toDouble();
+      final rating = (item['restaurant_rating'] as num?)?.toDouble() ?? 0.0;
+      final isVeg = item['is_vegetarian'] ?? false;
+      
+      bool passesFilters = price >= _priceRange.start && 
+                          price <= _priceRange.end &&
+                          rating >= _minRating;
+
+      if (_isVegOnly && !isVeg) return false;
+      
+      if (_selectedCategories.isNotEmpty) {
+        final category = item['category']?.toString().toLowerCase() ?? '';
+        if (!_selectedCategories.any((c) => category.contains(c.toLowerCase()))) {
+          return false;
+        }
+      }
+
+      if (_dietaryPreferences.isNotEmpty) {
+        final tags = (item['tags'] as List?)?.cast<String>() ?? [];
+        if (!_dietaryPreferences.any((pref) => 
+          tags.any((tag) => tag.toLowerCase().contains(pref.toLowerCase())))) {
+          return false;
+        }
+      }
+
+      return passesFilters;
+    }).toList()..sort((a, b) {
+      switch (_sortBy) {
+        case 'price_low':
+          return (a['price'] as num).compareTo(b['price'] as num);
+        case 'price_high':
+          return (b['price'] as num).compareTo(a['price'] as num);
+        case 'rating':
+          final ratingA = (a['restaurant_rating'] as num?)?.toDouble() ?? 0.0;
+          final ratingB = (b['restaurant_rating'] as num?)?.toDouble() ?? 0.0;
+          return ratingB.compareTo(ratingA);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      color:colorScheme.surface,
+      color: widget.colorScheme.surface,
       child: Column(
         children: [
-          // Search header
-          SafeArea(
-            child: Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                border: Border(
-                  bottom: BorderSide(
-                    color: colorScheme.secondary,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: onClose,
-                  ),
-                  Expanded(
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: colorScheme.secondary),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          hintText: 'Search for food or restaurants...',
-                          hintStyle: TextStyle(
-                            fontSize: 14.sp,
-                            color: colorScheme.secondary.withOpacity(0.5),
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: colorScheme.secondary,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 8.h,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Search results
+          _buildSearchHeader(),
+          if (_showFilters) _buildFilters(),
           Expanded(
-            child: searchController.text.isEmpty
+            child: widget.searchController.text.isEmpty
                 ? _buildInitialContent()
-                : _buildSearchResults(context).animate().shimmer(
+                : _buildSearchResults().animate().shimmer(
                     duration: 800.ms,
-                    color: colorScheme.secondary.withOpacity(0.1),
+                    color: widget.colorScheme.secondary.withOpacity(0.1),
                   ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildSearchHeader() {
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: widget.colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: widget.colorScheme.onSurface.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: widget.onClose,
+                ),
+                Expanded(
+                  child: Container(
+                    height: 45.h,
+                    decoration: BoxDecoration(
+                      color: widget.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: widget.colorScheme.secondary.withOpacity(0.3)),
+                    ),
+                    child: TextField(
+                      controller: widget.searchController,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: 'Search for food or restaurants...',
+                        hintStyle: TextStyle(
+                          fontSize: 14.sp,
+                          color: widget.colorScheme.secondary.withOpacity(0.5),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: widget.colorScheme.secondary,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _showFilters ? Icons.close : Icons.tune,
+                            color: widget.colorScheme.secondary,
+                          ),
+                          onPressed: () => setState(() => _showFilters = !_showFilters),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8.h,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (widget.searchController.text.isNotEmpty && !_showFilters)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Row(
+                  children: [
+                    _buildChip(
+                      label: 'Sort: ${_getSortByText()}',
+                      onTap: _showSortOptions,
+                      icon: Icons.sort,
+                    ),
+                    if (_isVegOnly)
+                      _buildChip(
+                        label: 'Veg Only',
+                        onTap: () => setState(() => _isVegOnly = false),
+                        icon: Icons.eco,
+                      ),
+                    if (_minRating > 0)
+                      _buildChip(
+                        label: '${_minRating.toInt()}+ Rating',
+                        onTap: () => setState(() => _minRating = 0),
+                        icon: Icons.star,
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilters() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: widget.colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: widget.colorScheme.onSurface.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Price Range',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme.secondary,
+            ),
+          ),
+          RangeSlider(
+            values: _priceRange,
+            min: 0,
+            max: 2000,
+            divisions: 20,
+            labels: RangeLabels(
+              '₹${_priceRange.start.round()}',
+              '₹${_priceRange.end.round()}',
+            ),
+            onChanged: (values) => setState(() => _priceRange = values),
+            activeColor: widget.colorScheme.primary,
+          ),
+          SizedBox(height: 16.h),
+          
+          Text(
+            'Minimum Rating',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme.secondary,
+            ),
+          ),
+          Slider(
+            value: _minRating,
+            min: 0,
+            max: 5,
+            divisions: 5,
+            label: '${_minRating.toInt()}+',
+            onChanged: (value) => setState(() => _minRating = value),
+            activeColor: widget.colorScheme.primary,
+          ),
+          
+          Row(
+            children: [
+              Switch(
+                value: _isVegOnly,
+                onChanged: (value) => setState(() => _isVegOnly = value),
+                activeColor: widget.colorScheme.primary,
+              ),
+              Text(
+                'Vegetarian Only',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: widget.colorScheme.secondary,
+                ),
+              ),
+            ],
+          ),
+
+          Text(
+            'Categories',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Wrap(
+            spacing: 8.w,
+            children: _categories.map((category) {
+              final isSelected = _selectedCategories.contains(category);
+              return FilterChip(
+                label: Text(category),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedCategories.add(category);
+                    } else {
+                      _selectedCategories.remove(category);
+                    }
+                  });
+                },
+                backgroundColor: widget.colorScheme.surface,
+                selectedColor: widget.colorScheme.primary.withOpacity(0.2),
+                checkmarkColor: widget.colorScheme.primary,
+                side: BorderSide(
+                  color: isSelected 
+                    ? widget.colorScheme.primary 
+                    : widget.colorScheme.secondary.withOpacity(0.3),
+                ),
+              );
+            }).toList(),
+          ),
+
+          SizedBox(height: 16.h),
+          Text(
+            'Dietary Preferences',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: widget.colorScheme.secondary,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Wrap(
+            spacing: 8.w,
+            children: _dietary.map((pref) {
+              final isSelected = _dietaryPreferences.contains(pref);
+              return FilterChip(
+                label: Text(pref),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _dietaryPreferences.add(pref);
+                    } else {
+                      _dietaryPreferences.remove(pref);
+                    }
+                  });
+                },
+                backgroundColor: widget.colorScheme.surface,
+                selectedColor: widget.colorScheme.primary.withOpacity(0.2),
+                checkmarkColor: widget.colorScheme.primary,
+                side: BorderSide(
+                  color: isSelected 
+                    ? widget.colorScheme.primary 
+                    : widget.colorScheme.secondary.withOpacity(0.3),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required VoidCallback onTap,
+    required IconData icon,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(right: 8.w),
+      child: ActionChip(
+        label: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16.sp,
+              color: widget.colorScheme.secondary,
+            ),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: widget.colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
+        onPressed: onTap,
+        backgroundColor: widget.colorScheme.surface,
+        side: BorderSide(
+          color: widget.colorScheme.secondary.withOpacity(0.3),
+        ),
+      ),
+    );
+  }
+
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Sort By',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: widget.colorScheme.secondary,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            _buildSortOption('Relevance', 'relevance'),
+            _buildSortOption('Price: Low to High', 'price_low'),
+            _buildSortOption('Price: High to Low', 'price_high'),
+            _buildSortOption('Rating', 'rating'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortOption(String label, String value) {
+    return ListTile(
+      title: Text(label),
+      trailing: _sortBy == value ? Icon(
+        Icons.check,
+        color: widget.colorScheme.primary,
+      ) : null,
+      onTap: () {
+        setState(() => _sortBy = value);
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  String _getSortByText() {
+    switch (_sortBy) {
+      case 'price_low':
+        return 'Price ↑';
+      case 'price_high':
+        return 'Price ↓';
+      case 'rating':
+        return 'Rating';
+      default:
+        return 'Relevance';
+    }
   }
 
   Widget _buildInitialContent() {
@@ -741,14 +1090,14 @@ class SearchOverlay extends StatelessWidget {
           Icon(
             Icons.search,
             size: 64.w,
-            color: colorScheme.secondary.withOpacity(0.3),
+            color: widget.colorScheme.secondary.withOpacity(0.3),
           ),
           SizedBox(height: 16.h),
           Text(
             'Search for your favorite food\nor restaurant',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: colorScheme.secondary.withOpacity(0.5),
+              color: widget.colorScheme.secondary.withOpacity(0.5),
               fontSize: 16.sp,
             ),
           ),
@@ -757,8 +1106,10 @@ class SearchOverlay extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchResults(BuildContext context) {
-    if (searchResults.isEmpty) {
+  Widget _buildSearchResults() {
+    final results = filteredResults;
+    
+    if (results.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -766,14 +1117,21 @@ class SearchOverlay extends StatelessWidget {
             Icon(
               Icons.search_off,
               size: 64.w,
-              color: colorScheme.secondary.withOpacity(0.3),
+              color: widget.colorScheme.secondary.withOpacity(0.3),
             ),
             SizedBox(height: 16.h),
             Text(
               'No results found',
               style: TextStyle(
-                color: colorScheme.secondary.withOpacity(0.5),
+                color: widget.colorScheme.secondary.withOpacity(0.5),
                 fontSize: 16.sp,
+              ),
+            ),
+            if (_showFilters) Text(
+              'Try adjusting your filters',
+              style: TextStyle(
+                color: widget.colorScheme.secondary.withOpacity(0.5),
+                fontSize: 14.sp,
               ),
             ),
           ],
@@ -783,102 +1141,148 @@ class SearchOverlay extends StatelessWidget {
 
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemCount: searchResults.length,
-      itemBuilder: (context, index) {
-        final item = searchResults[index];
-        return _buildSearchResultItem(context, item);
-      },
-    );
+      itemCount: results.length,
+      itemBuilder: (context, index) => _buildSearchResultItem(context, results[index]),    );
   }
 
   Widget _buildSearchResultItem(BuildContext context, Map<String, dynamic> item) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Details(
-              itemId: item['item_id'] ?? '',
-              name: item['name'],
-              description: item['description'] ?? '',
-              price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
-              imageUrl: item['image_url'],
-              rating: (item['restaurant_rating'] is num)
-                  ? item['restaurant_rating'].toDouble()
-                  : 0.0,
-              restaurant: item['restaurant_name'] ?? "Restaurant Name",
-              category: item['category'] ?? '',
-              isVegetarian: item['is_vegetarian'] ?? false,
-              deliveryTime: item['delivery_time'] ?? '',
-              nutritionalInfo: item['nutritional_info'] ?? {},
-            ),
-          ),
-        );
-      },
-      child: Container(
-        
-        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          border: Border(
-            bottom: BorderSide(
-              color: colorScheme.secondary.withOpacity(0.1),
-            ),
-          ),
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.only(bottom: 12.h),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+        side: BorderSide(
+          color: widget.colorScheme.secondary.withOpacity(0.1),
         ),
-        child: Row(
-          children: [
-            // Food image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: CachedNetworkImage(
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Details(
+                itemId: item['item_id'] ?? '',
+                name: item['name'],
+                description: item['description'] ?? '',
+                price: (item['price'] is num) ? item['price'].toDouble() : 0.0,
                 imageUrl: item['image_url'],
-                height: 60.h,
-                width: 60.w,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: colorScheme.secondary.withOpacity(0.1),
-                ),
-                errorWidget: (context, url, error) => Icon(
-                  Icons.image_not_supported,
-                  color: colorScheme.secondary,
-                ),
+                rating: (item['restaurant_rating'] is num)
+                    ? item['restaurant_rating'].toDouble()
+                    : 0.0,
+                restaurant: item['restaurant_name'] ?? "Restaurant Name",
+                category: item['category'] ?? '',
+                isVegetarian: item['is_vegetarian'] ?? false,
+                deliveryTime: item['delivery_time'] ?? '',
+                nutritionalInfo: item['nutritional_info'] ?? {},
               ),
             ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item['name'],
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.secondary,
+          );
+        },
+        child: Padding(
+          padding: EdgeInsets.all(12.w),
+          child: Row(
+            children: [
+              Hero(
+                tag: 'search_${item['item_id']}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: CachedNetworkImage(
+                    imageUrl: item['image_url'],
+                    height: 80.h,
+                    width: 80.w,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: widget.colorScheme.secondary.withOpacity(0.1),
+                    ),
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.image_not_supported,
+                      color: widget.colorScheme.secondary,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    item['restaurant_name'] ?? '',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: colorScheme.secondary.withOpacity(0.7),
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '₹${item['price']}',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ].animate().fadeIn().slideX(),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (item['is_vegetarian'] ?? false)
+                          Padding(
+                            padding: EdgeInsets.only(right: 4.w),
+                            child: Icon(
+                              Icons.eco,
+                              size: 16.sp,
+                              color: Colors.green,
+                            ),
+                          ),
+                        Expanded(
+                          child: Text(
+                            item['name'],
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: widget.colorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      item['restaurant_name'] ?? '',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: widget.colorScheme.secondary.withOpacity(0.7),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Text(
+                          '₹${item['price']}',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: widget.colorScheme.primary,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Icon(
+                          Icons.star,
+                          size: 16.sp,
+                          color: Colors.amber,
+                        ),
+                        Text(
+                          ' ${(item['restaurant_rating'] as num).toStringAsFixed(1)}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: widget.colorScheme.secondary,
+                          ),
+                        ),
+                        if (item['delivery_time']?.isNotEmpty ?? false) ...[
+                          SizedBox(width: 12.w),
+                          Icon(
+                            Icons.access_time,
+                            size: 16.sp,
+                            color: widget.colorScheme.secondary.withOpacity(0.7),
+                          ),
+                          Text(
+                            ' ${item['delivery_time']}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: widget.colorScheme.secondary.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ).animate().fadeIn().slideX(),
         ),
       ),
     );

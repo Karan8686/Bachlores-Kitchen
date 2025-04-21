@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart'; // Import the CartProvider
+import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 import "package:batchloreskitchen/Pages/order.dart";
-
-// Models
-
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 // Main Cart Screen
 class CartScreen extends StatefulWidget {
@@ -18,21 +15,20 @@ class CartScreen extends StatefulWidget {
   _CartScreenState createState() => _CartScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
   bool isLoading = true;
   bool isProcessingPayment = false;
 
- 
   @override
   void dispose() {
-    
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-   
+    WidgetsBinding.instance.addObserver(this);
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
@@ -40,6 +36,41 @@ class _CartScreenState extends State<CartScreen> {
         });
       }
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      // App is in background or closed
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      if (cartProvider.cartItems.isNotEmpty) {
+        _scheduleCartReminder();
+      }
+    }
+  }
+
+  Future<void> _scheduleCartReminder() async {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final itemCount = cartProvider.cartItems.length;
+    final totalAmount = subtotal + 50.0 + (subtotal * 0.18);
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now().millisecond,
+        channelKey: 'order_channel',
+        title: '🛒 Items Waiting in Your Cart!',
+        body: 'You have $itemCount items worth ₹${totalAmount.toStringAsFixed(2)} in your cart. Complete your order to enjoy your delicious meal!',
+        notificationLayout: NotificationLayout.Default,
+        payload: {'screen': 'cart'},
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'OPEN_CART',
+          label: 'View Cart',
+        ),
+      ],
+    );
   }
 
   double get subtotal {
@@ -57,22 +88,16 @@ class _CartScreenState extends State<CartScreen> {
 
     final totalAmount = (subtotal + 50.0 + (subtotal * 0.18));
 
-    Navigator.push(
+    OrderBottomSheet.show(
       context,
-      MaterialPageRoute(
-        builder: (context) => OrderProcessingScreen(
-          totalAmount: totalAmount,
-          items: cartItems.map((item) => {
-            'name': item.name,
-            'quantity': item.quantity,
-            'price': item.price,
-          }).toList(),
-        ),
-      ),
+      totalAmount: totalAmount,
+      items: cartItems.map((item) => {
+        'name': item.name,
+        'quantity': item.quantity,
+        'price': item.price,
+      }).toList(),
     );
   }
-
-  
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +115,7 @@ class _CartScreenState extends State<CartScreen> {
     final theme = Theme.of(context);
     return AppBar(
       elevation: 0,
-      backgroundColor:Colors.transparent,
+      backgroundColor: Colors.transparent,
       leading: IconButton(
         icon: Icon(
           Icons.arrow_back_ios_new_rounded,
@@ -144,7 +169,7 @@ class _CartScreenState extends State<CartScreen> {
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 16.sp,
-              color:theme.colorScheme.primary,
+              color: theme.colorScheme.primary,
             ),
           ),
         ],
@@ -153,7 +178,6 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildContent() {
-    final theme = Theme.of(context);
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -296,7 +320,7 @@ class _CartScreenState extends State<CartScreen> {
                           color: theme.colorScheme.secondary,
                         ),
                         onPressed: () {
-                          bool press=true;
+                          // TODO: Implement favorite functionality
                         },
                       ),
                     ],
@@ -424,7 +448,7 @@ class _CartScreenState extends State<CartScreen> {
         color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -467,14 +491,14 @@ class _CartScreenState extends State<CartScreen> {
         ),
       ),
     ).animate().fadeIn(delay: const Duration(milliseconds: 500))
-        .slideY(begin: 1, duration:const  Duration(milliseconds: 400));
+        .slideY(begin: 1, duration: const Duration(milliseconds: 400));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor:theme.colorScheme.surface ,
+      backgroundColor: theme.colorScheme.surface,
       appBar: _buildAppBar(),
       body: isLoading ? _buildLoadingScreen() : _buildContent(),
       bottomNavigationBar: isLoading ? null : _buildBottomBar(),

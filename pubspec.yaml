@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0  # Updated version to be compatible with awesome_notifications
 
   cloud_firestore: ^4.17.5
   firebase_admin: ^0.3.0+1

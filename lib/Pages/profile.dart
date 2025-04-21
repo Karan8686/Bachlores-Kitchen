@@ -1,9 +1,14 @@
+import 'package:batchloreskitchen/Pages/favourate.dart';
 import 'package:batchloreskitchen/Pages/recent_order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:batchloreskitchen/providers/address_provider.dart';
+import 'dart:io';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({Key? key}) : super(key: key);
@@ -13,6 +18,74 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  File? _profileImage;
+
+  Future<void> _pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      setState(() {
+        _profileImage = File(image.path);
+      });
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  void _showSavedAddresses(BuildContext context) {
+    final theme = Theme.of(context);
+    final addressProvider = Provider.of<AddressProvider>(context, listen: false);
+
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Saved Addresses',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            if (addressProvider.savedAddresses.isEmpty)
+              Center(
+                child: Text(
+                  'No saved addresses',
+                  style: theme.textTheme.bodyLarge,
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: addressProvider.savedAddresses.length,
+                itemBuilder: (context, index) {
+                  final address = addressProvider.savedAddresses[index];
+                  return ListTile(
+                    leading: Icon(
+                      address['type'] == 'Home' ? Icons.home
+                      : address['type'] == 'Work' ? Icons.work
+                      : Icons.location_on,
+                      color: theme.colorScheme.primary,
+                    ),
+                    title: Text(address['address']),
+                    subtitle: Text(address['landmark'] ?? ''),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -69,9 +142,41 @@ class _UserProfileState extends State<UserProfile> {
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50.r,
-            backgroundImage: const AssetImage(''),
+          Stack(
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50.r,
+                  backgroundImage: _profileImage != null 
+                    ? FileImage(_profileImage!) as ImageProvider
+                    : const AssetImage('images/logo.jpeg'),
+                  child: _profileImage == null 
+                    ? Icon(
+                        Icons.add_a_photo,
+                        size: 30.sp,
+                        color: Colors.white54,
+                      )
+                    : null,
+                ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.edit,
+                    size: 20.sp,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 16.h),
           Text(
@@ -183,13 +288,16 @@ class _UserProfileState extends State<UserProfile> {
             FluentIcons.location_24_regular,
             'Delivery Addresses',
             colorScheme,
-            () {},
+            () => _showSavedAddresses(context),
           ),
           _buildMenuItem(
             FluentIcons.heart_24_regular,
             'Favorites',
             colorScheme,
-            () {},
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FavoritesPage()),
+            ),
           ),
           _buildMenuItem(
             FluentIcons.person_support_24_regular,

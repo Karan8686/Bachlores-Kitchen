@@ -13,41 +13,47 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:batchloreskitchen/Pages/location_picker.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:batchloreskitchen/Pages/recent_order.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
-
-class OrderProcessingScreen extends StatefulWidget {
+class OrderBottomSheet extends StatefulWidget {
   final double totalAmount;
   final List<Map<String, dynamic>> items;
 
-  const OrderProcessingScreen({
+  const OrderBottomSheet({
     Key? key,
     required this.totalAmount,
     required this.items,
   }) : super(key: key);
 
+  static Future<void> show(
+    BuildContext context, {
+    required double totalAmount,
+    required List<Map<String, dynamic>> items,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => OrderBottomSheet(
+        totalAmount: totalAmount,
+        items: items,
+      ),
+    );
+  }
+
   @override
-  _OrderProcessingScreenState createState() => _OrderProcessingScreenState();
+  State<OrderBottomSheet> createState() => _OrderBottomSheetState();
 }
 
-class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
-  int _currentStep = 0;
+class _OrderBottomSheetState extends State<OrderBottomSheet> {
   bool _isLoading = false;
   bool _isLoadingLocation = false;
   final _addressController = TextEditingController();
   final _landmarkController = TextEditingController();
   String _selectedAddressType = 'Home';
   LatLng? _selectedLocation;
-
   late Razorpay _razorpay;
-  
-
-  @override
-  void dispose() {
-    _razorpay.clear();
-    _addressController.dispose();
-    _landmarkController.dispose();
-    super.dispose();
-  }
+  bool _showOrderSummary = false;
 
   @override
   void initState() {
@@ -57,18 +63,15 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-    
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
   }
 
- 
+  @override
+  void dispose() {
+    _razorpay.clear();
+    _addressController.dispose();
+    _landmarkController.dispose();
+    super.dispose();
+  }
 
   Future<void> _loadSavedAddress() async {
     final addressProvider = Provider.of<AddressProvider>(context, listen: false);
@@ -280,6 +283,25 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
         'estimatedDeliveryTime': DateTime.now().add(const Duration(minutes: 45)),
       });
 
+      // Show enhanced food-themed order confirmation notification
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: DateTime.now().millisecond,
+          channelKey: 'order_channel',
+          title: '🍽️ Order Confirmed!',
+          body: 'Your delicious feast worth ₹${widget.totalAmount} is being prepared with love! Our chefs are working their magic in the kitchen. Track your order for live updates! 🚀',
+          bigPicture: 'resource://drawable/ic_launcher',
+          notificationLayout: NotificationLayout.BigPicture,
+          payload: {'orderId': orderDoc.id},
+        ),
+        actionButtons: [
+          NotificationActionButton(
+            key: 'TRACK_ORDER',
+            label: 'Track Order',
+          ),
+        ],
+      );
+
       debugPrint('Order created with ID: ${orderDoc.id}');
 
       // Save address and clear cart
@@ -400,190 +422,349 @@ class _OrderProcessingScreenState extends State<OrderProcessingScreen> {
     }
   }
 
-  Widget _buildAddressForm() {
+  Widget _buildAddressSection() {
     final theme = Theme.of(context);
     final addressProvider = Provider.of<AddressProvider>(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Delivery Address',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.secondary,
-              ),
-            ),
-            Row(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (addressProvider.savedAddresses.isNotEmpty)
-                  IconButton(
-                    icon: Icon(Icons.bookmark_border, color: theme.colorScheme.primary),
-                    onPressed: _showSavedAddresses,
-                    tooltip: 'Saved Addresses',
+                Text(
+                  'Delivery Address',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                IconButton(
-                  icon: Icon(
-                    Icons.my_location,
-                    color: theme.colorScheme.primary,
-                  ),
-                  onPressed: _isLoadingLocation ? null : _getCurrentLocation,
-                  tooltip: 'Use Current Location',
                 ),
                 IconButton(
-                  icon: Icon(
-                    Icons.map,
-                    color: theme.colorScheme.primary,
-                  ),
-                  onPressed: _openLocationPicker,
-                  tooltip: 'Pick on Map',
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
-          ],
-        ),
-        if (_isLoadingLocation)
+          ),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            child: const LinearProgressIndicator(),
-          ),
-        SizedBox(height: 16.h),
-        TextFormField(
-          controller: _addressController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Enter your complete address',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              children: [
+                if (addressProvider.savedAddresses.isNotEmpty)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.bookmark_border),
+                      label: Text('Saved'),
+                      onPressed: _showSavedAddresses,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        foregroundColor: theme.colorScheme.onPrimaryContainer,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                    ),
+                  ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.my_location),
+                    label: Text('Current'),
+                    onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondaryContainer,
+                      foregroundColor: theme.colorScheme.onSecondaryContainer,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: IconButton(
+                    onPressed: _openLocationPicker,
+                    icon: Icon(Icons.map_outlined),
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+              ],
             ),
-            filled: true,
-            fillColor: theme.colorScheme.surface,
           ),
-        ),
-        SizedBox(height: 16.h),
-        TextFormField(
-          controller: _landmarkController,
-          decoration: InputDecoration(
-            hintText: 'Landmark (Optional)',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+          if (_isLoadingLocation)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: LinearProgressIndicator(),
             ),
-            filled: true,
-            fillColor: theme.colorScheme.surface,
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _addressController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your complete address *',
+                    prefixIcon: Icon(Icons.home_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: _addressController.text.isEmpty 
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.outline,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: _addressController.text.isEmpty 
+                            ? theme.colorScheme.error.withOpacity(0.5)
+                            : theme.colorScheme.outline.withOpacity(0.5),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: _addressController.text.isEmpty 
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.primary,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                    contentPadding: EdgeInsets.all(16.w),
+                    suffixIcon: _addressController.text.isEmpty
+                        ? Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.error,
+                          )
+                        : Icon(
+                            Icons.check_circle_outline,
+                            color: theme.colorScheme.primary,
+                          ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {}); // Rebuild to update validation UI
+                  },
+                ),
+                if (_addressController.text.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h, left: 16.w),
+                    child: Text(
+                      'Delivery address is required',
+                      style: TextStyle(
+                        color: theme.colorScheme.error,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 16.h),
+                TextFormField(
+                  controller: _landmarkController,
+                  decoration: InputDecoration(
+                    hintText: 'Landmark (Optional)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    filled: true,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Wrap(
+                  spacing: 8.w,
+                  children: ['Home', 'Work', 'Other'].map((type) {
+                    return ChoiceChip(
+                      label: Text(type),
+                      selected: _selectedAddressType == type,
+                      onSelected: (selected) {
+                        if (selected) setState(() => _selectedAddressType = type);
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 16.h),
-        Text(
-          'Address Type',
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: theme.colorScheme.secondary,
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _addressController.text.trim().isEmpty ? null : () {
+                      if (_addressController.text.trim().isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please enter delivery address'),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: theme.colorScheme.error,
+                            action: SnackBarAction(
+                              label: 'OK',
+                              textColor: theme.colorScheme.onError,
+                              onPressed: () {},
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      setState(() => _showOrderSummary = true);
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _addressController.text.trim().isEmpty
+                          ? theme.colorScheme.primary.withOpacity(0.5)
+                          : theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 8.h),
-        Row(
-          children: ['Home', 'Work', 'Other'].map((type) {
-            return Padding(
-              padding: EdgeInsets.only(right: 8.w),
-              child: ChoiceChip(
-                label: Text(type),
-                selected: _selectedAddressType == type,
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() => _selectedAddressType = type);
-                  }
-                },
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+        ],
+      ),
     );
   }
 
-  Widget _buildOrderSummary() {
+  Widget _buildOrderSummarySection() {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Order Summary',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.secondary,
-          ),
-        ),
-        SizedBox(height: 16.h),
-        ...widget.items.map((item) => ListTile(
-          title: Text(item['name']),
-          subtitle: Text('Quantity: ${item['quantity']}'),
-          trailing: Text('₹${item['price'] * item['quantity']}'),
-        )),
-        Divider(color: theme.colorScheme.outline),
-        ListTile(
-          title: Text(
-            'Total Amount',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          trailing: Text(
-            '₹${widget.totalAmount}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
+    
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () => setState(() => _showOrderSummary = false),
+                    ),
+                    Text(
+                      'Order Summary',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                ...widget.items.map((item) => ListTile(
+                  title: Text(item['name']),
+                  subtitle: Text('Quantity: ${item['quantity']}'),
+                  trailing: Text('₹${item['price'] * item['quantity']}'),
+                )),
+                Divider(),
+                ListTile(
+                  title: Text(
+                    'Delivery Address',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(_addressController.text),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text(
+                    'Total Amount',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  trailing: Text(
+                    '₹${widget.totalAmount}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _isLoading ? null : _startPayment,
+                    child: _isLoading
+                        ? SizedBox(
+                            height: 20.h,
+                            width: 20.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          )
+                        : Text('Proceed to Payment'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Complete Order',
-          style: TextStyle(color: theme.colorScheme.onSurface),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.colorScheme.secondary),
-          onPressed: () => Navigator.pop(context),
-        ),
+    return Container(
+      margin: EdgeInsets.only(top: 60.h),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Stepper(
-              currentStep: _currentStep,
-              onStepContinue: () {
-                if (_currentStep < 1) {
-                  setState(() => _currentStep++);
-                } else {
-                  _startPayment(); // Start payment instead of directly placing order
-                }
-              },
-              onStepCancel: () {
-                if (_currentStep > 0) {
-                  setState(() => _currentStep--);
-                }
-              },
-              steps: [
-                Step(
-                  title: const Text('Delivery Address'),
-                  content: _buildAddressForm(),
-                  isActive: _currentStep >= 0,
-                ),
-                Step(
-                  title: const Text('Confirm Order'),
-                  content: _buildOrderSummary(),
-                  isActive: _currentStep >= 1,
-                ),
-              ],
-            ),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, controller) => _showOrderSummary
+            ? _buildOrderSummarySection()
+            : _buildAddressSection(),
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:batchloreskitchen/Pages/Map.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class RecentOrder extends StatefulWidget {
   const RecentOrder({Key? key}) : super(key: key);
@@ -96,10 +97,41 @@ class _RecentOrderState extends State<RecentOrder> {
         .collection('orders')
         .doc(orderId)
         .update({'status': 'delivered'})
-        .then((_) {
+        .then((_) async {
           print('Order $orderId automatically marked as delivered');
           // Remove the timer from the map
           _orderTimers.remove(orderId);
+          
+          // Get order details for the notification
+          final orderDoc = await FirebaseFirestore.instance
+              .collection('orders')
+              .doc(orderId)
+              .get();
+          
+          if (orderDoc.exists) {
+            final orderData = orderDoc.data()!;
+            final totalAmount = orderData['totalAmount'];
+            final items = List<Map<String, dynamic>>.from(orderData['items']);
+            final itemCount = items.length;
+            
+            // Send delivery notification
+            await AwesomeNotifications().createNotification(
+              content: NotificationContent(
+                id: DateTime.now().millisecond,
+                channelKey: 'order_channel',
+                title: '🎉 Order Delivered Successfully!',
+                body: 'Your order of $itemCount item${itemCount > 1 ? 's' : ''} worth ₹$totalAmount has been delivered. Enjoy your meal! 🍽️',
+                notificationLayout: NotificationLayout.Default,
+                payload: {'orderId': orderId},
+              ),
+              actionButtons: [
+                NotificationActionButton(
+                  key: 'VIEW_ORDER',
+                  label: 'View Details',
+                ),
+              ],
+            );
+          }
         })
         .catchError((error) {
           print('Failed to update order status: $error');

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -14,9 +15,60 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool notificationsEnabled = true;
-
   String selectedLanguage = 'English';
+  final List<Map<String, String>> supportedLanguages = [
+    {'code': 'en', 'name': 'English'},
+    {'code': 'es', 'name': 'Spanish'},
+    {'code': 'fr', 'name': 'French'},
+    {'code': 'de', 'name': 'German'},
+    {'code': 'hi', 'name': 'Hindi'},
+  ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLanguage = prefs.getString('selectedLanguage') ?? 'English';
+    setState(() {
+      selectedLanguage = savedLanguage;
+    });
+  }
+
+  Future<void> _changeLanguage(String? newLanguage) async {
+    if (newLanguage == null) return;
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedLanguage', newLanguage);
+    
+    setState(() {
+      selectedLanguage = newLanguage;
+    });
+
+    if (!mounted) return;
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Language changed to $newLanguage'),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Restart App',
+          onPressed: () {
+            // Restart app to apply changes
+            Navigator.pushNamedAndRemoveUntil(
+              context, 
+              '/', 
+              (route) => false
+            );
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,24 +282,17 @@ class _SettingsPageState extends State<SettingsPage> {
           value: selectedLanguage,
           icon: Icon(FluentIcons.chevron_down_24_regular, color: colorScheme.primary),
           underline: const SizedBox(),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() => selectedLanguage = newValue);
-            }
-          },
-          items: ['English', 'Spanish', 'French', 'German']
-              .map<DropdownMenuItem<String>>((String value) {
+          onChanged: _changeLanguage,
+          items: supportedLanguages.map<DropdownMenuItem<String>>((language) {
             return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+              value: language['name'],
+              child: Text(language['name']!),
             );
           }).toList(),
         ),
       ),
     );
   }
-
-
 
   Widget _buildLogoutButton(ColorScheme colorScheme) {
     return SizedBox(

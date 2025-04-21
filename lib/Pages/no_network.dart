@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:lottie/lottie.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NoNetworkScreen extends StatelessWidget {
   const NoNetworkScreen({Key? key}) : super(key: key);
+
+  Future<void> _retryConnection(BuildContext context) async {
+    final result = await Connectivity().checkConnectivity();
+    if (result != ConnectivityResult.none) {
+      // Force rebuild of NetworkAwareWidget
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => 
+            const CircularProgressIndicator()), 
+          (route) => false
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,30 +27,44 @@ class NoNetworkScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.wifi_off,
-                size: 80,
-                color: theme.colorScheme.primary,
+              SizedBox(
+                width: 200.w,
+                height: 200.w,
+                child: Lottie.asset(
+                  'images/nonet.json',
+                  fit: BoxFit.contain,
+                  repeat: true,
+                ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Text(
                 'No Internet Connection',
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 'Please check your internet connection and try again.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 24),
-              
+              SizedBox(height: 24.h),
+              ElevatedButton.icon(
+                
+                onPressed: () => _retryConnection(context),
+                icon: const Icon(Icons.refresh,color: Colors.white,),
+                
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  
+                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 16.h),
+                ),
+              ),
             ],
           ),
         ),
