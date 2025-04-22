@@ -1,3 +1,4 @@
+import 'package:batchloreskitchen/Pages/Home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -116,14 +117,6 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back_ios_new_rounded,
-          color: theme.colorScheme.secondary,
-          size: 22.sp,
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
       title: Text(
         "Shopping Cart",
         style: TextStyle(

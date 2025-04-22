@@ -6,6 +6,7 @@ import 'package:batchloreskitchen/prrovider/Cart/Cart_provider.dart';
 import 'package:batchloreskitchen/prrovider/Cart/Cart_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Details extends StatefulWidget {
   final String itemId;
@@ -137,11 +138,29 @@ class _DetailsState extends State<Details> {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.network(
-              widget.imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: widget.imageUrl,
               width: double.infinity,
               height: 350.h,
               fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: colorScheme.primary.withOpacity(0.03),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: colorScheme.primary.withOpacity(0.03),
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported,
+                    color: colorScheme.primary,
+                    size: 64.w,
+                  ),
+                ),
+              ),
             ).animate().fadeIn(duration: 600.ms).scale(),
           ),
 

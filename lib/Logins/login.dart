@@ -103,8 +103,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   void startCountdown(BuildContext context) {
-    if (_isLoading) return;
-
     setState(() {
       _secondsRemaining = _countdownDuration;
       _isLoading = true;
@@ -117,15 +115,48 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       } else {
         timer.cancel();
         setState(() => _isLoading = false);
-        _resendOTP();
       }
     });
   }
 
   Future<void> _resendOTP() async {
-    if (!_otpResent && !_isLoading) {
-      await _sendNewOTP();
-      setState(() => _otpResent = true);
+    if (_otpResent || _isLoading) return;
+    
+    setState(() => _isLoading = true);
+
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: widget.p,
+        verificationCompleted: (PhoneAuthCredential credential) {
+          // Auto verification not needed for resend
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (mounted) {
+            _showError("Verification failed: ${e.message}");
+            setState(() => _isLoading = false);
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          if (mounted) {
+            setState(() {
+              Log.verify = verificationId;
+              _otpResent = false; // Allow multiple resends
+            });
+            _showSuccess("New OTP has been sent!");
+          }
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (mounted) {
+            setState(() => _isLoading = false);
+          }
+        },
+        timeout: _otpTimeout,
+      );
+    } catch (e) {
+      if (mounted) {
+        _showError("Failed to send OTP. Please try again.");
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -220,8 +251,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   Widget _buildResendButton(ThemeData theme) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (!_otpResent && !_isLoading) {
+          await _resendOTP();
           startCountdown(context);
         }
       },
